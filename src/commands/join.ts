@@ -9,10 +9,13 @@ export async function executeJoin(interaction: any) {
   if (member) {
     const voiceChannel = member.voice.channel;
     if (voiceChannel) {
-      await voiceChannel.join();
-      await interaction.reply(`Joined ${voiceChannel.name} and listenning to you!`);
-    } else {
-      await interaction.reply('You have to be in a channel first, cazurro');
+      const voiceChannel = member.voice.channel;
+      if (voiceChannel) {
+        // Crear el adaptador de conexión y unirse al canal de voz
+        await interaction.reply(`Joined ${voiceChannel.name} and listenning to you!`);
+      } else {
+        await interaction.reply('You have to be in a channel first, cazurro');
+      }
     }
   }
 }

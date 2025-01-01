@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString } from 'discord.js';
 import { updateConfig, getConfig} from '../util/bot-config';
 
 let selectedLanguage : string = ''
@@ -9,13 +9,13 @@ export const configurationCommand = new SlashCommandBuilder()
 
 export async function executeConfiguration(interaction: any) {
   
-  let selectMenu;
+  let selectLanguageMenu;
   let confirmButton
   let row, row2;
   const config = getConfig(interaction.guildId as string)
   switch(config.LANG){
     case 'EN':
-      selectMenu = new StringSelectMenuBuilder()
+      selectLanguageMenu = new StringSelectMenuBuilder()
       .setCustomId('language_select')
       .setPlaceholder('Select a lenguage')
       .addOptions([
@@ -34,7 +34,7 @@ export async function executeConfiguration(interaction: any) {
       .setLabel('Confirm')
       .setStyle(ButtonStyle.Primary);
 
-      row = new ActionRowBuilder().addComponents(selectMenu);
+      row = new ActionRowBuilder().addComponents(selectLanguageMenu);
       row2 = new ActionRowBuilder().addComponents(confirmButton);
 
       // Enviar la respuesta con las filas separadas
@@ -47,7 +47,7 @@ export async function executeConfiguration(interaction: any) {
 
       break
       case 'ES':
-        selectMenu = new StringSelectMenuBuilder()
+        selectLanguageMenu = new StringSelectMenuBuilder()
       .setCustomId('language_select')
       .setPlaceholder('Selecciona un idioma')
       .addOptions([
@@ -65,7 +65,7 @@ export async function executeConfiguration(interaction: any) {
       .setCustomId('confirm_button')
       .setLabel('Confirmar')
       .setStyle(ButtonStyle.Primary);
-        row = new ActionRowBuilder().addComponents(selectMenu);
+        row = new ActionRowBuilder().addComponents(selectLanguageMenu);
         row2 = new ActionRowBuilder().addComponents(confirmButton);
 
         // Enviar la respuesta con las filas separadas
@@ -77,7 +77,7 @@ export async function executeConfiguration(interaction: any) {
         });
       break
       default:
-        selectMenu = new StringSelectMenuBuilder()
+        selectLanguageMenu = new StringSelectMenuBuilder()
         .setCustomId('language_select')
         .setPlaceholder('Select a lenguage')
         .addOptions([
@@ -95,7 +95,7 @@ export async function executeConfiguration(interaction: any) {
         .setCustomId('confirm_button')
         .setLabel('Confirm')
         .setStyle(ButtonStyle.Primary);
-        row = new ActionRowBuilder().addComponents(selectMenu);
+        row = new ActionRowBuilder().addComponents(selectLanguageMenu);
         row2 = new ActionRowBuilder().addComponents(confirmButton);
 
         // Enviar la respuesta con las filas separadas
