@@ -5,7 +5,7 @@ import { getConfig } from '../util/bot-config';
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource } from '@discordjs/voice';
 const { joinVoiceChannel } = require('@discordjs/voice');
 import { wait } from '../util/wait';
-import { serverData } from '../index'
+import { setCanDisconnect, serverData } from '../index'
 
 let config: any
 let client: Client
@@ -126,6 +126,7 @@ export async function handleSpeechEvent(message: any){
           });
         }else if(message.content.includes('muev') || message.content.includes('move')){
           console.log("TEXTO DE MOVER: " + message.content)
+          setCanDisconnect(false);
           if(moveChannels)
           Object.keys(moveChannels).forEach((name) => {
             if (message.content.includes(name)) {
@@ -139,6 +140,8 @@ export async function handleSpeechEvent(message: any){
               });
             }
           });
+          await wait(1000)
+          setCanDisconnect(true);
         }
       }
       break

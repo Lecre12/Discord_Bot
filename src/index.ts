@@ -11,6 +11,11 @@ import { getVoiceConnection } from '@discordjs/voice';
 dotenv.config();
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string
+export let canDisconnect: boolean = true;
+export const getCanDisconnect = () => canDisconnect;
+export const setCanDisconnect = (value: boolean) => {
+  canDisconnect = value;
+};
 
 /*export let aliasUsers: { [key: string]: string } = {
   'jose': '503287642490929163',
@@ -109,7 +114,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
   if (oldState.channel) {
     const channel = oldState.channel;
     const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
-    if (membersInChannel.size === 0) {
+    if (membersInChannel.size === 0 && canDisconnect) {
       // Si no hay más usuarios (excepto el bot) en el canal, desconectar el bot
       const connection = getVoiceConnection(channel.guild.id);
       if (connection) {
