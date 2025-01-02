@@ -1,11 +1,12 @@
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, ModalBuilder, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder } from 'discord.js';
 import { updateConfig, getConfig} from '../util/bot-config';
-import { aliasUsers } from '../index'
+import { aliasUsers, moveChannels } from '../index'
 
 let selectedLanguage : string = ''
 let selectedChannel1 : string = ''
 let selectedChannel2 : string = ''
+let selectedMoveChannel : string = ''
 let userId : string = ''
 
 export const configurationCommand = new SlashCommandBuilder()
@@ -200,7 +201,30 @@ export async function handleInteraction(interaction: any) {
                 .setRequired(true)
             )
           );
-        const alias = await interaction.showModal(modal);
+      await interaction.showModal(modal);
+    }else if(interaction.customId === 'confirm_button_move_channel'){
+      if(selectedMoveChannel == ''){
+        await interaction.update({
+          content: 'Tienes que poner un canal cazurro',
+          components: [],
+          ephemeral: true,
+        });
+        return
+      }
+      const modal = new ModalBuilder()
+          .setCustomId('alias_modal_channel')
+          .setTitle('Escribe tu alias')
+          .addComponents(
+            // Asegurarse de que ActionRowBuilder sea específico para TextInputBuilder
+            new ActionRowBuilder<TextInputBuilder>().addComponents(
+              new TextInputBuilder()
+                .setCustomId('alias_input')
+                .setLabel('Escribe tu alias')
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true)
+            )
+          );
+      await interaction.showModal(modal);
     }
   }else if(interaction.isChannelSelectMenu()){
     if(interaction.customId === 'voice-channel-select1'){
@@ -208,6 +232,9 @@ export async function handleInteraction(interaction: any) {
       interaction.deferUpdate()
     }else if(interaction.customId === 'voice-channel-select2'){
       selectedChannel2 = interaction.values[0];
+      interaction.deferUpdate()
+    }else if(interaction.customId === 'move_channel_select'){
+      selectedMoveChannel = interaction.values[0];
       interaction.deferUpdate()
     }
   }else if(interaction.isUserSelectMenu()){
@@ -227,12 +254,23 @@ export async function handleInteraction(interaction: any) {
         components: [],
         ephemeral: true,
       });
+    }else if(interaction.customId === 'alias_modal_channel'){
+      const alias = interaction.fields.getTextInputValue('alias_input');
+      moveChannels[alias.toLowerCase()] = selectedMoveChannel
+      const config = getConfig(interaction.guildId as string);
+      config.CHANNELS = moveChannels
+      updateConfig(interaction.guildId as string, config);
+      interaction.update({
+        content: 'Canal guardado como ' + alias.toLowerCase(),
+        components: [],
+        ephemeral: true,
+      });
     }
     
   }
 }
 
-export async function executeAddMenu(interaction: any){
+export async function executeAddUserMenu(interaction: any){
   let selectUserMenu
   let confirmButton
   let row1, row3
@@ -257,6 +295,42 @@ export async function executeAddMenu(interaction: any){
 
       await interaction.reply({
         content: 'Escoja su usuario y posteriormente su alias.',
+        components: [row1, row3],
+        ephemeral: true,
+      });
+
+      break
+    default:
+      break
+  }
+}
+
+export async function executeAddChannelMenu(interaction: any){
+  let selectchannelMenu
+  let confirmButton
+  let row1, row3
+  const config = getConfig(interaction.guildId as string)
+
+  switch(config.LANG){
+    case 'en-EN':
+
+      break
+    case 'es-ES':
+      selectchannelMenu = new ChannelSelectMenuBuilder()
+      .setCustomId('move_channel_select')
+      .setPlaceholder('Selecciona un canal')
+      .addChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+
+      confirmButton = new ButtonBuilder()
+      .setCustomId('confirm_button_move_channel')
+      .setLabel('Confirmar')
+      .setStyle(ButtonStyle.Primary);
+
+      row1 = new ActionRowBuilder().addComponents(selectchannelMenu);
+      row3 = new ActionRowBuilder().addComponents(confirmButton);
+
+      await interaction.reply({
+        content: 'Escoja su canal y posteriormente su alias.',
         components: [row1, row3],
         ephemeral: true,
       });

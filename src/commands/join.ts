@@ -85,6 +85,42 @@ export async function handleSpeechEvent(message: any){
               legacyAlarmCommand(m, targetChannel1, targetChannel2, message.member.voice.channel)
             }
           });
+        }else if(message.content.includes('silenc')){
+          console.log("TEXTO DE SILENCIAR: " + message.content)
+          
+          Object.keys(aliasUsers).forEach((name) => {
+            if (message.content.includes(name) || message.content.includes('todo')) {
+              const userId = aliasUsers[name];
+              message.member.voice.channel.members.forEach((m: any) => {
+                if (m.id == userId || message.content.includes('todo')) {
+                  m.voice.setMute(true);
+                }
+              });
+            }
+          });
+        }else if(message.content.includes('ensord')){
+          console.log("TEXTO DE ENSORDECER: " + message.content)
+          
+          Object.keys(aliasUsers).forEach((name) => {
+            if (message.content.includes(name) || message.content.includes('todo')) {
+              const userId = aliasUsers[name];
+              message.member.voice.channel.members.forEach((m: any) => {
+                if (m.id == userId || message.content.includes('todo')) {
+                  m.voice.setDeaf(true);
+                }
+              });
+            }
+          });
+        }else if(message.content.includes('habl')){
+          console.log("TEXTO DE DESMUTEAR Y DESENSORDECER: " + message.content)
+          
+          Object.keys(aliasUsers).forEach((name) => {
+            const userId = aliasUsers[name];
+            message.member.voice.channel.members.forEach((m: any) => {
+              m.voice.setMute(false);
+              m.voice.setDeaf(false);
+            });
+          });
         }
       }
       break

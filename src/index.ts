@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, VoiceState } from 'discord.js';
+import { ActivityType, Client, GatewayIntentBits, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
 import { registerCommands } from './commands/command-handler';  // Importa la función que registra los comandos
 import { exeCommand } from './commands/command-handler'
@@ -25,6 +25,10 @@ export let aliasUsers: { [key: string]: string } = {
   'andy': '722875525017895034', //andy amigo chipi*/
 };
 
+export let moveChannels: {[key: string]: string} = {
+  /*'aliasCanal': 'id_canal'*/ 
+}
+
 export function getBotToken(){
   return BOT_TOKEN
 }
@@ -39,6 +43,8 @@ const speechOptions : SpeechOptions = addSpeechEvent(client)
 
 client.once('ready', async () => {
   console.log(`Logged in as ${client.user?.tag}!`);
+
+  client.user?.setActivity('Comandos de voz', { type: ActivityType.Listening });
 
   client.guilds.cache.forEach(guild => {
     const config = getConfig(guild.id);
