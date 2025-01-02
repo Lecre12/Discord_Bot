@@ -1,21 +1,168 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { IncomingHttpHeaders } from './../../node_modules/undici-types/header.d';
+import { Message, ContextMenuCommandInteraction, GuildMember, VoiceChannel, StageChannel } from './../../node_modules/discord.js/typings/index.d';
+import { Client, MessageManager, SlashCommandBuilder } from 'discord.js';
+import { getConfig } from '../util/bot-config';
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource } from '@discordjs/voice';
+const { joinVoiceChannel } = require('@discordjs/voice');
+import { wait } from '../util/wait';
+
+let config: any
+let client: Client
 
 export const joinCommand = new SlashCommandBuilder()
   .setName('join')
   .setDescription('Joins your channel and listens for voice commands');
 
-export async function executeJoin(interaction: any) {
+export async function executeJoin(interaction: any, cl: Client) {
+  client = cl
   const member = interaction.guild?.members.cache.get(interaction.user.id);
   if (member) {
     const voiceChannel = member.voice.channel;
     if (voiceChannel) {
-      const voiceChannel = member.voice.channel;
-      if (voiceChannel) {
-        // Crear el adaptador de conexión y unirse al canal de voz
-        await interaction.reply(`Joined ${voiceChannel.name} and listenning to you!`);
-      } else {
-        await interaction.reply('You have to be in a channel first, cazurro');
+      const connection = joinVoiceChannel({
+        channelId: voiceChannel.id,
+        guildId: voiceChannel.guild.id,
+        adapterCreator: voiceChannel.guild.voiceAdapterCreator,
+        selfDeaf: false,
+      });
+      config = getConfig(interaction.guildId as string)
+      switch (config.LANG){
+        case 'en-EN':
+          await interaction.reply(`Joined ${voiceChannel.name} and listenning to you!`);  
+          break
+        case 'es-ES':
+            await interaction.reply(`Me he unido a ${voiceChannel.name} y estoy escuchando tus comandos de voz!`);
+          break
+        default:
+          break
       }
+      
+    } else {
+      await interaction.reply('You have to be in a channel first, cazurro');
     }
   }
+}
+
+export async function handleSpeechEvent(message: any){
+  switch(config.LANG){
+    case 'en-EN':
+      break
+    case 'es-ES':
+      if(!message.content)return;
+      message.content = message.content.toLowerCase();
+      if(message.content.includes('oye marrón') || message.content.includes('oye marron')){
+        console.log("TEXTO: " + message.content)
+        if(message.content.includes('expulsa')){
+          console.log("TEXTO DE EXPULSAR: " + message.content)
+
+          if(message.content.includes('jose')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '503287642490929163'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('victor')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '563791870497652746'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('todo')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              m.voice.disconnect();
+            });
+          }
+          if(message.content.includes('herva')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '529025750603530250'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('hern')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '622019620773298178'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('pablo')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '422445328655187979'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('agus')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '551850717585997825'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('alegre')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '584828984009687090'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('chip')){
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '567777196048121856'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('david')){ //KOT
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '477184236265406464'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+          if(message.content.includes('andy')){ //andy amigo chipi
+            message.member.voice.channel.members.forEach((m: any) => {
+              if(m.id == '722875525017895034'){
+                  m.voice.disconnect();
+              }
+            });
+          }
+        }else if(message.content.includes('número') && (message.content.includes('random') || message.content.includes('aleatorio'))){
+          console.log("TEXTO DE NUMERO: " + message.content)
+          message.channel.send({
+            content: '' + Math.random() * 10,
+            tts: true,
+          })
+        }else if(message.content.includes('alert')){
+          console.log("TEXTO ALERTA: " + message.content)
+          const config = getConfig(message.guild.id)
+          message.member.voice.channel.members.forEach((m: any) => {
+            if(m.voice.selfDeaf){
+              const targetChannel1 = message.guild?.channels.cache.get(config.CHANNEL1);
+              const targetChannel2 = message.guild?.channels.cache.get(config.CHANNEL2);
+    
+              legacyAlarmCommand(m, targetChannel1, targetChannel2, message.member.voice.channel)
+            }
+          });
+        }
+      }
+      break
+    default:
+      break
+  }
+}
+
+async function legacyAlarmCommand(memberTo : GuildMember, targetChannel : VoiceChannel | StageChannel, initialChannel : VoiceChannel | StageChannel, trueInitialChannel: VoiceChannel) {
+  try {
+    do {
+      await memberTo.voice.setChannel(targetChannel);
+      await wait(600);
+      await memberTo.voice.setChannel(initialChannel);
+      await wait(600);
+    } while (memberTo.voice.selfDeaf);
+    await memberTo.voice.setChannel(trueInitialChannel);
+  } catch (error) {}
 }

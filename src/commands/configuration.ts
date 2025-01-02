@@ -1,7 +1,9 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString } from 'discord.js';
 import { updateConfig, getConfig} from '../util/bot-config';
 
 let selectedLanguage : string = ''
+let selectedChannel1 : string = ''
+let selectedChannel2 : string = ''
 
 export const configurationCommand = new SlashCommandBuilder()
   .setName('configuration')
@@ -10,22 +12,23 @@ export const configurationCommand = new SlashCommandBuilder()
 export async function executeConfiguration(interaction: any) {
   
   let selectLanguageMenu;
+  let channelSelectMenu1, channelSelectMenu2
   let confirmButton
-  let row, row2;
+  let row, row2, row3, row4;
   const config = getConfig(interaction.guildId as string)
   switch(config.LANG){
-    case 'EN':
+    case 'en-EN':
       selectLanguageMenu = new StringSelectMenuBuilder()
       .setCustomId('language_select')
       .setPlaceholder('Select a lenguage')
       .addOptions([
         { 
           label: 'English',
-          value: 'EN',
+          value: 'en-EN',
         },
         {
           label: 'Spanish',
-          value: 'ES',
+          value: 'es-ES',
         }
       ]);
 
@@ -34,30 +37,41 @@ export async function executeConfiguration(interaction: any) {
       .setLabel('Confirm')
       .setStyle(ButtonStyle.Primary);
 
-      row = new ActionRowBuilder().addComponents(selectLanguageMenu);
-      row2 = new ActionRowBuilder().addComponents(confirmButton);
+      channelSelectMenu1 = new ChannelSelectMenuBuilder()
+            .setCustomId("voice-channel-select1")
+            .setPlaceholder("First channel to move the persons")
+            .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+      channelSelectMenu2 = new ChannelSelectMenuBuilder()
+            .setCustomId("voice-channel-select2")
+            .setPlaceholder("Second channel to move the persons")
+            .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+
+        row = new ActionRowBuilder().addComponents(selectLanguageMenu);
+        row2 = new ActionRowBuilder().addComponents(channelSelectMenu1);
+        row3 = new ActionRowBuilder().addComponents(channelSelectMenu2);
+        row4 = new ActionRowBuilder().addComponents(confirmButton);
 
       // Enviar la respuesta con las filas separadas
       
       await interaction.reply({
         content: 'Please choose a language and then confirm.',
-        components: [row, row2],
+        components: [row, row2, row3, row4],
         ephemeral: true,
       });
 
       break
-      case 'ES':
+      case 'es-ES':
         selectLanguageMenu = new StringSelectMenuBuilder()
       .setCustomId('language_select')
       .setPlaceholder('Selecciona un idioma')
       .addOptions([
         { 
           label: 'Inglés',
-          value: 'EN',
+          value: 'en-EN',
         },
         {
           label: 'Español',
-          value: 'ES',
+          value: 'es-ES',
         }
       ]);
 
@@ -65,14 +79,26 @@ export async function executeConfiguration(interaction: any) {
       .setCustomId('confirm_button')
       .setLabel('Confirmar')
       .setStyle(ButtonStyle.Primary);
+
+      channelSelectMenu1 = new ChannelSelectMenuBuilder()
+            .setCustomId("voice-channel-select1")
+            .setPlaceholder("Primer canal al que se van a mover los individuos")
+            .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+      channelSelectMenu2 = new ChannelSelectMenuBuilder()
+            .setCustomId("voice-channel-select2")
+            .setPlaceholder("Segundo canal al que se van a mover los individuos")
+            .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+
         row = new ActionRowBuilder().addComponents(selectLanguageMenu);
-        row2 = new ActionRowBuilder().addComponents(confirmButton);
+        row2 = new ActionRowBuilder().addComponents(channelSelectMenu1);
+        row3 = new ActionRowBuilder().addComponents(channelSelectMenu2);
+        row4 = new ActionRowBuilder().addComponents(confirmButton);
 
         // Enviar la respuesta con las filas separadas
         
         await interaction.reply({
           content: 'Elija un idioma y después confirme, gracias',
-          components: [row, row2],
+          components: [row, row2, row3, row4],
           ephemeral: true,
         });
       break
@@ -83,11 +109,11 @@ export async function executeConfiguration(interaction: any) {
         .addOptions([
           { 
             label: 'English',
-            value: 'EN',
+            value: 'en-EN',
           },
           {
             label: 'Spanish',
-            value: 'ES',
+            value: 'es-ES',
           }
         ]);
 
@@ -95,16 +121,28 @@ export async function executeConfiguration(interaction: any) {
         .setCustomId('confirm_button')
         .setLabel('Confirm')
         .setStyle(ButtonStyle.Primary);
-        row = new ActionRowBuilder().addComponents(selectLanguageMenu);
-        row2 = new ActionRowBuilder().addComponents(confirmButton);
-
-        // Enviar la respuesta con las filas separadas
         
-        await interaction.reply({
-          content: 'Please choose a language and then confirm.',
-          components: [row, row2],
-          ephemeral: true,
-        });
+        channelSelectMenu1 = new ChannelSelectMenuBuilder()
+            .setCustomId("voice-channel-select1")
+            .setPlaceholder("First channel to move the persons")
+            .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+        channelSelectMenu2 = new ChannelSelectMenuBuilder()
+            .setCustomId("voice-channel-select2")
+            .setPlaceholder("Second channel to move the persons")
+            .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+
+        row = new ActionRowBuilder().addComponents(selectLanguageMenu);
+        row2 = new ActionRowBuilder().addComponents(channelSelectMenu1);
+        row3 = new ActionRowBuilder().addComponents(channelSelectMenu2);
+        row4 = new ActionRowBuilder().addComponents(confirmButton);
+
+      // Enviar la respuesta con las filas separadas
+      
+      await interaction.reply({
+        content: 'Please choose a language and then confirm.',
+        components: [row, row2, row3, row4],
+        ephemeral: true,
+      });
         break
   }
 }
@@ -128,6 +166,8 @@ export async function handleInteraction(interaction: any) {
       }
       const config = getConfig(interaction.guildId as string);
       config.LANG = selectedLanguage;
+      config.CHANNEL1 = selectedChannel1
+      config.CHANNEL2 = selectedChannel2
       updateConfig(interaction.guildId as string, config);
 
       await interaction.update({
@@ -135,6 +175,14 @@ export async function handleInteraction(interaction: any) {
         components: [],
         ephemeral: false,
       });
+    }
+  }else if(interaction.isChannelSelectMenu()){
+    if(interaction.customId === 'voice-channel-select1'){
+      selectedChannel1 = interaction.values[0];
+      interaction.deferUpdate()
+    }else if(interaction.customId === 'voice-channel-select2'){
+      selectedChannel2 = interaction.values[0];
+      interaction.deferUpdate()
     }
   }
 }

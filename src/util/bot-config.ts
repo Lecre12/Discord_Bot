@@ -27,7 +27,9 @@ export function createConfig(guildId: string){
     const configPath = path.resolve(__dirname, `../../servers-configs/config-${guildId}.json`);
     // Definir configuración por defecto
     const defaultConfig = {
-        LANG: 'EN', // Idioma por defecto
+        LANG: 'en-EN', // Idioma por defecto
+        CHANNEL1: '0',
+        CHANNEL2: '0',
     };
 
     // Verificar si el archivo no existe

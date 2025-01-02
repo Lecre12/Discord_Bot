@@ -1,10 +1,17 @@
 {
-	"devDependencies": {
-		"ts-node": "^10.9.2",
-		"typescript": "^5.7.2"
-	},
-	"dependencies": {
-		"discord.js": "^14.16.3",
-		"dotenv": "^16.4.7"
-	}
+  "dependencies": {
+    "@discordjs/voice": "^0.18.0",
+    "discord-speech-recognition": "^3.4.1",
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7",
+    "say": "^0.16.0"
+  },
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only --poll src/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.3",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.2"
+  }
 }
