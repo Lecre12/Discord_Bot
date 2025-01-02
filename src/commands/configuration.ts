@@ -1,7 +1,7 @@
 import { AudioPlayerStatus } from '@discordjs/voice';
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, ModalBuilder, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder } from 'discord.js';
-import { updateConfig, getConfig} from '../util/bot-config';
-import { aliasUsers, moveChannels } from '../index'
+import { updateConfig, getConfig, createConfig} from '../util/bot-config';
+import { serverData } from '../index'
 
 let selectedLanguage : string = ''
 let selectedChannel1 : string = ''
@@ -243,28 +243,36 @@ export async function handleInteraction(interaction: any) {
       interaction.deferUpdate();
     }
   }else if(interaction.isModalSubmit()){
+    const serverConfig = serverData.get(interaction.guildId);
     if (interaction.customId === 'alias_modal') {
       const alias = interaction.fields.getTextInputValue('alias_input');
-      aliasUsers[alias.toLowerCase()] = userId
-      const config = getConfig(interaction.guildId as string);
-      config.USERS = aliasUsers
-      updateConfig(interaction.guildId as string, config);
-      interaction.update({
-        content: 'User guardado como ' + alias.toLowerCase(),
-        components: [],
-        ephemeral: true,
-      });
+      if(serverConfig){
+        const config = getConfig(interaction.guildId as string);
+        serverConfig.aliasUsers[alias.toLowerCase()] = userId;
+        config.USERS = serverConfig.aliasUsers
+        updateConfig(interaction.guildId as string, config);
+        interaction.update({
+          content: 'User guardado como ' + alias.toLowerCase(),
+          components: [],
+          ephemeral: true,
+        });
+      }else{
+        createConfig(interaction.guildId)
+      }
     }else if(interaction.customId === 'alias_modal_channel'){
       const alias = interaction.fields.getTextInputValue('alias_input');
-      moveChannels[alias.toLowerCase()] = selectedMoveChannel
-      const config = getConfig(interaction.guildId as string);
-      config.CHANNELS = moveChannels
-      updateConfig(interaction.guildId as string, config);
-      interaction.update({
-        content: 'Canal guardado como ' + alias.toLowerCase(),
-        components: [],
-        ephemeral: true,
-      });
+      if(serverConfig){
+        const config = getConfig(interaction.guildId as string);
+        serverConfig.aliasUsers[alias.toLowerCase()] = userId;
+        config.CHANNELS = serverConfig.moveChannels
+        updateConfig(interaction.guildId as string, config);
+        interaction.update({
+          content: 'Canal guardado como ' + alias.toLowerCase(),
+          components: [],
+          ephemeral: true,
+        });
+      }
+      
     }
     
   }

@@ -5,7 +5,7 @@ import { getConfig } from '../util/bot-config';
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource } from '@discordjs/voice';
 const { joinVoiceChannel } = require('@discordjs/voice');
 import { wait } from '../util/wait';
-import { aliasUsers } from '../index'
+import { serverData } from '../index'
 
 let config: any
 let client: Client
@@ -51,23 +51,26 @@ export async function handleSpeechEvent(message: any){
     case 'en-EN':
       break
     case 'es-ES':
+      const aliasUsers = serverData.get(message.guild.id)?.aliasUsers;
+      const moveChannels = serverData.get(message.guild.id)?.moveChannels;
       if(!message.content)return;
       message.content = message.content.toLowerCase();
       if(message.content.includes('oye marrón') || message.content.includes('oye marron')){
         console.log("TEXTO: " + message.content)
         if(message.content.includes('expulsa')){
           console.log("TEXTO DE EXPULSAR: " + message.content)
-          
-          Object.keys(aliasUsers).forEach((name) => {
-            if (message.content.includes(name) || message.content.includes('todo')) {
-              const userId = aliasUsers[name];
-              message.member.voice.channel.members.forEach((m: any) => {
-                if (m.id == userId || message.content.includes('todo')) {
-                  m.voice.disconnect();
-                }
-              });
-            }
-          });
+          if(aliasUsers){
+            Object.keys(aliasUsers).forEach((name) => {
+              if (message.content.includes(name) || message.content.includes('todo')) {
+                const userId = aliasUsers[name];
+                message.member.voice.channel.members.forEach((m: any) => {
+                  if (m.id == userId || message.content.includes('todo')) {
+                    m.voice.disconnect();
+                  }
+                });
+              }
+            });
+          }
         }else if(message.content.includes('número') && (message.content.includes('random') || message.content.includes('aleatorio'))){
           console.log("TEXTO DE NUMERO: " + message.content)
           message.channel.send({
@@ -87,7 +90,7 @@ export async function handleSpeechEvent(message: any){
           });
         }else if(message.content.includes('silenc')){
           console.log("TEXTO DE SILENCIAR: " + message.content)
-          
+          if(aliasUsers)
           Object.keys(aliasUsers).forEach((name) => {
             if (message.content.includes(name) || message.content.includes('todo')) {
               const userId = aliasUsers[name];
@@ -100,7 +103,7 @@ export async function handleSpeechEvent(message: any){
           });
         }else if(message.content.includes('ensord')){
           console.log("TEXTO DE ENSORDECER: " + message.content)
-          
+          if(aliasUsers)
           Object.keys(aliasUsers).forEach((name) => {
             if (message.content.includes(name) || message.content.includes('todo')) {
               const userId = aliasUsers[name];
@@ -113,13 +116,28 @@ export async function handleSpeechEvent(message: any){
           });
         }else if(message.content.includes('habl')){
           console.log("TEXTO DE DESMUTEAR Y DESENSORDECER: " + message.content)
-          
+          if(aliasUsers)
           Object.keys(aliasUsers).forEach((name) => {
             const userId = aliasUsers[name];
             message.member.voice.channel.members.forEach((m: any) => {
               m.voice.setMute(false);
               m.voice.setDeaf(false);
             });
+          });
+        }else if(message.content.includes('muev') || message.content.includes('move')){
+          console.log("TEXTO DE MOVER: " + message.content)
+          if(moveChannels)
+          Object.keys(moveChannels).forEach((name) => {
+            if (message.content.includes(name)) {
+              const channelId = moveChannels[name];
+              console.log(channelId)
+              const targetChannel = message.guild?.channels.cache.get(channelId);
+              message.member.voice.channel.members.forEach((m: any) => {
+                try{
+                  m.voice.setChannel(targetChannel);
+                }catch(error){}
+              });
+            }
           });
         }
       }

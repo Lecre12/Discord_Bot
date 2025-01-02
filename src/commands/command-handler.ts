@@ -73,8 +73,9 @@ export async function exeCommand(interaction : any, commandName : string, client
             "1. 'oye marrón expulsa + alias usuario' (o 'todos')\n" +
             "2. 'oye marrón alerta'\n" +
             "3. 'oye marrón numero aleatorio/random'\n" +
-            "4. 'oye marrón silencia + alias usuario'\n" + 
-            "5. 'oye marrón desilencia' (sin imlementar)", ephemeral: true})
+            "4. 'oye marrón silencia + alias usuario'\n" +
+            "5. 'oye marron ensordece + alias usuario'\n" + 
+            "6. 'oye marrón habla' -> desmutea y desensordece a todos los usuarios del canal", ephemeral: true})
           break
         default:
           interaction.reply({ content: "1. /help -> show this message\n" +

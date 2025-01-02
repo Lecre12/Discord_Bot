@@ -30,6 +30,9 @@ export function createConfig(guildId: string){
         LANG: 'en-EN', // Idioma por defecto
         CHANNEL1: '0',
         CHANNEL2: '0',
+        USERS:'',
+        CHANNELS: '',
+
     };
 
     // Verificar si el archivo no existe

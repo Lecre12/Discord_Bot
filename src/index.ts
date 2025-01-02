@@ -12,8 +12,8 @@ dotenv.config();
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string
 
-export let aliasUsers: { [key: string]: string } = {
-  /*'jose': '503287642490929163',
+/*export let aliasUsers: { [key: string]: string } = {
+  'jose': '503287642490929163',
   'victor': '563791870497652746',
   'herva': '529025750603530250',
   'hern': '622019620773298178',
@@ -22,16 +22,18 @@ export let aliasUsers: { [key: string]: string } = {
   'alegre': '584828984009687090', //Lecre
   'chip': '567777196048121856',
   'david': '477184236265406464',  // KOT
-  'andy': '722875525017895034', //andy amigo chipi*/
-};
+  'andy': '722875525017895034', //andy amigo chipi
+};*/
 
-export let moveChannels: {[key: string]: string} = {
-  /*'aliasCanal': 'id_canal'*/ 
+/*export let moveChannels: {[key: string]: string} = {
+  'aliasCanal': 'id_canal'
 }
 
 export function getBotToken(){
   return BOT_TOKEN
-}
+}*/
+
+export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string } }>();
 
 const client = new Client({ intents: [
   GatewayIntentBits.Guilds,
@@ -52,7 +54,10 @@ client.once('ready', async () => {
       console.log(`Loaded config for guild ${guild.id}:`, config);
       const lang = config.LANG;
       speechOptions.lang = lang;
-      aliasUsers = config.USERS;
+      serverData.set(guild.id, {
+        aliasUsers: config.USERS,
+        moveChannels: config.CHANNELS
+      });
       console.log(`Language for this guild: ${lang}`);
     }
   });
