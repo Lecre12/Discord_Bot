@@ -7,6 +7,7 @@ let selectedLanguage : string = ''
 let selectedChannel1 : string = ''
 let selectedChannel2 : string = ''
 let selectedMoveChannel : string = ''
+let initialConnectCheckBox : string = ''
 let userId : string = ''
 
 export const configurationCommand = new SlashCommandBuilder()
@@ -17,8 +18,9 @@ export async function executeGlobalConfiguration(interaction: any) {
   
   let selectLanguageMenu;
   let channelSelectMenu1, channelSelectMenu2
+  let initialConnectCheck
   let confirmButton
-  let row, row2, row3, row4;
+  let row, row2, row3, row4, row5;
   const config = getConfig(interaction.guildId as string)
   switch(config.LANG){
     case 'en-EN':
@@ -49,17 +51,31 @@ export async function executeGlobalConfiguration(interaction: any) {
             .setCustomId("voice-channel-select2")
             .setPlaceholder("Second channel to move the persons")
             .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+      initialConnectCheck = new StringSelectMenuBuilder()
+      .setCustomId('checkBox_connect')
+      .setPlaceholder('Autoconetarse')
+      .addOptions([
+        {
+          label: 'false',
+          value: 'false',
+        },
+        {
+          label: 'true',
+          value: 'true',
+        }
+      ]);
 
         row = new ActionRowBuilder().addComponents(selectLanguageMenu);
         row2 = new ActionRowBuilder().addComponents(channelSelectMenu1);
         row3 = new ActionRowBuilder().addComponents(channelSelectMenu2);
         row4 = new ActionRowBuilder().addComponents(confirmButton);
+        row5 = new ActionRowBuilder().addComponents(initialConnectCheck);
 
       // Enviar la respuesta con las filas separadas
       
       await interaction.reply({
         content: 'Please choose a language and then confirm.',
-        components: [row, row2, row3, row4],
+        components: [row, row2, row3, row5, row4],
         ephemeral: true,
       });
 
@@ -92,17 +108,32 @@ export async function executeGlobalConfiguration(interaction: any) {
             .setCustomId("voice-channel-select2")
             .setPlaceholder("Segundo canal al que se van a mover los individuos")
             .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
+      initialConnectCheck = new StringSelectMenuBuilder()
+            .setCustomId('checkBox_connect')
+            .setPlaceholder('Autoconetarse')
+            .addOptions([
+              {
+                label: 'false',
+                value: 'false',
+              },
+              {
+                label: 'true',
+                value: 'true',
+              }
+            ]);
 
         row = new ActionRowBuilder().addComponents(selectLanguageMenu);
         row2 = new ActionRowBuilder().addComponents(channelSelectMenu1);
         row3 = new ActionRowBuilder().addComponents(channelSelectMenu2);
         row4 = new ActionRowBuilder().addComponents(confirmButton);
+        row5 = new ActionRowBuilder().addComponents(initialConnectCheck);
+        
 
         // Enviar la respuesta con las filas separadas
         
         await interaction.reply({
           content: 'Elija un idioma y después confirme, gracias',
-          components: [row, row2, row3, row4],
+          components: [row, row2, row3, row5, row4],
           ephemeral: true,
         });
       break
@@ -157,6 +188,9 @@ export async function handleInteraction(interaction: any) {
       // Obtenemos el valor seleccionado
       selectedLanguage = interaction.values[0];
       interaction.deferUpdate()
+    }else if(interaction.customId === 'checkBox_connect'){
+      initialConnectCheckBox = interaction.values[0];
+      interaction.deferUpdate()
     }
   } else if (interaction.isButton()) {
     if (interaction.customId === 'confirm_button') {
@@ -172,6 +206,13 @@ export async function handleInteraction(interaction: any) {
       config.LANG = selectedLanguage;
       config.CHANNEL1 = selectedChannel1
       config.CHANNEL2 = selectedChannel2
+      const initConnect : boolean = JSON.parse(initialConnectCheckBox)
+      config.CONNECT = initConnect
+      serverData.set(interaction.guildId, {
+        aliasUsers: config.USERS,
+        moveChannels: config.CHANNELS,
+        connect: config.CONNECT
+      })
       updateConfig(interaction.guildId as string, config);
 
       await interaction.update({

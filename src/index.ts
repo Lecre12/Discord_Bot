@@ -7,6 +7,7 @@ import { handleInteraction } from './commands/configuration';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { executeJoin, handleSpeechEvent } from './commands/join';
 import { getVoiceConnection } from '@discordjs/voice';
+import { connect } from 'http2';
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ export function getBotToken(){
   return BOT_TOKEN
 }*/
 
-export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string } }>();
+export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, connect:boolean }>();
 
 const client = new Client({ intents: [
   GatewayIntentBits.Guilds,
@@ -61,7 +62,8 @@ client.once('ready', async () => {
       speechOptions.lang = lang;
       serverData.set(guild.id, {
         aliasUsers: config.USERS,
-        moveChannels: config.CHANNELS
+        moveChannels: config.CHANNELS,
+        connect: config.CONNECT
       });
       console.log(`Language for this guild: ${lang}`);
     }
@@ -98,7 +100,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
   const botMember = await newState.guild.members.fetch(client.user!.id);
   const botVoiceChannel = botMember.voice.channel;
   // Verificar si el miembro que se ha unido es alguien que no es el bot
-  if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel) {
+  if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel && serverData.get(oldState.guild.id)?.connect) {
     // Simular la ejecución del comando /join
     const interaction = {
       guildId: newState.guild.id,
