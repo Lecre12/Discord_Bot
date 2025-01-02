@@ -5,9 +5,12 @@ import { getConfig } from '../util/bot-config';
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource } from '@discordjs/voice';
 const { joinVoiceChannel } = require('@discordjs/voice');
 import { wait } from '../util/wait';
+import { aliasUsers } from '../index'
 
 let config: any
 let client: Client
+
+
 
 export const joinCommand = new SlashCommandBuilder()
   .setName('join')
@@ -54,86 +57,21 @@ export async function handleSpeechEvent(message: any){
         console.log("TEXTO: " + message.content)
         if(message.content.includes('expulsa')){
           console.log("TEXTO DE EXPULSAR: " + message.content)
-
-          if(message.content.includes('jose')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '503287642490929163'){
+          
+          Object.keys(aliasUsers).forEach((name) => {
+            if (message.content.includes(name) || message.content.includes('todo')) {
+              const userId = aliasUsers[name];
+              message.member.voice.channel.members.forEach((m: any) => {
+                if (m.id == userId || message.content.includes('todo')) {
                   m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('victor')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '563791870497652746'){
-                  m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('todo')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              m.voice.disconnect();
-            });
-          }
-          if(message.content.includes('herva')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '529025750603530250'){
-                  m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('hern')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '622019620773298178'){
-                  m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('pablo')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '422445328655187979'){
-                  m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('agus')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '551850717585997825'){
-                  m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('alegre')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '584828984009687090'){
-                  m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('chip')){
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '567777196048121856'){
-                  m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('david')){ //KOT
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '477184236265406464'){
-                  m.voice.disconnect();
-              }
-            });
-          }
-          if(message.content.includes('andy')){ //andy amigo chipi
-            message.member.voice.channel.members.forEach((m: any) => {
-              if(m.id == '722875525017895034'){
-                  m.voice.disconnect();
-              }
-            });
-          }
+                }
+              });
+            }
+          });
         }else if(message.content.includes('número') && (message.content.includes('random') || message.content.includes('aleatorio'))){
           console.log("TEXTO DE NUMERO: " + message.content)
           message.channel.send({
-            content: '' + Math.random() * 10,
+            content: '' + (Math.random() * 10).toFixed(),
             tts: true,
           })
         }else if(message.content.includes('alert')){

@@ -1,15 +1,18 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString } from 'discord.js';
+import { AudioPlayerStatus } from '@discordjs/voice';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, ModalBuilder, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder } from 'discord.js';
 import { updateConfig, getConfig} from '../util/bot-config';
+import { aliasUsers } from '../index'
 
 let selectedLanguage : string = ''
 let selectedChannel1 : string = ''
 let selectedChannel2 : string = ''
+let userId : string = ''
 
 export const configurationCommand = new SlashCommandBuilder()
   .setName('configuration')
   .setDescription('Opens the bot configuration');
 
-export async function executeConfiguration(interaction: any) {
+export async function executeGlobalConfiguration(interaction: any) {
   
   let selectLanguageMenu;
   let channelSelectMenu1, channelSelectMenu2
@@ -23,7 +26,7 @@ export async function executeConfiguration(interaction: any) {
       .setPlaceholder('Select a lenguage')
       .addOptions([
         { 
-          label: 'English',
+          label: 'English (does not work)',
           value: 'en-EN',
         },
         {
@@ -66,7 +69,7 @@ export async function executeConfiguration(interaction: any) {
       .setPlaceholder('Selecciona un idioma')
       .addOptions([
         { 
-          label: 'Inglés',
+          label: 'Inglés (No funciona)',
           value: 'en-EN',
         },
         {
@@ -108,7 +111,7 @@ export async function executeConfiguration(interaction: any) {
         .setPlaceholder('Select a lenguage')
         .addOptions([
           { 
-            label: 'English',
+            label: 'English (does not work)',
             value: 'en-EN',
           },
           {
@@ -160,7 +163,7 @@ export async function handleInteraction(interaction: any) {
         await interaction.update({
           content: 'You have to put a language',
           components: [],
-          ephemeral: false,
+          ephemeral: true,
         });
         return
       }
@@ -175,6 +178,29 @@ export async function handleInteraction(interaction: any) {
         components: [],
         ephemeral: false,
       });
+    }else if(interaction.customId === 'confirm_button_users'){
+      if(userId == ''){
+        await interaction.update({
+          content: 'Tienes que poner un usuario cazurro',
+          components: [],
+          ephemeral: true,
+        });
+        return
+      }
+      const modal = new ModalBuilder()
+          .setCustomId('alias_modal')
+          .setTitle('Escribe tu alias')
+          .addComponents(
+            // Asegurarse de que ActionRowBuilder sea específico para TextInputBuilder
+            new ActionRowBuilder<TextInputBuilder>().addComponents(
+              new TextInputBuilder()
+                .setCustomId('alias_input')
+                .setLabel('Escribe tu alias')
+                .setStyle(TextInputStyle.Short)
+                .setRequired(true)
+            )
+          );
+        const alias = await interaction.showModal(modal);
     }
   }else if(interaction.isChannelSelectMenu()){
     if(interaction.customId === 'voice-channel-select1'){
@@ -184,5 +210,59 @@ export async function handleInteraction(interaction: any) {
       selectedChannel2 = interaction.values[0];
       interaction.deferUpdate()
     }
+  }else if(interaction.isUserSelectMenu()){
+    if(interaction.customId === 'user_select'){
+      userId = interaction.values[0];
+      interaction.deferUpdate();
+    }
+  }else if(interaction.isModalSubmit()){
+    if (interaction.customId === 'alias_modal') {
+      const alias = interaction.fields.getTextInputValue('alias_input');
+      aliasUsers[alias.toLowerCase()] = userId
+      const config = getConfig(interaction.guildId as string);
+      config.USERS = aliasUsers
+      updateConfig(interaction.guildId as string, config);
+      interaction.update({
+        content: 'User guardado como ' + alias.toLowerCase(),
+        components: [],
+        ephemeral: true,
+      });
+    }
+    
+  }
+}
+
+export async function executeAddMenu(interaction: any){
+  let selectUserMenu
+  let confirmButton
+  let row1, row3
+  const config = getConfig(interaction.guildId as string)
+
+  switch(config.LANG){
+    case 'en-EN':
+
+      break
+    case 'es-ES':
+      selectUserMenu = new UserSelectMenuBuilder()
+      .setCustomId('user_select')
+      .setPlaceholder('Selecciona un usuario')
+
+      confirmButton = new ButtonBuilder()
+      .setCustomId('confirm_button_users')
+      .setLabel('Confirmar')
+      .setStyle(ButtonStyle.Primary);
+
+      row1 = new ActionRowBuilder().addComponents(selectUserMenu);
+      row3 = new ActionRowBuilder().addComponents(confirmButton);
+
+      await interaction.reply({
+        content: 'Escoja su usuario y posteriormente su alias.',
+        components: [row1, row3],
+        ephemeral: true,
+      });
+
+      break
+    default:
+      break
   }
 }

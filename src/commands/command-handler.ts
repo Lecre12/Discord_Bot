@@ -1,8 +1,8 @@
-import { Routes, REST, SlashCommandBuilder, Client } from 'discord.js';
+import { Routes, REST, SlashCommandBuilder, Client, PermissionFlagsBits } from 'discord.js';
 import dotenv from 'dotenv';
 import { pingCommand, executePing } from './ping'
 import { joinCommand, executeJoin } from './join';
-import { configurationCommand, executeConfiguration } from './configuration';
+import { configurationCommand, executeAddMenu, executeGlobalConfiguration } from './configuration';
 import { getConfig } from '../util/bot-config';
 
 dotenv.config()
@@ -13,8 +13,9 @@ const CLIENT_ID = process.env.CLIENT_ID as string
 const commands =[
     pingCommand.toJSON(),
     joinCommand.toJSON(),
-    configurationCommand.toJSON(),
+    configurationCommand.setDefaultMemberPermissions(PermissionFlagsBits.Administrator).toJSON(),
     new SlashCommandBuilder().setName('help').setDescription('Prints commands for help').toJSON(),
+    new SlashCommandBuilder().setName('addmember').setDescription('Add a member to de list who the bot can interact with').setDefaultMemberPermissions(PermissionFlagsBits.Administrator).toJSON(),
 ];
 
 const rest = new REST({ version: '9' }).setToken(BOT_TOKEN);
@@ -42,10 +43,13 @@ export async function exeCommand(interaction : any, commandName : string, client
       break;
     case 'configuration':
       const member = interaction.member;
-      executeConfiguration(interaction)
+      executeGlobalConfiguration(interaction)
       break
     case 'ping':
       executePing(interaction)
+      break
+    case 'addmember':
+      executeAddMenu(interaction)
       break
     case 'help':
       switch(config.LANG){
@@ -61,7 +65,11 @@ export async function exeCommand(interaction : any, commandName : string, client
             "2. /configuration -> Configura las propiedades del bot\n" +
             "3. /join -> se mete al canal de voz y empieza a escuchar comandos de voz\n\n" +
             "VOICE COMMANDS:\n" +
-            "1. 'oye marron expulsa + nombre de usuario'", ephemeral: true})
+            "1. 'oye marrón expulsa + nombre de usuario' (o 'todos')" +
+            "2. 'oye marrón alerta'" +
+            "3. 'oye marrón numero aleatorio/random'" +
+            "4. 'oye marrón silencia + nombre usuario'" + 
+            "5. 'oye marrón desilencia'", ephemeral: true})
           break
         default:
           interaction.reply({ content: "1. /help -> show this message\n" +

@@ -6,11 +6,24 @@ import { getConfig } from './util/bot-config';
 import { handleInteraction } from './commands/configuration';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { executeJoin, handleSpeechEvent } from './commands/join';
-import { joinVoiceChannel } from '@discordjs/voice';
+import { getVoiceConnection } from '@discordjs/voice';
 
 dotenv.config();
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string
+
+export let aliasUsers: { [key: string]: string } = {
+  /*'jose': '503287642490929163',
+  'victor': '563791870497652746',
+  'herva': '529025750603530250',
+  'hern': '622019620773298178',
+  'pablo': '422445328655187979',
+  'agus': '551850717585997825',
+  'alegre': '584828984009687090', //Lecre
+  'chip': '567777196048121856',
+  'david': '477184236265406464',  // KOT
+  'andy': '722875525017895034', //andy amigo chipi*/
+};
 
 export function getBotToken(){
   return BOT_TOKEN
@@ -33,6 +46,7 @@ client.once('ready', async () => {
       console.log(`Loaded config for guild ${guild.id}:`, config);
       const lang = config.LANG;
       speechOptions.lang = lang;
+      aliasUsers = config.USERS;
       console.log(`Language for this guild: ${lang}`);
     }
   });
@@ -61,6 +75,37 @@ client.on('guildCreate', (guild) =>{
     console.log(`Language for this guild: ${lang}`);
   }else{
 
+  }
+});
+
+client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
+  const botMember = await newState.guild.members.fetch(client.user!.id);
+  const botVoiceChannel = botMember.voice.channel;
+  // Verificar si el miembro que se ha unido es alguien que no es el bot
+  if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel) {
+    // Simular la ejecución del comando /join
+    const interaction = {
+      guildId: newState.guild.id,
+      user: { id: newState.member?.id },
+      guild: newState.guild,
+      reply: async (message: string) => console.log('Reply:', message),
+    };
+
+    executeJoin(interaction, client);
+  }
+
+  // Verificar si el bot está solo en el canal de voz
+  if (oldState.channel) {
+    const channel = oldState.channel;
+    const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
+    if (membersInChannel.size === 0) {
+      // Si no hay más usuarios (excepto el bot) en el canal, desconectar el bot
+      const connection = getVoiceConnection(channel.guild.id);
+      if (connection) {
+        connection.destroy();
+        console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
+      }
+    }
   }
 });
 
