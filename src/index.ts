@@ -55,6 +55,18 @@ client.once('ready', async () => {
 
   client.user?.setActivity('Comandos de voz', { type: ActivityType.Listening });
 
+  let totalConnections = 0;
+    for (const [_, guild] of client.guilds.cache) {
+        const voiceStates = guild.voiceStates.cache;
+        for (const [_, voiceState] of voiceStates) {
+            if (voiceState.channel && voiceState.member?.id === client.user?.id) {
+                voiceState.disconnect();
+                totalConnections++;
+            }
+        }
+    }
+  console.log("Cerradas " + totalConnections + " conexiones")
+
   client.guilds.cache.forEach(guild => {
     const config = getConfig(guild.id);
     if (config) {
@@ -73,8 +85,11 @@ client.once('ready', async () => {
   await registerCommands();
 });
 
-client.on('interactionCreate', async (interaction) => {
-  if(interaction.member)
+client.on('interactionCreate', async (interaction: any) => {
+  if(!interaction.guild){
+    interaction.reply('This command can only be used in a server')
+    return;
+  }
 
   if (interaction.isCommand()){
     exeCommand(interaction, interaction.commandName, client)
