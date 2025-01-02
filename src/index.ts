@@ -7,7 +7,7 @@ import { handleInteraction } from './commands/configuration';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { executeJoin, handleSpeechEvent } from './commands/join';
 import { getVoiceConnection } from '@discordjs/voice';
-import { connect } from 'http2';
+import { Semaphore } from './util/Semaphore';
 
 dotenv.config();
 
@@ -17,6 +17,7 @@ export const getCanDisconnect = () => canDisconnect;
 export const setCanDisconnect = (value: boolean) => {
   canDisconnect = value;
 };
+export const sem = new Semaphore(1);
 
 /*export let aliasUsers: { [key: string]: string } = {
   'jose': '503287642490929163',
@@ -116,6 +117,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
   if (oldState.channel) {
     const channel = oldState.channel;
     const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
+    await sem.acquire();
     if (membersInChannel.size === 0 && canDisconnect) {
       // Si no hay más usuarios (excepto el bot) en el canal, desconectar el bot
       const connection = getVoiceConnection(channel.guild.id);
@@ -124,6 +126,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
         console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
       }
     }
+    sem.release();
   }
 });
 

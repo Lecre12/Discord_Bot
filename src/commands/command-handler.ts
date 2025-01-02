@@ -57,25 +57,27 @@ export async function exeCommand(interaction : any, commandName : string, client
       break
     case 'help':
       switch(config.LANG){
-        case 'EN':
+        case 'en-EN':
           interaction.reply({ content: "1. /help -> show this message\n" +
                                       "2. /configuration -> Configure bot properties\n" +
                                       "3. /join -> joins voice channel and start listenning to voice commands\n\n" +
                                       "VOICE COMMANDS:\n" +
                                       "1. 'disconnect + alias username'", ephemeral: true})
           break
-        case 'ES':
+        case 'es-ES':
           interaction.reply({ content: "1. /help -> muestra este mensaje\n" +
             "2. /configuration -> Configura las propiedades del bot\n" +
             "3. /join -> se mete al canal de voz y empieza a escuchar comandos de voz\n" +
-            "4. /addmember -> añade un usuario con un alias para que el bot lo reconozca\n\n" +
+            "4. /addmember -> añade un usuario con un alias para que el bot lo reconozca\n" +
+            "5. /addchannel -> añade un acnal para que el bot lo reconozca con un alias\n\n" +
             "VOICE COMMANDS:\n" +
             "1. 'oye marrón expulsa + alias usuario' (o 'todos')\n" +
             "2. 'oye marrón alerta'\n" +
             "3. 'oye marrón numero aleatorio/random'\n" +
             "4. 'oye marrón silencia + alias usuario'\n" +
             "5. 'oye marron ensordece + alias usuario'\n" + 
-            "6. 'oye marrón habla' -> desmutea y desensordece a todos los usuarios del canal", ephemeral: true})
+            "6. 'oye marrón habla' -> desmutea y desensordece a todos los usuarios del canal\n" +
+            "7. 'oye marrón mueve/mover + alias canal destino", ephemeral: true})
           break
         default:
           interaction.reply({ content: "1. /help -> show this message\n" +

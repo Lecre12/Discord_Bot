@@ -1,3 +1,4 @@
+import { addSpeechEvent } from 'discord-speech-recognition';
 import { IncomingHttpHeaders } from './../../node_modules/undici-types/header.d';
 import { Message, ContextMenuCommandInteraction, GuildMember, VoiceChannel, StageChannel } from './../../node_modules/discord.js/typings/index.d';
 import { Client, MessageManager, SlashCommandBuilder } from 'discord.js';
@@ -5,7 +6,7 @@ import { getConfig } from '../util/bot-config';
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource } from '@discordjs/voice';
 const { joinVoiceChannel } = require('@discordjs/voice');
 import { wait } from '../util/wait';
-import { setCanDisconnect, serverData } from '../index'
+import { setCanDisconnect, serverData, sem } from '../index'
 
 let config: any
 let client: Client
@@ -126,6 +127,7 @@ export async function handleSpeechEvent(message: any){
           });
         }else if(message.content.includes('muev') || message.content.includes('move')){
           console.log("TEXTO DE MOVER: " + message.content)
+          await sem.acquire()
           setCanDisconnect(false);
           if(moveChannels)
           Object.keys(moveChannels).forEach((name) => {
@@ -133,15 +135,19 @@ export async function handleSpeechEvent(message: any){
               const channelId = moveChannels[name];
               console.log(channelId)
               const targetChannel = message.guild?.channels.cache.get(channelId);
-              message.member.voice.channel.members.forEach((m: any) => {
+              message.member.voice.channel.members.forEach(async (m: any) => {
                 try{
-                  m.voice.setChannel(targetChannel);
+                  await m.voice.setChannel(targetChannel);
                 }catch(error){}
               });
             }
           });
+          
+          sem.release();
           await wait(1000)
+          await sem.acquire()
           setCanDisconnect(true);
+          sem.release()
         }
       }
       break

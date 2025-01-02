@@ -304,7 +304,7 @@ export async function handleInteraction(interaction: any) {
       const alias = interaction.fields.getTextInputValue('alias_input');
       if(serverConfig){
         const config = getConfig(interaction.guildId as string);
-        serverConfig.aliasUsers[alias.toLowerCase()] = userId;
+        serverConfig.moveChannels[alias.toLowerCase()] = selectedMoveChannel;
         config.CHANNELS = serverConfig.moveChannels
         updateConfig(interaction.guildId as string, config);
         interaction.update({
