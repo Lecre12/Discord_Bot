@@ -99,7 +99,6 @@ client.on('interactionCreate', async (interaction: any) => {
 });
 
 client.on('guildCreate', (guild) =>{
-  
   const config = getConfig(guild.id as string);
   if(config){
     console.log(`Loaded config for guild ${guild.id}:`, config);

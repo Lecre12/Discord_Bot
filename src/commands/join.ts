@@ -1,15 +1,15 @@
-import { addSpeechEvent } from 'discord-speech-recognition';
-import { IncomingHttpHeaders } from './../../node_modules/undici-types/header.d';
-import { Message, ContextMenuCommandInteraction, GuildMember, VoiceChannel, StageChannel } from './../../node_modules/discord.js/typings/index.d';
-import { Client, MessageManager, SlashCommandBuilder } from 'discord.js';
+import { GuildMember, VoiceChannel, StageChannel, Guild } from './../../node_modules/discord.js/typings/index.d';
+import { Client, SlashCommandBuilder } from 'discord.js';
 import { getConfig } from '../util/bot-config';
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource } from '@discordjs/voice';
 const { joinVoiceChannel } = require('@discordjs/voice');
 import { wait } from '../util/wait';
 import { setCanDisconnect, serverData, sem } from '../index'
+import { speakText } from '../util/ttsUtil';
+import { VoiceConnection } from '@discordjs/voice';
 
 let config: any
 let client: Client
+let connection: VoiceConnection
 
 
 
@@ -23,7 +23,7 @@ export async function executeJoin(interaction: any, cl: Client) {
   if (member) {
     const voiceChannel = member.voice.channel;
     if (voiceChannel) {
-      const connection = joinVoiceChannel({
+      connection = joinVoiceChannel({
         channelId: voiceChannel.id,
         guildId: voiceChannel.guild.id,
         adapterCreator: voiceChannel.guild.voiceAdapterCreator,
@@ -60,29 +60,40 @@ export async function handleSpeechEvent(message: any){
         console.log("TEXTO: " + message.content)
         if(message.content.includes('expulsa')){
           console.log("TEXTO DE EXPULSAR: " + message.content)
+          if(message.content.includes('todo')){
+            setCanDisconnect(false)
+            message.member.voice.channel.members.forEach(async (m: GuildMember) => {
+              await m.voice.disconnect();
+              console.log(`Expulsado ${m.displayName}`)
+            });
+            await wait(1000)
+            setCanDisconnect(true)
+            return;
+          }
           if(aliasUsers){
             Object.keys(aliasUsers).forEach((name) => {
-              if (message.content.includes(name) || message.content.includes('todo')) {
+              if (message.content.includes(name)) {
                 const userId = aliasUsers[name];
-                message.member.voice.channel.members.forEach((m: any) => {
-                  if (m.id == userId || message.content.includes('todo')) {
-                    m.voice.disconnect();
+                message.member.voice.channel.members.forEach(async (m: GuildMember) => {
+                  if (m.id == userId) {
+                    await m.voice.disconnect();
                   }
                 });
               }
             });
           }
         }else if(message.content.includes('número') && (message.content.includes('random') || message.content.includes('aleatorio'))){
-          console.log("TEXTO DE NUMERO: " + message.content)
-          message.channel.send({
+          console.log("TEXTO DE NUMERO: " + message.content);
+          speakText('' + (Math.random() * 10).toFixed(), connection)
+          /*message.channel.send({
             content: '' + (Math.random() * 10).toFixed(),
             tts: true,
-          })
+          })*/
         }else if(message.content.includes('alert')){
           console.log("TEXTO ALERTA: " + message.content)
           const config = getConfig(message.guild.id)
-          message.member.voice.channel.members.forEach((m: any) => {
-            if(m.voice.selfDeaf){
+          message.member.voice.channel.members.forEach((m: GuildMember) => {
+            if(m.voice.selfDeaf || m.voice.serverDeaf){
               const targetChannel1 = message.guild?.channels.cache.get(config.CHANNEL1);
               const targetChannel2 = message.guild?.channels.cache.get(config.CHANNEL2);
     
@@ -148,6 +159,8 @@ export async function handleSpeechEvent(message: any){
           await sem.acquire()
           setCanDisconnect(true);
           sem.release()
+        }else if(message.content.includes('conectado')){
+
         }
       }
       break
