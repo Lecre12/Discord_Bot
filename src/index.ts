@@ -47,6 +47,7 @@ const client = new Client({ intents: [
   GatewayIntentBits.GuildVoiceStates,
   GatewayIntentBits.MessageContent,
   GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.GuildPresences,
 ] });
 const speechOptions : SpeechOptions = addSpeechEvent(client)
 

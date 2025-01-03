@@ -22,7 +22,6 @@ export async function speakText(text: string, connection: VoiceConnection) {
 
     // Crear recurso de audio para Discord
     const resource = createAudioResource(audioStream);
-    resource.volume?.setVolume(0.7);
 
     // Crear y reproducir audio
     const player = createAudioPlayer();

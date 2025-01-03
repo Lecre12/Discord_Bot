@@ -1,5 +1,5 @@
-import { GuildMember, VoiceChannel, StageChannel, Guild } from './../../node_modules/discord.js/typings/index.d';
-import { Client, SlashCommandBuilder } from 'discord.js';
+import { GuildMember, VoiceChannel, StageChannel } from './../../node_modules/discord.js/typings/index.d';
+import { Client, SlashCommandBuilder, PresenceUpdateStatus } from 'discord.js';
 import { getConfig } from '../util/bot-config';
 const { joinVoiceChannel } = require('@discordjs/voice');
 import { wait } from '../util/wait';
@@ -23,6 +23,9 @@ export async function executeJoin(interaction: any, cl: Client) {
   if (member) {
     const voiceChannel = member.voice.channel;
     if (voiceChannel) {
+      if(connection){
+        connection.destroy()
+      }
       connection = joinVoiceChannel({
         channelId: voiceChannel.id,
         guildId: voiceChannel.guild.id,
@@ -40,7 +43,6 @@ export async function executeJoin(interaction: any, cl: Client) {
         default:
           break
       }
-      
     } else {
       await interaction.reply('You have to be in a channel first, cazurro');
     }
@@ -159,8 +161,52 @@ export async function handleSpeechEvent(message: any){
           await sem.acquire()
           setCanDisconnect(true);
           sem.release()
-        }else if(message.content.includes('conectado')){
+        }else if(message.content.includes('conect') && (message.content.includes('quién') || message.content.includes('quien'))){
+          console.log('TEXTO DE CONECTADO: ' + message.content);
+          if(aliasUsers){
+            const uniqueKeys = new Set<string>();
+            Object.entries(aliasUsers).forEach(([key, value]) => {
+              if (!uniqueKeys.has(value) && key != 'chip') {
+                uniqueKeys.add(value);
+                //console.log(`Procesando clave única: ${key} con valor: ${value}`);
+                // Realizar aquí las acciones que necesites para claves únicas
+              }
+            });
 
+            const onlineUsersNames: string[] = [];
+            const onlineMember: GuildMember[] = [];
+            const guild = await client.guilds.fetch('736543433581133856');
+            if (!guild) {
+              console.log('No se encontró el servidor.');
+              return ;
+            }
+
+            guild.members.cache.forEach(member => {
+              //console.log(member.displayName)
+              // Verificar si el miembro está en uniqueKeys y si está en línea
+              if (uniqueKeys.has(member.id) && 
+              (member.presence?.status === PresenceUpdateStatus.Online || member.presence?.status === PresenceUpdateStatus.Idle || member.presence?.status === PresenceUpdateStatus.DoNotDisturb) &&
+              !member.voice.channel) {
+                onlineUsersNames.push(member.user.username);
+                onlineMember.push(member);
+              }
+            });
+
+            let textOnlineUsers : string = "Estan conectados: ";
+            //console.log(onlineUsers);
+            onlineUsersNames.forEach(name =>{
+              textOnlineUsers = textOnlineUsers.concat(", " + name);
+            })
+            speakText(textOnlineUsers, connection);
+
+            if(message.content.includes('voz') || message.content.includes('discord')){
+              onlineMember.forEach(member => {
+                //console.log("Mando msgs");
+                member.send("Metase a dicol mamaguebo");
+              });
+            }
+
+          }
         }
       }
       break
@@ -176,7 +222,7 @@ async function legacyAlarmCommand(memberTo : GuildMember, targetChannel : VoiceC
       await wait(600);
       await memberTo.voice.setChannel(initialChannel);
       await wait(600);
-    } while (memberTo.voice.selfDeaf);
+    } while (memberTo.voice.selfDeaf || memberTo.voice.serverDeaf);
     await memberTo.voice.setChannel(trueInitialChannel);
   } catch (error) {}
 }
