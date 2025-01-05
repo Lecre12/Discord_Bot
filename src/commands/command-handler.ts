@@ -1,4 +1,4 @@
-import { Routes, REST, SlashCommandBuilder, Client, PermissionFlagsBits } from 'discord.js';
+import { Routes, REST, SlashCommandBuilder, Client, PermissionFlagsBits, ChannelType } from 'discord.js';
 import dotenv from 'dotenv';
 import { pingCommand, executePing } from './ping'
 import { joinCommand, executeJoin } from './join';
@@ -15,8 +15,19 @@ const commands =[
     joinCommand.toJSON(),
     configurationCommand.setDefaultMemberPermissions(PermissionFlagsBits.Administrator).toJSON(),
     new SlashCommandBuilder().setName('help').setDescription('Prints commands for help').toJSON(),
-    new SlashCommandBuilder().setName('addmember').setDescription('Add a member to de list who the bot can interact with').setDefaultMemberPermissions(PermissionFlagsBits.Administrator).toJSON(),
-    new SlashCommandBuilder().setName('addchannel').setDescription('Add a channel so the bot can move to channels').setDefaultMemberPermissions(PermissionFlagsBits.Administrator).toJSON(),
+    new SlashCommandBuilder().setName('addmember').setDescription('Add a member to de list who the bot can interact with').setDefaultMemberPermissions(PermissionFlagsBits.Administrator).
+    addUserOption((option) =>
+      option.setName("user").setDescription("Usuario para poder interactuar").setRequired(true)
+    ).addStringOption((option) =>
+      option.setName("alias").setDescription("Alias of the user").setRequired(true)
+    ).
+    toJSON(),
+    new SlashCommandBuilder().setName('addchannel').setDescription('Add a channel so the bot can move to channels').setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    .addChannelOption((option) =>
+      option.setName("channel").setDescription("Canal de voz para mover").setRequired(true).addChannelTypes(ChannelType.GuildVoice))
+    .addStringOption((option) =>
+      option.setName("alias").setDescription("Alias del canal").setRequired(true)
+    ).toJSON(),
 ];
 
 const rest = new REST({ version: '9' }).setToken(BOT_TOKEN);

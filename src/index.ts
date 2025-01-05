@@ -76,7 +76,7 @@ client.once('ready', async () => {
     const config = getConfig(guild.id);
     if (config) {
       console.log(`Loaded config for guild ${guild.id}:`, config);
-      const lang = config.LANG;
+      const lang = 'es-ES';
       speechOptions.lang = lang;
       speechOptions.profanityFilter = false;
       serverData.set(guild.id, {
@@ -134,7 +134,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
   }
 
   // Verificar si el bot está solo en el canal de voz
-  if (oldState.channel) {
+  /*if (oldState.channel) {
     const channel = oldState.channel;
     const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
     await sem.acquire();
@@ -145,9 +145,9 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
         connection.destroy();
         console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
       }
-    }
+    
     sem.release();
-  }
+  }}*/
 });
 
 client.on('speech', handleSpeechEvent)

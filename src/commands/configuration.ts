@@ -1,5 +1,5 @@
 import { AudioPlayerStatus } from '@discordjs/voice';
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, ModalBuilder, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, GuildMember, ModalBuilder, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder, VoiceChannel } from 'discord.js';
 import { updateConfig, getConfig, createConfig} from '../util/bot-config';
 import { serverData } from '../index'
 
@@ -283,109 +283,49 @@ export async function handleInteraction(interaction: any) {
       userId = interaction.values[0];
       interaction.deferUpdate();
     }
-  }else if(interaction.isModalSubmit()){
-    const serverConfig = serverData.get(interaction.guildId);
-    if (interaction.customId === 'alias_modal') {
-      const alias = interaction.fields.getTextInputValue('alias_input');
-      if(serverConfig){
-        const config = getConfig(interaction.guildId as string);
-        serverConfig.aliasUsers[alias.toLowerCase()] = userId;
-        config.USERS = serverConfig.aliasUsers
-        updateConfig(interaction.guildId as string, config);
-        interaction.update({
-          content: 'User guardado como ' + alias.toLowerCase(),
-          components: [],
-          ephemeral: true,
-        });
-      }else{
-        createConfig(interaction.guildId)
-      }
-    }else if(interaction.customId === 'alias_modal_channel'){
-      const alias = interaction.fields.getTextInputValue('alias_input');
-      if(serverConfig){
-        const config = getConfig(interaction.guildId as string);
-        serverConfig.moveChannels[alias.toLowerCase()] = selectedMoveChannel;
-        config.CHANNELS = serverConfig.moveChannels
-        updateConfig(interaction.guildId as string, config);
-        interaction.update({
-          content: 'Canal guardado como ' + alias.toLowerCase(),
-          components: [],
-          ephemeral: true,
-        });
-      }
-      
-    }
-    
   }
 }
 
 export async function executeAddUserMenu(interaction: any){
-  let selectUserMenu
-  let confirmButton
-  let row1, row3
-  const config = getConfig(interaction.guildId as string)
+  const member : GuildMember = interaction.options.getMember("user") as GuildMember;
+  const alias : string = interaction.options.getString("alias") as string;
 
-  switch(config.LANG){
-    case 'en-EN':
+  const serverConfig = serverData.get(interaction.guildId);
 
-      break
-    case 'es-ES':
-      selectUserMenu = new UserSelectMenuBuilder()
-      .setCustomId('user_select')
-      .setPlaceholder('Selecciona un usuario')
-
-      confirmButton = new ButtonBuilder()
-      .setCustomId('confirm_button_users')
-      .setLabel('Confirmar')
-      .setStyle(ButtonStyle.Primary);
-
-      row1 = new ActionRowBuilder().addComponents(selectUserMenu);
-      row3 = new ActionRowBuilder().addComponents(confirmButton);
-
-      await interaction.reply({
-        content: 'Escoja su usuario y posteriormente su alias.',
-        components: [row1, row3],
-        ephemeral: true,
-      });
-
-      break
-    default:
-      break
+  userId = member.id;
+  if(serverConfig){
+    const config = getConfig(interaction.guildId as string);
+    serverConfig.aliasUsers[alias.toLowerCase()] = userId;
+    config.USERS = serverConfig.aliasUsers
+    updateConfig(interaction.guildId as string, config);
+    interaction.reply({
+      content: 'User guardado como ' + alias.toLowerCase(),
+      components: [],
+      ephemeral: true,
+    });
+  }else{
+    createConfig(interaction.guildId)
   }
 }
 
 export async function executeAddChannelMenu(interaction: any){
-  let selectchannelMenu
-  let confirmButton
-  let row1, row3
-  const config = getConfig(interaction.guildId as string)
+  const channel : VoiceChannel = interaction.options.getChannel("channel") as VoiceChannel;
+  const alias : string = interaction.options.getString("alias") as string;
 
-  switch(config.LANG){
-    case 'en-EN':
+  const serverConfig = serverData.get(interaction.guildId);
 
-      break
-    case 'es-ES':
-      selectchannelMenu = new ChannelSelectMenuBuilder()
-      .setCustomId('move_channel_select')
-      .setPlaceholder('Selecciona un canal')
-      .addChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
-
-      confirmButton = new ButtonBuilder()
-      .setCustomId('confirm_button_move_channel')
-      .setLabel('Confirmar')
-      .setStyle(ButtonStyle.Primary);
-
-      row1 = new ActionRowBuilder().addComponents(selectchannelMenu);
-      row3 = new ActionRowBuilder().addComponents(confirmButton);
-
-      await interaction.reply({
-        content: 'Escoja su canal y posteriormente su alias.',
-        components: [row1, row3],
-        ephemeral: true,
-      });
-
-      break
-    default:
-      break
+  selectedMoveChannel = channel.id;
+  if(serverConfig){
+    const config = getConfig(interaction.guildId as string);
+    serverConfig.moveChannels[alias.toLowerCase()] = selectedMoveChannel;
+    config.CHANNELS = serverConfig.moveChannels
+    updateConfig(interaction.guildId as string, config);
+    interaction.reply({
+      content: 'Canal guardado como ' + alias.toLowerCase(),
+      components: [],
+      ephemeral: true,
+    });
+  }else{
+    createConfig(interaction.guildId)
   }
 }

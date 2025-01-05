@@ -3,6 +3,7 @@ import * as googleTTS from 'google-tts-api';
 import { Readable } from 'stream';
 import axios from 'axios';
 import { spawn } from 'child_process';
+import * as fs from 'fs';
 
 /**
  * Reproduce texto como audio en un canal de voz.
@@ -56,6 +57,48 @@ export async function speakText(text: string, connection: VoiceConnection) {
     console.log(`Reproduciendo TTS dividido en partes.`);
   } catch (error) {
     console.error('Error reproduciendo TTS:', error);
+  }
+}
+
+export async function playAudioFile(filePath: string, connection: VoiceConnection) {
+  try {
+    // Crear un stream de lectura desde el archivo
+    const audioStream = fs.createReadStream(filePath);
+
+    // Procesar el archivo con FFmpeg para ajustarlo (opcional)
+    const ffmpeg = spawn('ffmpeg', [
+      '-i', 'pipe:0',      // Leer del stream de entrada
+      '-f', 'mp3',         // Formato de salida MP3
+      '-ar', '48000',      // Ajustar la tasa de muestreo (48kHz)
+      '-ac', '2',          // Estéreo
+      '-b:a', '192k',      // Bitrate
+      'pipe:1',            // Salida por stdout
+    ]);
+
+    // Canalizar el audio al proceso FFmpeg
+    audioStream.pipe(ffmpeg.stdin);
+
+    // Obtener el audio procesado desde FFmpeg
+    const processedStream = ffmpeg.stdout;
+
+    // Crear recurso de audio para Discord
+    const resource = createAudioResource(processedStream);
+
+    // Crear y reproducir el audio
+    const player = createAudioPlayer();
+    connection.subscribe(player);
+    player.play(resource);
+
+    // Esperar a que se reproduzca el audio
+    await new Promise<void>((resolve) =>
+      player.on('stateChange', (_, newState) => {
+        if (newState.status === 'idle') resolve(); // Cuando termine, resuelve
+      })
+    );
+
+    console.log('Reproducción de archivo de audio completada.');
+  } catch (error) {
+    console.error('Error reproduciendo el archivo de audio:', error);
   }
 }
 function splitText(text: string, maxLength: number): string[] {
