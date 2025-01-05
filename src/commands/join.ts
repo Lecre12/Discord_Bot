@@ -1,11 +1,7 @@
-import { GuildMember, VoiceChannel, StageChannel } from './../../node_modules/discord.js/typings/index.d';
-import { Client, SlashCommandBuilder, PresenceUpdateStatus } from 'discord.js';
+import { SlashCommandBuilder } from 'discord.js';
 import { getConfig } from '../util/bot-config';
 const { joinVoiceChannel } = require('@discordjs/voice');
-import { setCanDisconnect, serverData, sem, openIa, client } from '../index'
-import { speakText } from '../util/ttsUtil';
 import { VoiceConnection } from '@discordjs/voice';
-import { legacyAlarmCommand } from '../util/legacyAlarm';
 
 export let connection: VoiceConnection
 

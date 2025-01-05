@@ -1,5 +1,4 @@
-import { AudioPlayerStatus } from '@discordjs/voice';
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, GuildMember, ModalBuilder, SlashCommandBuilder, StringSelectMenuBuilder, SystemChannelFlagsString, TextInputBuilder, TextInputStyle, UserSelectMenuBuilder, VoiceChannel } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, GuildMember, ModalBuilder, SlashCommandBuilder, StringSelectMenuBuilder, TextInputBuilder, TextInputStyle, VoiceChannel } from 'discord.js';
 import { updateConfig, getConfig, createConfig} from '../util/bot-config';
 import { serverData } from '../index'
 
