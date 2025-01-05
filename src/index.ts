@@ -5,10 +5,10 @@ import { exeCommand } from './commands/command-handler'
 import { getConfig } from './util/bot-config';
 import { handleInteraction } from './commands/configuration';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
-import { executeJoin, handleSpeechEvent } from './commands/join';
-import { getVoiceConnection } from '@discordjs/voice';
+import { executeJoin } from './commands/join';
 import { Semaphore } from './util/Semaphore';
 import { OpenAI } from 'openai';
+import { handleSpeechEvent } from './handlers/speechHandler';
 
 dotenv.config();
 
@@ -46,7 +46,7 @@ export function getBotToken(){
 
 export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, connect:boolean }>();
 
-const client = new Client({ intents: [
+export const client = new Client({ intents: [
   GatewayIntentBits.Guilds,
   GatewayIntentBits.GuildVoiceStates,
   GatewayIntentBits.MessageContent,
@@ -130,7 +130,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
       reply: async (message: string) => console.log('Reply:', message),
     };
 
-    executeJoin(interaction, client);
+    executeJoin(interaction);
   }
 
   // Verificar si el bot está solo en el canal de voz

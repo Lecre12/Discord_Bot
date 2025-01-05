@@ -20,8 +20,7 @@ const commands =[
       option.setName("user").setDescription("Usuario para poder interactuar").setRequired(true)
     ).addStringOption((option) =>
       option.setName("alias").setDescription("Alias of the user").setRequired(true)
-    ).
-    toJSON(),
+    ).toJSON(),
     new SlashCommandBuilder().setName('addchannel').setDescription('Add a channel so the bot can move to channels').setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addChannelOption((option) =>
       option.setName("channel").setDescription("Canal de voz para mover").setRequired(true).addChannelTypes(ChannelType.GuildVoice))
@@ -51,7 +50,7 @@ export async function exeCommand(interaction : any, commandName : string, client
   const config = getConfig(interaction.guildId as string)
   switch(commandName){
     case 'join':
-      executeJoin(interaction, client)
+      executeJoin(interaction)
       break;
     case 'configuration':
       const member = interaction.member;
