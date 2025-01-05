@@ -134,7 +134,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
   }
 
   // Verificar si el bot está solo en el canal de voz
-  if (oldState.channel && false) {
+  if (oldState.channel) {
     const channel = oldState.channel;
     const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
     await sem.acquire();
