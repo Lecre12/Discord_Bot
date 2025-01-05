@@ -8,6 +8,7 @@ import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { executeJoin, handleSpeechEvent } from './commands/join';
 import { getVoiceConnection } from '@discordjs/voice';
 import { Semaphore } from './util/Semaphore';
+import { OpenAI } from 'openai';
 
 dotenv.config();
 
@@ -18,6 +19,9 @@ export const setCanDisconnect = (value: boolean) => {
   canDisconnect = value;
 };
 export const sem = new Semaphore(1);
+export const openIa = new OpenAI({
+  apiKey: "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"
+});
 
 /*export let aliasUsers: { [key: string]: string } = {
   'jose': '503287642490929163',
@@ -74,6 +78,7 @@ client.once('ready', async () => {
       console.log(`Loaded config for guild ${guild.id}:`, config);
       const lang = config.LANG;
       speechOptions.lang = lang;
+      speechOptions.profanityFilter = false;
       serverData.set(guild.id, {
         aliasUsers: config.USERS,
         moveChannels: config.CHANNELS,
@@ -129,7 +134,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
   }
 
   // Verificar si el bot está solo en el canal de voz
-  if (oldState.channel) {
+  if (oldState.channel && false) {
     const channel = oldState.channel;
     const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
     await sem.acquire();

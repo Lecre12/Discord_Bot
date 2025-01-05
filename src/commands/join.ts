@@ -3,7 +3,7 @@ import { Client, SlashCommandBuilder, PresenceUpdateStatus } from 'discord.js';
 import { getConfig } from '../util/bot-config';
 const { joinVoiceChannel } = require('@discordjs/voice');
 import { wait } from '../util/wait';
-import { setCanDisconnect, serverData, sem } from '../index'
+import { setCanDisconnect, serverData, sem, openIa } from '../index'
 import { speakText } from '../util/ttsUtil';
 import { VoiceConnection } from '@discordjs/voice';
 
@@ -205,7 +205,28 @@ export async function handleSpeechEvent(message: any){
                 member.send("Metase a dicol mamaguebo");
               });
             }
+          }
+        }else if(message.content.includes('piensa')){
+          console.log('TEXTO DE PENSAR: ' + message.content);
+          try{
+            const response = await openIa.chat.completions.create({
+              model: 'gpt-4o-mini',  // O usa el modelo que prefieras
+              messages: [{ role: 'user', content: message.content }],
+              n: 2,
+              max_tokens: 180,
+            });
+            console.log("IA responde: " + response.choices[0].message.content)
+            let choice: number = (Math.random() * 10)
+            choice = choice -1
+            if(choice < 0) choice=0
+            if(choice > 9) choice=9
 
+            if(response.choices[0].message.content){
+              speakText(response.choices[0].message.content, connection)
+            }
+            
+          }catch(err){
+            console.error("Error al obtener la respuesta de la IA: " + err)
           }
         }
       }

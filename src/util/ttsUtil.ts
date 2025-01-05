@@ -2,6 +2,7 @@ import { createAudioPlayer, createAudioResource, VoiceConnection } from '@discor
 import * as googleTTS from 'google-tts-api';
 import { Readable } from 'stream';
 import axios from 'axios';
+import { spawn } from 'child_process';
 
 /**
  * Reproduce texto como audio en un canal de voz.
@@ -9,27 +10,62 @@ import axios from 'axios';
  * @param voiceChannel El canal de voz donde reproducir el audio.
  */
 export async function speakText(text: string, connection: VoiceConnection) {
+
   try {
-    // Generar URL de audio TTS
-    const url = googleTTS.getAudioUrl(text, {
-      lang: 'es', // Cambia el idioma según sea necesario
-      slow: false,
-    });
+    const maxLength = 200; // Máxima longitud permitida
+    const textParts = splitText(text, maxLength); // Dividir el texto en partes
 
-    // Descargar el audio como stream
-    const response = await axios.get(url, { responseType: 'stream' });
-    const audioStream = response.data as Readable;
+    for (const part of textParts) {
+      // Generar URL de audio TTS para cada parte
+      const url = googleTTS.getAudioUrl(part, {
+        lang: 'es', // Cambia el idioma según sea necesario
+        slow: false,
+      });
 
-    // Crear recurso de audio para Discord
-    const resource = createAudioResource(audioStream);
+      // Descargar el audio como stream
+      const response = await axios.get(url, { responseType: 'stream' });
+      const audioStream = response.data as Readable;
 
-    // Crear y reproducir audio
-    const player = createAudioPlayer();
-    connection.subscribe(player);
-    player.play(resource);
+      // Procesar audio con FFmpeg para cambiar la velocidad (opcional)
+      const ffmpeg = spawn('ffmpeg', [
+        '-i', 'pipe:0',
+        '-filter:a', 'atempo=1.5', // Ajustar velocidad (1.2 es 20% más rápido)
+        '-f', 'mp3',
+        'pipe:1',
+      ]);
 
-    //console.log(`Reproduciendo TTS: "${text}" en ${voiceChannel.name}`);
+      audioStream.pipe(ffmpeg.stdin);
+      const processedStream = ffmpeg.stdout;
+
+      // Crear recurso de audio para Discord
+      const resource = createAudioResource(processedStream);
+
+      // Crear y reproducir audio
+      const player = createAudioPlayer();
+      connection.subscribe(player);
+      player.play(resource);
+
+      // Esperar a que se reproduzca el fragmento antes de continuar con el siguiente
+      await new Promise<void>((resolve) =>
+        player.on('stateChange', (_, newState) => {
+          if (newState.status === 'idle') resolve();
+        })
+      );
+    }
+
+    console.log(`Reproduciendo TTS dividido en partes.`);
   } catch (error) {
     console.error('Error reproduciendo TTS:', error);
   }
+}
+function splitText(text: string, maxLength: number): string[] {
+  const parts: string[] = [];
+  while (text.length > maxLength) {
+    let splitIndex = text.lastIndexOf(' ', maxLength);
+    if (splitIndex === -1) splitIndex = maxLength; // Cortar directamente si no hay espacios
+    parts.push(text.slice(0, splitIndex));
+    text = text.slice(splitIndex).trim();
+  }
+  if (text.length > 0) parts.push(text);
+  return parts;
 }
