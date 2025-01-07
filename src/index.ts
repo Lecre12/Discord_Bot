@@ -23,27 +23,6 @@ export const openIa = new OpenAI({
   apiKey: "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"
 });
 
-/*export let aliasUsers: { [key: string]: string } = {
-  'jose': '503287642490929163',
-  'victor': '563791870497652746',
-  'herva': '529025750603530250',
-  'hern': '622019620773298178',
-  'pablo': '422445328655187979',
-  'agus': '551850717585997825',
-  'alegre': '584828984009687090', //Lecre
-  'chip': '567777196048121856',
-  'david': '477184236265406464',  // KOT
-  'andy': '722875525017895034', //andy amigo chipi
-};*/
-
-/*export let moveChannels: {[key: string]: string} = {
-  'aliasCanal': 'id_canal'
-}
-
-export function getBotToken(){
-  return BOT_TOKEN
-}*/
-
 export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, connect:boolean }>();
 
 export const client = new Client({ intents: [
