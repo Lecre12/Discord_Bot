@@ -46,7 +46,7 @@ const config = getConfig(message.guild.id as string)
           console.log("TEXTO ALERTA: " + message.content)
           await alertUsers(message);
 
-        }else if(message.content.includes('silenc')){
+        }else if(message.content.includes('silenc') || message.content.includes('mute')){
 
           console.log("TEXTO DE SILENCIAR: " + message.content)
           await muteUser(message);
@@ -54,7 +54,7 @@ const config = getConfig(message.guild.id as string)
         }else if(message.content.includes('ensorde')){
 
           console.log("TEXTO DE ENSORDECER: " + message.content)
-          deafUser(message);
+          await deafUser(message);
 
         }else if(message.content.includes('habl')){
 
@@ -67,7 +67,7 @@ const config = getConfig(message.guild.id as string)
           await moveToChannel(message);
 
         }else if(message.content.includes('conect') && (message.content.includes('quién') || message.content.includes('quien'))){
-          
+
           console.log('TEXTO DE CONECTADO: ' + message.content);
           await getConnectedUsers(message, connection);
 
@@ -81,7 +81,7 @@ const config = getConfig(message.guild.id as string)
         }else if(message.content.includes('piensa')){
 
           console.log('TEXTO DE PENSAR: ' + message.content);
-          askOpenAi(message.content, connection);
+          await askOpenAi(message.content, connection);
 
         }
       }
