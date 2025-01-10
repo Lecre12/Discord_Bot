@@ -25,15 +25,16 @@ export async function textToSpeech(text: string, connection: VoiceConnection){
 export async function askOpenAi(promt: string, connection: VoiceConnection){
     try{
         const response = await openIa.chat.completions.create({
-            model: 'gpt-4o-mini',  // O usa el modelo que prefieras
+            model: 'gpt-4o-mini',
             messages: [{ role: 'user', content: promt }],
-            n: 2,
+            n: 1,
             max_tokens: 500,
         });
         console.log("IA responde: " + response.choices[0].message.content);
 
         if(response.choices[0].message.content){
-            textToSpeech(response.choices[0].message.content, connection);
+            //textToSpeech(response.choices[0].message.content, connection);
+            speakText(response.choices[0].message.content, connection);
         }
     }catch(err){
         console.error("Error al obtener la respuesta de la IA: " + err);

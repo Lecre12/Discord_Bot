@@ -30,7 +30,7 @@ export async function speakText(text: string, connection: VoiceConnection) {
       // Procesar audio con FFmpeg para cambiar la velocidad (opcional)
       const ffmpeg = spawn('ffmpeg', [
         '-i', 'pipe:0',
-        '-filter:a', 'atempo=1.5', // Ajustar velocidad (1.2 es 20% más rápido)
+        '-filter:a', 'atempo=1.8',
         '-f', 'mp3',
         'pipe:1',
       ]);

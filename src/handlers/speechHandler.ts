@@ -1,5 +1,5 @@
 import { getConfig } from "../util/bot-config";
-import { setCanDisconnect, serverData, sem, openIa, client } from '../index'
+import { setCanDisconnect, serverData, openIa, client } from '../index'
 import { GuildMember, PresenceUpdateStatus } from "discord.js";
 import { connection } from '../commands/join'
 import { speakText } from "../util/ttsUtil";
@@ -14,12 +14,12 @@ import { moveToChannel } from "../voice-commands/move-channel";
 import { getConnectedUsers } from "../voice-commands/connected-users";
 
 export async function handleSpeechEvent(message: VoiceMessage){
-const config = getConfig(message.guild.id as string)
+  const config = getConfig(message.guild.id as string);
   switch(config.LANG){
     case 'en-EN':
       break
     case 'es-ES':
-      if(!message.content || !message)return;
+      if (!message || !message.content) return;
       message.content = message.content.toLowerCase();
       if(message.content.includes('oye marrón') || message.content.includes('oye marron')){
         console.log("TEXTO: " + message.content)
@@ -39,6 +39,7 @@ const config = getConfig(message.guild.id as string)
         }else if(message.content.includes('número') && (message.content.includes('random') || message.content.includes('aleatorio'))){
 
           console.log("TEXTO DE NUMERO: " + message.content);
+          if(connection)
           speakText('' + (Math.random() * 10).toFixed(), connection)
 
         }else if(message.content.includes('alert')){
@@ -69,18 +70,13 @@ const config = getConfig(message.guild.id as string)
         }else if(message.content.includes('conect') && (message.content.includes('quién') || message.content.includes('quien'))){
 
           console.log('TEXTO DE CONECTADO: ' + message.content);
+          if(connection)
           await getConnectedUsers(message, connection);
 
-          /*if(message.content.includes('voz') || message.content.includes('discord')){
-              onlineMember.forEach(member => {
-                //console.log("Mando msgs");
-                member.send("Metase a dicol mamaguebo");
-              });
-            }
-          }*/
         }else if(message.content.includes('piensa')){
 
           console.log('TEXTO DE PENSAR: ' + message.content);
+          if(connection)
           await askOpenAi(message.content, connection);
 
         }

@@ -3,7 +3,10 @@ import { getConfig } from '../util/bot-config';
 const { joinVoiceChannel } = require('@discordjs/voice');
 import { VoiceConnection } from '@discordjs/voice';
 
-export let connection: VoiceConnection
+export let connection: VoiceConnection | undefined;
+export function setConnection(con: VoiceConnection | undefined){
+  connection = con;
+}
 
 
 

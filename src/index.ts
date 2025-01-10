@@ -6,7 +6,7 @@ import { getConfig } from './util/bot-config';
 import { handleInteraction } from './commands/configuration';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { executeJoin } from './commands/join';
-import { Semaphore } from './util/Semaphore';
+import { connection, setConnection } from './commands/join';
 import { OpenAI } from 'openai';
 import { handleSpeechEvent } from './handlers/speechHandler';
 
@@ -18,7 +18,6 @@ export const getCanDisconnect = () => canDisconnect;
 export const setCanDisconnect = (value: boolean) => {
   canDisconnect = value;
 };
-export const sem = new Semaphore(1);
 export const openIa = new OpenAI({
   apiKey: "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"
 });
@@ -32,6 +31,8 @@ export const client = new Client({ intents: [
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.GuildPresences,
 ] });
+
+
 const speechOptions : SpeechOptions = addSpeechEvent(client)
 
 client.once('ready', async () => {
@@ -91,14 +92,12 @@ client.on('guildCreate', (guild) =>{
     // Utilizar la configuración cargada
     const lang = config.LANG;
     console.log(`Language for this guild: ${lang}`);
-  }else{
-
   }
 });
 
 client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
   const botMember = await newState.guild.members.fetch(client.user!.id);
-  const botVoiceChannel = botMember.voice.channel;
+  const botVoiceChannel = botMember.voice.channel?.id;
   // Verificar si el miembro que se ha unido es alguien que no es el bot
   if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel && serverData.get(oldState.guild.id)?.connect) {
     // Simular la ejecución del comando /join
@@ -113,20 +112,21 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
   }
 
   // Verificar si el bot está solo en el canal de voz
-  /*if (oldState.channel) {
+  if (oldState.channel) {
     const channel = oldState.channel;
-    const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
-    await sem.acquire();
-    if (membersInChannel.size === 0 && canDisconnect) {
-      // Si no hay más usuarios (excepto el bot) en el canal, desconectar el bot
-      const connection = getVoiceConnection(channel.guild.id);
-      if (connection) {
-        connection.destroy();
-        console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
+    if(channel.members.has(oldState.client.user!.id)){
+      const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
+      if (membersInChannel.size === 0 && canDisconnect) {
+        // Si no hay más usuarios (excepto el bot) en el canal, desconectar el bot
+        if (connection) {
+          connection.destroy();
+          setConnection(undefined);
+          console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
+        }
       }
+    }
     
-    sem.release();
-  }}*/
+    }
 });
 
 client.on('speech', handleSpeechEvent)

@@ -88,7 +88,8 @@ export async function exeCommand(interaction : any, commandName : string, client
             "5. 'oye marron ensordece + alias usuario'\n" + 
             "6. 'oye marrón habla' -> desmutea y desensordece a todos los usuarios del canal\n" +
             "7. 'oye marrón mueve/mover + alias canal destino\n" +
-            "8. 'oye marron quien esta conectado + (voz/discord) -> cita los miembros conectados y si se dice voz/discord tambien les manda un mensaje diciendoles que se metan a voz", ephemeral: true})
+            "8. 'oye marron quien esta conectado -> cita los miembros conectados y si se dice voz/discord tambien les manda un mensaje diciendoles que se metan a voz\n" +
+            "9. 'oye marrón piensa promt' -> pregunta a chatgpt algo", ephemeral: true})
           break
         default:
           interaction.reply({ content: "1. /help -> show this message\n" +
