@@ -1,7 +1,7 @@
 import { ActivityType, Client, GatewayIntentBits, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
-import { registerCommands } from './commands/command-handler';  // Importa la función que registra los comandos
-import { exeCommand } from './commands/command-handler'
+import { registerCommands } from './handlers/command-handler';  // Importa la función que registra los comandos
+import { exeCommand } from './handlers/command-handler'
 import { getConfig } from './util/bot-config';
 import { handleInteraction } from './commands/configuration';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
@@ -13,16 +13,26 @@ import { handleSpeechEvent } from './handlers/speechHandler';
 dotenv.config();
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string
-export let canDisconnect: boolean = true;
-export const getCanDisconnect = () => canDisconnect;
-export const setCanDisconnect = (value: boolean) => {
-  canDisconnect = value;
-};
 export const openIa = new OpenAI({
   apiKey: "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"
 });
 
-export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, connect:boolean }>();
+export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, connect:boolean, lang: string, speechOptions: SpeechOptions}>();
+
+export function getLang(guildId: string): string | undefined{
+  return serverData.get(guildId)?.lang;
+}
+export function setLang(newLang: string, guildId: string){
+  const data = serverData.get(guildId);
+  data!.speechOptions.lang = newLang;
+  serverData.set(guildId, {
+    aliasUsers: data!.aliasUsers,
+    moveChannels: data!.moveChannels,
+    connect: data!.connect,
+    lang: newLang,
+    speechOptions: data!.speechOptions
+  });
+}
 
 export const client = new Client({ intents: [
   GatewayIntentBits.Guilds,
@@ -33,12 +43,10 @@ export const client = new Client({ intents: [
 ] });
 
 
-const speechOptions : SpeechOptions = addSpeechEvent(client)
-
 client.once('ready', async () => {
   console.log(`Logged in as ${client.user?.tag}!`);
 
-  client.user?.setActivity('Comandos de voz', { type: ActivityType.Listening });
+  client.user?.setActivity('VoiceCommands', { type: ActivityType.Listening });
 
   let totalConnections = 0;
     for (const [_, guild] of client.guilds.cache) {
@@ -52,17 +60,20 @@ client.once('ready', async () => {
     }
   console.log("Cerradas " + totalConnections + " conexiones")
 
-  client.guilds.cache.forEach(guild => {
-    const config = getConfig(guild.id);
+  client.guilds.cache.forEach(async guild => {
+    const config = await getConfig(guild.id);
     if (config) {
+      let speechOptions : SpeechOptions = addSpeechEvent(client);
       console.log(`Loaded config for guild ${guild.id}:`, config);
-      const lang = 'es-ES';
+      const lang = config.LANG;
       speechOptions.lang = lang;
       speechOptions.profanityFilter = false;
       serverData.set(guild.id, {
         aliasUsers: config.USERS,
         moveChannels: config.CHANNELS,
-        connect: config.CONNECT
+        connect: config.CONNECT,
+        lang: lang,
+        speechOptions: speechOptions
       });
       console.log(`Language for this guild: ${lang}`);
     }
@@ -116,7 +127,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
     const channel = oldState.channel;
     if(channel.members.has(oldState.client.user!.id)){
       const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
-      if (membersInChannel.size === 0 && canDisconnect) {
+      if (membersInChannel.size === 0) {
         // Si no hay más usuarios (excepto el bot) en el canal, desconectar el bot
         if (connection) {
           connection.destroy();

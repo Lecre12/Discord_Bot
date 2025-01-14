@@ -22,7 +22,7 @@ export async function textToSpeech(text: string, connection: VoiceConnection){
     //playAudioFile(speechFile, connection);
 }
 
-export async function askOpenAi(promt: string, connection: VoiceConnection){
+export async function askOpenAi(promt: string, connection: VoiceConnection, guildId: string){
     try{
         const response = await openIa.chat.completions.create({
             model: 'gpt-4o-mini',
@@ -34,10 +34,10 @@ export async function askOpenAi(promt: string, connection: VoiceConnection){
 
         if(response.choices[0].message.content){
             //textToSpeech(response.choices[0].message.content, connection);
-            speakText(response.choices[0].message.content, connection);
+            speakText(response.choices[0].message.content, connection, guildId);
         }
     }catch(err){
         console.error("Error al obtener la respuesta de la IA: " + err);
-        speakText("He tenido un error al peguntarle a la ia, disculpe las molestias", connection);
+        speakText("He tenido un error al peguntarle a la ia, disculpe las molestias", connection, guildId);
     }
 }

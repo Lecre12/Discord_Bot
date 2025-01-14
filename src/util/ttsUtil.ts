@@ -4,13 +4,14 @@ import { Readable } from 'stream';
 import axios from 'axios';
 import { spawn } from 'child_process';
 import * as fs from 'fs';
+import { serverData } from '..';
 
 /**
  * Reproduce texto como audio en un canal de voz.
  * @param text El texto a leer.
  * @param voiceChannel El canal de voz donde reproducir el audio.
  */
-export async function speakText(text: string, connection: VoiceConnection) {
+export async function speakText(text: string, connection: VoiceConnection, guildId: string ) {
 
   try {
     const maxLength = 200; // Máxima longitud permitida
@@ -19,7 +20,7 @@ export async function speakText(text: string, connection: VoiceConnection) {
     for (const part of textParts) {
       // Generar URL de audio TTS para cada parte
       const url = googleTTS.getAudioUrl(part, {
-        lang: 'es', // Cambia el idioma según sea necesario
+        lang: serverData.get(guildId)!.lang.substring(0, 2),
         slow: false,
       });
 

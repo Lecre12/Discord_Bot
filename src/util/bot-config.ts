@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { setLang } from '../index';
 
 // Función para leer el archivo de configuración basado en guildId
 export function getConfig(guildId: string) {
@@ -9,7 +10,7 @@ export function getConfig(guildId: string) {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     return config;
   } else {
-    return createConfig(guildId)
+    return createConfig(guildId);
   }
 }
 
@@ -21,7 +22,9 @@ export function updateConfig(guildId: string, newConfig: object) {
   
     // Escribe los cambios en el archivo de configuración
     fs.writeFileSync(configPath, configData, 'utf-8');
-    console.log(`Config for guild ${guildId} updated.`);
+    const newLang = getConfig(guildId).LANG;
+    setLang(newLang, guildId);
+    console.log(`Config for guild ${guildId} updated. Has lang: ${newLang}`);
   }
 export function createConfig(guildId: string){
     const configPath = path.resolve(__dirname, `../../servers-configs/config-${guildId}.json`);

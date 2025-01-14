@@ -41,7 +41,7 @@ export async function getConnectedUsers(message: VoiceMessage, connection: Voice
         onlineUsersNames.forEach(name =>{
           textOnlineUsers = textOnlineUsers.concat(", " + name);
         })
-        speakText(textOnlineUsers, connection);
+        speakText(textOnlineUsers, connection, message.guild.id);
     }
     
 }

@@ -1,9 +1,14 @@
 import { Routes, REST, SlashCommandBuilder, Client, PermissionFlagsBits, ChannelType } from 'discord.js';
 import dotenv from 'dotenv';
-import { pingCommand, executePing } from './ping'
-import { joinCommand, executeJoin } from './join';
-import { configurationCommand, executeAddChannelMenu, executeAddUserMenu, executeGlobalConfiguration } from './configuration';
+import { pingCommand, executePing } from '../commands/ping'
+import { joinCommand, executeJoin } from '../commands/join';
+import { configurationCommand, executeGlobalConfiguration } from '../commands/configuration';
 import { getConfig } from '../util/bot-config';
+import { executeAddUserMenuSpanish } from '../lang/add-user/add-user-spanish';
+import { serverData } from '../index';
+import { executeAddChannelMenuSpanish } from '../lang/add-channel/add-channel-spanish';
+import { executeAddChannelMenuEnglish } from '../lang/add-channel/add-channel-english';
+import { executeAddUserMenuEnglish } from '../lang/add-user/add-user-english';
 
 dotenv.config()
 
@@ -17,26 +22,34 @@ const commands =[
     new SlashCommandBuilder().setName('help').setDescription('Prints commands for help').toJSON(),
     new SlashCommandBuilder().setName('addmember').setDescription('Add a member to de list who the bot can interact with').setDefaultMemberPermissions(PermissionFlagsBits.Administrator).
     addUserOption((option) =>
-      option.setName("user").setDescription("Usuario para poder interactuar").setRequired(true)
+      option.setName("user").setDescription("User that the bot can recognize").setRequired(true)
     ).addStringOption((option) =>
       option.setName("alias").setDescription("Alias of the user").setRequired(true)
     ).toJSON(),
     new SlashCommandBuilder().setName('addchannel').setDescription('Add a channel so the bot can move to channels').setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addChannelOption((option) =>
-      option.setName("channel").setDescription("Canal de voz para mover").setRequired(true).addChannelTypes(ChannelType.GuildVoice))
+      option.setName("channel").setDescription("Voice channel that the bot has to recognize to move").setRequired(true).addChannelTypes(ChannelType.GuildVoice))
     .addStringOption((option) =>
-      option.setName("alias").setDescription("Alias del canal").setRequired(true)
+      option.setName("alias").setDescription("Channel alias").setRequired(true)
     ).toJSON(),
 ];
 
 const rest = new REST({ version: '9' }).setToken(BOT_TOKEN);
+const languageSupportedAddUserHandlers: Record<string, (interaction: any, handlerContext: HandlerContext) => Promise<void>> = {
+  'en-EN': executeAddUserMenuEnglish,
+  'es-ES': executeAddUserMenuSpanish,
+};
+const languageSupportedAddChannelHandlers: Record<string, (interaction: any, handlerContext: HandlerContext) => Promise<void>> = {
+  'en-EN': executeAddChannelMenuEnglish,
+  'es-ES': executeAddChannelMenuSpanish,
+};
 
 export async function registerCommands() {
     try {
       console.log('Started refreshing application (/) commands.');
   
       await rest.put(
-        Routes.applicationCommands(CLIENT_ID), // Registra los comandos globalmente
+        Routes.applicationCommands(CLIENT_ID),
         { body: commands },
       );
   
@@ -60,10 +73,36 @@ export async function exeCommand(interaction : any, commandName : string, client
       executePing(interaction)
       break
     case 'addmember':
-      executeAddUserMenu(interaction)
+      const handlerUser = languageSupportedAddUserHandlers[serverData.get(interaction.guildId)!.lang];
+        if(handlerUser){
+          const context : HandlerContext = {
+            selectedLanguage :  '',
+            selectedChannel1 :  '',
+            selectedChannel2 :  '',
+            selectedMoveChannel : '',
+            initialConnectCheckBox :'',
+            userId :''
+          };
+          await handlerUser(interaction, context);
+        }else{
+          console.log("Idioma no soportado: " + serverData.get(interaction.guildId)!.lang);
+        }
       break
     case 'addchannel':
-      executeAddChannelMenu(interaction)
+      const handlerChannel = languageSupportedAddChannelHandlers[serverData.get(interaction.guildId)!.lang];
+        if(handlerChannel){
+          const context : HandlerContext = {
+            selectedLanguage :  '',
+            selectedChannel1 :  '',
+            selectedChannel2 :  '',
+            selectedMoveChannel : '',
+            initialConnectCheckBox :'',
+            userId :''
+          };
+          await handlerChannel(interaction, context);
+        }else{
+          console.log("Idioma no soportado: " + serverData.get(interaction.guildId)!.lang);
+        }
       break
     case 'help':
       switch(config.LANG){
