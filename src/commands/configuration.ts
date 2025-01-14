@@ -296,12 +296,21 @@ export async function executeAddUserMenu(interaction: any){
     const config = getConfig(interaction.guildId as string);
     serverConfig.aliasUsers[alias.toLowerCase()] = userId;
     config.USERS = serverConfig.aliasUsers
-    updateConfig(interaction.guildId as string, config);
-    interaction.reply({
-      content: 'User guardado como ' + alias.toLowerCase(),
-      components: [],
-      ephemeral: true,
-    });
+    if(alias.includes('marr')){
+      interaction.reply({
+        content: 'El user no puede contener "marrón" o parecido',
+        components: [],
+        ephemeral: true,
+      });
+    }else{
+      updateConfig(interaction.guildId as string, config);
+      interaction.reply({
+        content: 'User guardado como ' + alias.toLowerCase(),
+        components: [],
+        ephemeral: true,
+      });
+    }
+    
   }else{
     createConfig(interaction.guildId)
   }

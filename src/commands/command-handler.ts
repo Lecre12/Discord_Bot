@@ -47,7 +47,7 @@ export async function registerCommands() {
   }
 
 export async function exeCommand(interaction : any, commandName : string, client: Client){
-  const config = getConfig(interaction.guildId as string)
+  const config = getConfig(interaction.guildId as string);
   switch(commandName){
     case 'join':
       executeJoin(interaction)

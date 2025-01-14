@@ -1,6 +1,6 @@
 import { VoiceMessage } from "discord-speech-recognition";
 import { GuildMember } from "discord.js";
-import { serverData } from "../index";
+import { client, serverData } from "../index";
 
 export async function muteUser(message: VoiceMessage) {
     const aliasUsers = serverData.get(message.guild.id)?.aliasUsers;
@@ -12,7 +12,7 @@ export async function muteUser(message: VoiceMessage) {
             if(!message.member?.voice.channel) return
             const membersCopy: GuildMember[] = Array.from(message.member?.voice.channel.members.values()).slice() as GuildMember[];
             membersCopy.forEach((m: any) => {
-            if (m.id == userId) {
+            if (m.id == userId && m.id != client.user?.id) {
                 m.voice.setMute(true);
             }
             });

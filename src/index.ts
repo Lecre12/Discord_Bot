@@ -129,6 +129,6 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
     }
 });
 
-client.on('speech', handleSpeechEvent)
+client.on('speech', handleSpeechEvent);
 
 client.login(BOT_TOKEN);
