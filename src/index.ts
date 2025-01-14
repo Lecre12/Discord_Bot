@@ -1,6 +1,6 @@
 import { ActivityType, Client, GatewayIntentBits, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
-import { registerCommands } from './handlers/command-handler';  // Importa la función que registra los comandos
+import { registerCommands } from './handlers/command-handler';
 import { exeCommand } from './handlers/command-handler'
 import { getConfig } from './util/bot-config';
 import { handleInteraction } from './commands/configuration';
@@ -8,7 +8,7 @@ import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { executeJoin } from './commands/join';
 import { connection, setConnection } from './commands/join';
 import { OpenAI } from 'openai';
-import { handleSpeechEvent } from './handlers/speechHandler';
+import { handleSpeech } from './handlers/speechHandler';
 
 dotenv.config();
 
@@ -89,7 +89,7 @@ client.on('interactionCreate', async (interaction: any) => {
   }
 
   if (interaction.isCommand()){
-    exeCommand(interaction, interaction.commandName, client)
+    exeCommand(interaction, interaction.commandName)
   }else{
     handleInteraction(interaction)
   }
@@ -137,9 +137,9 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
       }
     }
     
-    }
+  }
 });
 
-client.on('speech', handleSpeechEvent);
+client.on('speech', handleSpeech);
 
 client.login(BOT_TOKEN);

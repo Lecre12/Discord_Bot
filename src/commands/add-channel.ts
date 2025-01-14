@@ -1,8 +1,11 @@
 import { VoiceChannel } from "discord.js";
-import { serverData } from "../../index";
-import { getConfig, updateConfig, createConfig } from "../../util/bot-config";
+import { serverData } from "..";
+import { getConfig, updateConfig, createConfig } from "../util/bot-config";
+import { getMessage } from "../lang/lang-manager";
+import { LangKeys } from "../lang/lang-keys";
 
-export async function executeAddChannelMenuEnglish(interaction: any, handlerContext: HandlerContext){
+
+export async function executeAddChannelMenu(interaction: any, handlerContext: HandlerContext){
     const channel : VoiceChannel = interaction.options.getChannel("channel") as VoiceChannel;
     const alias : string = interaction.options.getString("alias") as string;
   
@@ -15,7 +18,7 @@ export async function executeAddChannelMenuEnglish(interaction: any, handlerCont
       config.CHANNELS = serverConfig.moveChannels
       updateConfig(interaction.guildId as string, config);
       interaction.reply({
-        content: 'Channel saved as ' + alias.toLowerCase(),
+        content: getMessage(LangKeys.CONFIRMATION_CHANNEL_SAVED, interaction.guildId) + alias.toLowerCase(),
         components: [],
         ephemeral: true,
       });

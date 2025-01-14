@@ -1,0 +1,51 @@
+{
+    "bot-name":"marrón",
+    "command":{
+        "configuration-description": "Configura las propiedades del bot (admin requerido)",
+        "help-description": "muestra este mensaje",
+        "join-description": "se mete al canal de voz y empieza a escuchar comandos de voz",
+        "add-member-description": "añade un usuario con un alias para que el bot lo reconozca (admin requerido)",
+        "add-channel-description": "añade un canal para que el bot lo reconozca con un alias (admin requerido)",
+        "voice-commands-description": "Equisde"
+    },
+    "confirmations":{
+        "config-saved": "Se ha guardado tu configuracion!",
+        "channel-saved": "Canal guardado como: ",
+        "user-saved": "Usuario guardado como: "
+    },
+    "errors":{
+        "fill-fields": "Debes rellenar todos los campos",
+        "bot-name-on-alias": "No puede aparecer 'marrón' o parecidos en el alias",
+        "not-on-channel": "No estas en ningun canal, cazurro"
+    },
+    "english": "Inglés",
+    "spanish": "Español",
+    "config":{
+        "placeholder-language": "Seleccione un idioma",
+        "confirm-button": "Confirmar",
+        "placeholder-channel1": "Primer canal donde se moverá al usuario alertado",
+        "placeholder-channel2": "Segundo canal donde se moverá al usuario alertado",
+        "autoconnect": "Autoconectarse",
+        "reply-global": "Rellene los campos y confirme, gracias :)"
+    },
+    "voice":{
+        "activation": "oye marrón",
+        "nuke": "nuke",
+        "kick": "expuls",
+        "kick_all": "todo",
+        "random": "aleatorio",
+        "number": "número",
+        "alert": "alert",
+        "mute": "silenc",
+        "deaf": "ensorde",
+        "speak": "habla",
+        "move": "muev",
+        "move-2": "mov",
+        "who": "quién",
+        "connected": "conectad",
+        "think": "piensa"
+    },
+    "replys":{
+        "join-channel": "Estoy escuchando tus comandos de voz en: "
+    }
+}

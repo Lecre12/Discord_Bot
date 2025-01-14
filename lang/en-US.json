@@ -1,0 +1,51 @@
+{
+    "bot-name":"brow",
+    "command":{
+        "configuration-description": "Configura las propiedades del bot (admin requerido)",
+        "help-description": "muestra este mensaje",
+        "join-description": "se mete al canal de voz y empieza a escuchar comandos de voz",
+        "add-member-description": "añade un usuario con un alias para que el bot lo reconozca (admin requerido)",
+        "add-channel-description": "añade un canal para que el bot lo reconozca con un alias (admin requerido)",
+        "voice-commands-description": "Equisde"
+    },
+    "confirmations":{
+        "config-saved": "Configuration saved!",
+        "channel-saved": "Channel saved as: ",
+        "user-saved": "User saved as: "
+    },
+    "errors":{
+        "fill-fields": "You have to fill all the fields",
+        "bot-name-on-alias": "'Brown' or simmilar can't apear in the alias",
+        "not-on-channel": "You are not in a channel, cazurro"
+    },
+    "english": "English",
+    "spanish": "Spanish",
+    "config":{
+        "placeholder-language": "Select a language",
+        "confirm-button": "Confirm",
+        "placeholder-channel1": "First channel where the alerted user will be moved",
+        "placeholder-channel2": "Second channel where the alerted user will be moved",
+        "autoconnect": "Autoconnect",
+        "reply-global": "Fill in the fields and confirm, thank you :)"
+    },
+    "voice":{
+        "activation": "hear me brown",
+        "nuke": "nuke",
+        "kick": "kick",
+        "kick_all": "all",
+        "random": "random",
+        "number": "number",
+        "alert": "alert",
+        "mute": "mute",
+        "deaf": "deaf",
+        "speak": "speak",
+        "move": "move",
+        "move-2": "go to",
+        "who": "who",
+        "connected": "connect",
+        "think": "think"
+    },
+    "replys":{
+        "join-channel": "I'm listennig you voice commands in: "
+    }
+}

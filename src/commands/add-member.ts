@@ -1,9 +1,11 @@
 import { GuildMember } from "discord.js";
-import { serverData } from "../../index";
-import { getConfig, updateConfig, createConfig } from "../../util/bot-config";
+import { serverData } from "..";
+import { getConfig, updateConfig, createConfig } from "../util/bot-config";
+import { getMessage } from "../lang/lang-manager";
+import { LangKeys } from "../lang/lang-keys";
 
 
-export async function executeAddUserMenuSpanish(interaction: any, handlerContext: HandlerContext){
+export async function executeAddUserMenu(interaction: any, handlerContext: HandlerContext){
     const member : GuildMember = interaction.options.getMember("user") as GuildMember;
     const alias : string = interaction.options.getString("alias") as string;
   
@@ -14,16 +16,16 @@ export async function executeAddUserMenuSpanish(interaction: any, handlerContext
       const config = getConfig(interaction.guildId as string);
       serverConfig.aliasUsers[alias.toLowerCase()] = handlerContext.userId;
       config.USERS = serverConfig.aliasUsers
-      if(alias.includes('marr')){
+      if(alias.includes(getMessage(LangKeys.BROWN_NAME, interaction.guildId))){
         interaction.reply({
-          content: 'El alias no puede contener "marrón" o parecido',
+          content: getMessage(LangKeys.ERR_BOT_NAME_ON_ALIAS, interaction.guildId),
           components: [],
           ephemeral: true,
         });
       }else{
         updateConfig(interaction.guildId as string, config);
         interaction.reply({
-          content: 'User guardado como ' + alias.toLowerCase(),
+          content: getMessage(LangKeys.CONFIRMATION_USER_SAVED, interaction.guildId) + alias.toLowerCase(),
           components: [],
           ephemeral: true,
         });

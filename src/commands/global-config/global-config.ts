@@ -1,4 +1,7 @@
-import { StringSelectMenuBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, ActionRowBuilder } from "discord.js";
+
+import { StringSelectMenuBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, ActionRowBuilder, Guild, MessageFlags } from "discord.js";
+import { getMessage } from "../../lang/lang-manager";
+import { LangKeys } from "../../lang/lang-keys";
 
 let selectLanguageMenu;
 let channelSelectMenu1, channelSelectMenu2
@@ -6,37 +9,37 @@ let initialConnectCheck
 let confirmButton
 let row, row2, row3, row4, row5;
 
-export async function globalConfigMenuEnglish(interaction: any): Promise<void> {
+export async function globalConfigMenu(interaction: any): Promise<void> {
     selectLanguageMenu = new StringSelectMenuBuilder()
         .setCustomId('language_select')
-        .setPlaceholder('Select a languaje')
+        .setPlaceholder(getMessage(LangKeys.PLACEHOLDER_LANGUAGE, interaction.guildId))
         .addOptions([
         { 
-            label: 'English',
-            value: 'en-EN',
+            label: getMessage(LangKeys.ENGLISH, interaction.guildId),
+            value: 'en-US',
         },
         {
-            label: 'Spanish',
+            label: getMessage(LangKeys.SPANISH, interaction.guildId),
             value: 'es-ES',
         }
         ]);
     
         confirmButton = new ButtonBuilder()
         .setCustomId('confirm_button')
-        .setLabel('Confirm')
+        .setLabel(getMessage(LangKeys.CONTENT_BUTTON_CONFIRM, interaction.guildId))
         .setStyle(ButtonStyle.Primary);
     
         channelSelectMenu1 = new ChannelSelectMenuBuilder()
             .setCustomId("voice-channel-select1")
-            .setPlaceholder("First channel to which alerted users will move")
+            .setPlaceholder(getMessage(LangKeys.PLACEHOLDER_CHANNEL1, interaction.guildId))
             .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
         channelSelectMenu2 = new ChannelSelectMenuBuilder()
             .setCustomId("voice-channel-select2")
-            .setPlaceholder("Second channel to which alerted users will move")
+            .setPlaceholder(getMessage(LangKeys.PLACEHOLDER_CHANNEL2, interaction.guildId))
             .setChannelTypes([ChannelType.GuildVoice, ChannelType.GuildStageVoice]);
         initialConnectCheck = new StringSelectMenuBuilder()
             .setCustomId('checkBox_connect')
-            .setPlaceholder('Autoconnect')
+            .setPlaceholder(getMessage(LangKeys.AUTOCONNECT, interaction.guildId))
             .addOptions([
                 {
                 label: 'false',
@@ -58,8 +61,8 @@ export async function globalConfigMenuEnglish(interaction: any): Promise<void> {
         // Enviar la respuesta con las filas separadas
         
         await interaction.reply({
-            content: 'Build your config and accept, thx :)',
+            content: getMessage(LangKeys.REPLY_GLOBAL_CONFIG, interaction.guildId),
             components: [row, row2, row3, row5, row4],
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
         });
 }
