@@ -9,6 +9,8 @@ import { executeJoin } from './commands/join';
 import { connection, setConnection } from './commands/join';
 import { OpenAI } from 'openai';
 import { handleSpeech } from './handlers/speechHandler';
+const { EventEmitter } = require('events');
+EventEmitter.defaultMaxListeners = 8;
 
 dotenv.config();
 
