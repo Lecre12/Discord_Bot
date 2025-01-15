@@ -31,7 +31,7 @@ export async function trueHandleInteraction(interaction: any): Promise<void>{
             await interaction.update({
               content: getMessage(LangKeys.ERR_FILL_FIELDS, interaction.guildId),
               components: [],
-              ephemeral: true,
+              flags: MessageFlags.Ephemeral,
             });
             return
           }

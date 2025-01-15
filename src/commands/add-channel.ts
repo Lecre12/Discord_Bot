@@ -1,4 +1,4 @@
-import { VoiceChannel } from "discord.js";
+import { MessageFlags, VoiceChannel } from "discord.js";
 import { serverData } from "..";
 import { getConfig, updateConfig, createConfig } from "../util/bot-config";
 import { getMessage } from "../lang/lang-manager";
@@ -20,7 +20,7 @@ export async function executeAddChannelMenu(interaction: any, handlerContext: Ha
       interaction.reply({
         content: getMessage(LangKeys.CONFIRMATION_CHANNEL_SAVED, interaction.guildId) + alias.toLowerCase(),
         components: [],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }else{
       createConfig(interaction.guildId)

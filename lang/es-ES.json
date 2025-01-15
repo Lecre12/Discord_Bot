@@ -1,12 +1,22 @@
 {
     "bot-name":"marrón",
     "command":{
-        "configuration-description": "Configura las propiedades del bot (admin requerido)",
-        "help-description": "muestra este mensaje",
-        "join-description": "se mete al canal de voz y empieza a escuchar comandos de voz",
-        "add-member-description": "añade un usuario con un alias para que el bot lo reconozca (admin requerido)",
-        "add-channel-description": "añade un canal para que el bot lo reconozca con un alias (admin requerido)",
-        "voice-commands-description": "Equisde"
+        "configuration-description": "/configuration -> Configura las propiedades del bot (admin requerido)\n",
+        "help-description": "/help -> Muestra este mensaje\n",
+        "join-description": "/join -> Se mete al canal de voz y empieza a escuchar comandos de voz\n",
+        "add-member-description": "/addmember -> Añade un usuario con un alias para que el bot lo reconozca (admin requerido)\n",
+        "add-channel-description": "/addchannel -> Añade un canal para que el bot lo reconozca con un alias (admin requerido)\n",
+        "voice-commands-description":{
+            "kick-description": "'oye marrón expulsa <alias/todos>' -> expulsa al usuario identificado por el alias\n",
+            "alert-description": "'oye marrón alerta' -> alerta a los usuarios ensordecidos del canal hasta que se desensordezcan\n",
+            "random-number-description": "'oye marrón número aleatorio' -> da un número aleatorio\n",
+            "mute-description": "'oye marrón silencia <alias>' -> silencia de servidor al usuario identificado con el alias\n",
+            "deaf-description": "'oye marrón ensordece <alias>' -> ensordece de servidor al usuario identificado con el alias\n",
+            "speak-description": "'oye marrón habla' -> desensordece y desmutea a todos los usuarios del canal\n",
+            "move-description": "'oye marrón mueve <alias canal>' -> mueve a todos los usuarios del canal de voz al canal identificado con el alias\n",
+            "who-connected-description": "'oye marrón quién esta conectado' -> cita por voz que usuarios identificados por alias están online\n",
+            "think-description": "'oye marrón piensa <promt>' -> le pregunta a chatGPT una pregunta y devuelve la respuesta por voz\n"
+        }
     },
     "confirmations":{
         "config-saved": "Se ha guardado tu configuracion!",

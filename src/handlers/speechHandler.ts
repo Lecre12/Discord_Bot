@@ -69,7 +69,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         if(connection)
         await getConnectedUsers(message, connection);
 
-    }else if(message.content.includes(getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id))){
+    }else if(message.content.includes(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id))){
 
         console.log('THINK TEXT: ' + message.content);
         if(connection)

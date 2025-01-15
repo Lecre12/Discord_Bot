@@ -1,26 +1,26 @@
 import { MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { LangKeys } from '../lang/lang-keys';
+import { getMessage } from '../lang/lang-manager';
 
 export const helpCommand = new SlashCommandBuilder()
   .setName('help')
   .setDescription('Show help');
 
 export async function executeHelp(interaction: any) {
-  interaction.reply({ content: "1. /help -> muestra este mensaje\n" +
-    "2. /configuration -> Configura las propiedades del bot (admin requerido)\n" +
-    "3. /join -> se mete al canal de voz y empieza a escuchar comandos de voz\n" +
-    "4. /addmember -> añade un usuario con un alias para que el bot lo reconozca (admin requerido)\n" +
-    "5. /addchannel -> añade un canal para que el bot lo reconozca con un alias (admin requerido)\n" +
-    "6. /supruserdata -> elimina todos los datos relacionados con los alias de usuarios\n" +
-    "7. /suprchanneldata -> elimina todos los datos relacionados con los alias de canales\n" + 
-    "" +
+  interaction.reply({ content: "1. " + getMessage(LangKeys.HELP_DESCRIPTION, interaction.guildId) +
+    "2. " + getMessage(LangKeys.CONFIG_DESCRIPTION, interaction.guildId) +
+    "3. " + getMessage(LangKeys.JOIN_DESCRIPTION, interaction.guildId) +
+    "4. " + getMessage(LangKeys.ADD_MEMBER_DESCRIPTION, interaction.guildId) +
+    "5. " + getMessage(LangKeys.ADD_CHANNEL_DESCRIPTION, interaction.guildId) +
+    "\n" +
     "VOICE COMMANDS:\n" +
-    "1. 'oye marrón expulsa + alias usuario' (o 'todos')\n" +
-    "2. 'oye marrón alerta'\n" +
-    "3. 'oye marrón numero aleatorio/random'\n" +
-    "4. 'oye marrón silencia + alias usuario'\n" +
-    "5. 'oye marron ensordece + alias usuario'\n" + 
-    "6. 'oye marrón habla' -> desmutea y desensordece a todos los usuarios del canal\n" +
-    "7. 'oye marrón mueve/mover + alias canal destino\n" +
-    "8. 'oye marron quien esta conectado -> cita los miembros conectados y si se dice voz/discord tambien les manda un mensaje diciendoles que se metan a voz\n" +
-    "9. 'oye marrón piensa promt' -> pregunta a chatgpt algo", flags: MessageFlags.Ephemeral})
+    "1. " + getMessage(LangKeys.KICK_DESCRIPTION, interaction.guildId) +
+    "2. " + getMessage(LangKeys.ALERT_DESCRIPTION, interaction.guildId) +
+    "3. " + getMessage(LangKeys.RANDOM_NUMBER_DESCRIPTION, interaction.guildId) +
+    "4. " + getMessage(LangKeys.MUTE_DESCRIPTION, interaction.guildId) +
+    "5. " + getMessage(LangKeys.DEAF_DESCRIPTION, interaction.guildId) + 
+    "6. " + getMessage(LangKeys.SPEAK_DESCRIPTION, interaction.guildId) +
+    "7. " + getMessage(LangKeys.MOVE_DESCRIPTION, interaction.guildId) +
+    "8. " + getMessage(LangKeys.WHO_CONNECTED_DESCRIPTION, interaction.guildId) +
+    "9. " + getMessage(LangKeys.THINK_DESCRIPTION, interaction.guildId), flags: MessageFlags.Ephemeral})
 }

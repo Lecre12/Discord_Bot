@@ -61,7 +61,7 @@ client.once('ready', async () => {
         }
     }
   console.log("Cerradas " + totalConnections + " conexiones")
-
+  await registerCommands();
   client.guilds.cache.forEach(async guild => {
     const config = await getConfig(guild.id);
     if (config) {
@@ -81,7 +81,6 @@ client.once('ready', async () => {
     }
   });
 
-  await registerCommands();
 });
 
 client.on('interactionCreate', async (interaction: any) => {
