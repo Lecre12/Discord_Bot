@@ -6,6 +6,8 @@ import { configurationCommand, executeGlobalConfiguration } from '../commands/co
 import { executeHelp, helpCommand } from '../commands/help';
 import { executeAddUserMenu } from '../commands/add-member';
 import { executeAddChannelMenu } from '../commands/add-channel';
+import { executeRemoveUserAlias, removeUserAlias } from '../commands/remove-user-alias';
+import { executeRemoveChannelAlias, removeChannelAlias } from '../commands/remove-channel-alias';
 
 dotenv.config()
 
@@ -17,18 +19,20 @@ const commands =[
     joinCommand.toJSON(),
     configurationCommand.setDefaultMemberPermissions(PermissionFlagsBits.Administrator).toJSON(),
     helpCommand.toJSON(),
-    new SlashCommandBuilder().setName('addmember').setDescription('Add a member to de list who the bot can interact with').setDefaultMemberPermissions(PermissionFlagsBits.Administrator).
+    new SlashCommandBuilder().setName('add-member').setDescription('Add a member to de list who the bot can interact with').setDefaultMemberPermissions(PermissionFlagsBits.Administrator).
     addUserOption((option) =>
       option.setName("user").setDescription("User that the bot can recognize").setRequired(true)
     ).addStringOption((option) =>
       option.setName("alias").setDescription("Alias of the user").setRequired(true)
     ).toJSON(),
-    new SlashCommandBuilder().setName('addchannel').setDescription('Add a channel so the bot can move to channels').setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+    new SlashCommandBuilder().setName('add-channel').setDescription('Add a channel so the bot can move to channels').setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addChannelOption((option) =>
       option.setName("channel").setDescription("Voice channel that the bot has to recognize to move").setRequired(true).addChannelTypes(ChannelType.GuildVoice))
     .addStringOption((option) =>
       option.setName("alias").setDescription("Channel alias").setRequired(true)
     ).toJSON(),
+    removeUserAlias.toJSON(),
+    removeChannelAlias.toJSON(),
 ];
 
 const rest = new REST({ version: '9' }).setToken(BOT_TOKEN);
@@ -55,11 +59,11 @@ export async function exeCommand(interaction : any, commandName : string){
       break;
     case 'configuration':
       executeGlobalConfiguration(interaction);
-      break
+      break;
     case 'ping':
       executePing(interaction);
-      break
-    case 'addmember':
+      break;
+    case 'add-member':
       let context : HandlerContext = {
         selectedLanguage :  '',
         selectedChannel1 :  '',
@@ -69,8 +73,8 @@ export async function exeCommand(interaction : any, commandName : string){
         userId :''
       };
       executeAddUserMenu(interaction, context);
-      break
-    case 'addchannel':
+      break;
+    case 'add-channel':
       let context2 : HandlerContext = {
         selectedLanguage :  '',
         selectedChannel1 :  '',
@@ -80,11 +84,18 @@ export async function exeCommand(interaction : any, commandName : string){
         userId :''
       };
       executeAddChannelMenu(interaction, context2);
-      break
+      break;
     case 'help':
       await executeHelp(interaction);
+      break;
+    case 'remove-user-alias':
+      await executeRemoveUserAlias(interaction);
+      break;
+    case 'remove-channel-alias':
+      await executeRemoveChannelAlias(interaction);
+      break;
     default:
-      //await interaction.reply({ content: "Mi rey ese puto comando no tengo ni idea de lo que pollas hace, un cordial saludo", flags: MessageFlags.Ephemeral})
+      await interaction.reply({ content: "Mi rey ese puto comando no tengo ni idea de lo que pollas hace, un cordial saludo", flags: MessageFlags.Ephemeral})
     break
   }
 }
