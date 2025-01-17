@@ -1,7 +1,7 @@
 import { VoiceConnection } from "@discordjs/voice";
 import { VoiceMessage } from "discord-speech-recognition";
 import { GuildMember } from "discord.js";
-import { serverData } from "../index";
+import { semUpdateStatus, serverData } from "../index";
 
 export async function kickUser(message: VoiceMessage){
     const aliasUsers = serverData.get(message.guild.id)?.aliasUsers;
@@ -26,10 +26,14 @@ export async function kickUser(message: VoiceMessage){
 
 export async function kickAll(message: VoiceMessage) {
 
+    await semUpdateStatus.acquire();
     if(!message.member?.voice.channel) return
     const membersCopy: GuildMember[] = Array.from(message.member.voice.channel.members.values()).slice() as GuildMember[];
           membersCopy.forEach(async (m: GuildMember) => {
-            await m.voice.disconnect();
-            console.log(`Expulsado ${m.displayName}`)
+            if(m.voice){
+              console.log(`Expulsado ${m.displayName}`)
+              await m.voice.disconnect();
+            }
           });
+    semUpdateStatus.release();
 }

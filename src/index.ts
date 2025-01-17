@@ -10,6 +10,7 @@ import { connection, setConnection } from './commands/join';
 import { OpenAI } from 'openai';
 import { handleSpeech } from './handlers/speechHandler';
 const { EventEmitter } = require('events');
+import { Semaphore } from './util/Semaphore';
 EventEmitter.defaultMaxListeners = 8;
 
 dotenv.config();
@@ -43,6 +44,8 @@ export const client = new Client({ intents: [
   GatewayIntentBits.GuildMessages,
   GatewayIntentBits.GuildPresences,
 ] });
+
+export const semUpdateStatus = new Semaphore(1);
 
 
 client.once('ready', async () => {
@@ -78,6 +81,7 @@ client.once('ready', async () => {
         speechOptions: speechOptions
       });
       console.log(`Language for this guild: ${lang}`);
+      console.log(client.listenerCount("speech"));
     }
   });
 
@@ -108,6 +112,8 @@ client.on('guildCreate', (guild) =>{
 });
 
 client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
+  await semUpdateStatus.acquire();
+
   const botMember = await newState.guild.members.fetch(client.user!.id);
   const botVoiceChannel = botMember.voice.channel?.id;
   // Verificar si el miembro que se ha unido es alguien que no es el bot
@@ -126,19 +132,19 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
   // Verificar si el bot está solo en el canal de voz
   if (oldState.channel) {
     const channel = oldState.channel;
+    const botMember = channel.guild.members.me;
     if(channel.members.has(oldState.client.user!.id)){
       const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
       if (membersInChannel.size === 0) {
         // Si no hay más usuarios (excepto el bot) en el canal, desconectar el bot
-        if (connection) {
-          connection.destroy();
-          setConnection(undefined);
-          console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
-        }
+        botMember?.voice.disconnect();
+        console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
       }
     }
     
   }
+
+  semUpdateStatus.release();
 });
 
 client.on('speech', handleSpeech);
