@@ -1,4 +1,4 @@
-import { AudioPlayerStatus, createAudioPlayer, createAudioResource, VoiceConnection } from '@discordjs/voice';
+import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, createAudioResource, VoiceConnection } from '@discordjs/voice';
 import * as googleTTS from 'google-tts-api';
 import { Readable } from 'stream';
 import axios from 'axios';
@@ -11,6 +11,10 @@ import { serverData } from '..';
  * @param text El texto a leer.
  * @param voiceChannel El canal de voz donde reproducir el audio.
  */
+let audioPlayer : AudioPlayer | undefined;
+export function getSpeechAudioPlayer(){
+  return audioPlayer;
+}
 export async function speakText(text: string, connection: VoiceConnection, guildId: string ) {
 
   try {
@@ -43,16 +47,17 @@ export async function speakText(text: string, connection: VoiceConnection, guild
       const resource = createAudioResource(processedStream);
 
       // Crear y reproducir audio
-      const player = createAudioPlayer();
-      connection.subscribe(player);
-      player.play(resource);
+      audioPlayer = createAudioPlayer();
+      connection.subscribe(audioPlayer);
+      audioPlayer.play(resource);
 
       // Esperar a que se reproduzca el fragmento antes de continuar con el siguiente
       await new Promise<void>((resolve) =>
-        player.on('stateChange', (_, newState) => {
+        audioPlayer?.on('stateChange', (_, newState) => {
           if (newState.status === 'idle') resolve();
         })
       );
+      
     }
 
     console.log(`Reproduciendo TTS dividido en partes.`);

@@ -53,7 +53,9 @@
         "move-2": "mov",
         "who": "quién",
         "connected": "conectad",
-        "think": "piensa"
+        "think": "piensa",
+        "music": "pon",
+        "stop": "para"
     },
     "replys":{
         "join-channel": "Estoy escuchando tus comandos de voz en: "

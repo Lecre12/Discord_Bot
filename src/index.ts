@@ -6,12 +6,13 @@ import { getConfig } from './util/bot-config';
 import { handleInteraction } from './commands/configuration';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { executeJoin } from './commands/join';
-import { connection, setConnection } from './commands/join';
 import { OpenAI } from 'openai';
 import { handleSpeech } from './handlers/speechHandler';
 const { EventEmitter } = require('events');
-import { Semaphore } from './util/Semaphore';
-EventEmitter.defaultMaxListeners = 8;
+import { Semaphore } from './util/semaphore';
+import fs from 'fs';
+import path from 'path';
+EventEmitter.defaultMaxListeners = 0;
 
 dotenv.config();
 
@@ -63,7 +64,8 @@ client.once('ready', async () => {
             }
         }
     }
-  console.log("Cerradas " + totalConnections + " conexiones")
+  console.log("Cerradas " + totalConnections + " conexiones");
+  deleteAllFilesInFolder(path.resolve(__dirname, '../songs/'));
   await registerCommands();
   client.guilds.cache.forEach(async guild => {
     const config = await getConfig(guild.id);
@@ -150,3 +152,19 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
 client.on('speech', handleSpeech);
 
 client.login(BOT_TOKEN);
+
+export function deleteAllFilesInFolder(folderPath: string): void {
+  try {
+      const files = fs.readdirSync(folderPath); // Leer todos los archivos en la carpeta
+      files.forEach((file) => {
+          const filePath = path.join(folderPath, file);
+          if (fs.statSync(filePath).isFile()) { // Verificar si es un archivo
+              fs.unlinkSync(filePath); // Eliminar el archivo
+              console.log(`Archivo eliminado: ${filePath}`);
+          }
+      });
+      console.log(`Todos los archivos en '${folderPath}' han sido eliminados.`);
+  } catch (err) {
+      console.error(`Error al intentar borrar los archivos: ${err}`);
+  }
+}

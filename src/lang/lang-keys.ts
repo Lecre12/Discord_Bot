@@ -45,6 +45,8 @@ export enum LangKeys{
     WHO_VOICE_COMMAND = "voice.who",
     CONNECTED_VOICE_COMMAND = "voice.connected",
     THINK_VOICE_COMMAND = "voice.think",
+    MUSIC_VOICE_COMMAND = "voice.music",
+    STOP_VOICE_COMMAND = "voice.stop",
 
     ERR_NOT_ON_CHANNEL = "errors.not-on-channel",
     JOIN_CHANNEL_REPLY = "replys.join-channel"

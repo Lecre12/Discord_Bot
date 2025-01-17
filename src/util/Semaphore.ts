@@ -37,7 +37,7 @@ export class Semaphore {
           this.currentCount++;
       } else {
           // Si se intenta liberar más de lo permitido, lanza un error
-          throw new Error("Liberación de semáforo inválida: el semáforo ya está en su capacidad máxima.");
+          //throw new Error("Liberación de semáforo inválida: el semáforo ya está en su capacidad máxima.");
       }
   }
 }

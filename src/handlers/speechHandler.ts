@@ -1,7 +1,7 @@
 import { VoiceMessage } from "discord-speech-recognition";
 import { connection } from "../commands/join";
 import { askOpenAi } from "../util/open-ai-integration";
-import { speakText } from "../util/ttsUtil";
+import { getSpeechAudioPlayer, speakText } from "../util/ttsUtil";
 import { alertUsers } from "../voice-commands/alert";
 import { getConnectedUsers } from "../voice-commands/connected-users";
 import { deafUser } from "../voice-commands/deaf";
@@ -12,6 +12,9 @@ import { normalVoiceState } from "../voice-commands/unmute-undeaf";
 import { getMessage } from "../lang/lang-manager";
 import { LangKeys } from "../lang/lang-keys";
 import { client } from "..";
+import { deleteFile, getAudioPlayer, playSong } from "../voice-commands/music";
+import path from "path";
+import { Guild } from "discord.js";
 
 
 export async function handleSpeech(message: VoiceMessage): Promise<void>{
@@ -36,14 +39,20 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         }else if(message.content.includes(getMessage(LangKeys.NUMBER_VOICE_COMMAND, message.guild.id)) && (message.content.includes(getMessage(LangKeys.RANDOM_VOICE_COMMAND, message.guild.id)))){
 
             console.log("NUMBER TEXT: " + message.content);
+            await getAudioPlayer()?.stop();
             if(connection)
             speakText('' + (Math.random() * 10).toFixed(), connection, message.guild.id);
 
-        }else if(message.content.includes(getMessage(LangKeys.ALERT_VOICE_COMMAND, message.guild.id))){
+        }else 
+        if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id))){
 
-            console.log("ALERT TEXT: " + message.content)
-            await alertUsers(message);
-
+            const textAfterCommand = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id)).length).trim();
+            console.log('THINK TEXT: ' + textAfterCommand);
+            await getAudioPlayer()?.stop();
+            if(textAfterCommand){
+                if(connection)
+                    await askOpenAi(textAfterCommand, connection, message.guild.id);
+            }
         }else if(message.content.includes(getMessage(LangKeys.MUTE_VOICE_COMMAND, message.guild.id))){
 
             console.log("MUTE TEXT: " + message.content)
@@ -70,14 +79,23 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(connection)
             await getConnectedUsers(message, connection);
 
-        }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id))){
+        }else if(message.content.includes(getMessage(LangKeys.ALERT_VOICE_COMMAND, message.guild.id))){
 
-            const textAfterCommand = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id)).length).trim();
-            console.log('THINK TEXT: ' + textAfterCommand);
-            if(textAfterCommand){
-                if(connection)
-                    await askOpenAi(textAfterCommand, connection, message.guild.id);
+            console.log("ALERT TEXT: " + message.content)
+            await alertUsers(message);
+
+        }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id))){
+            const song = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id)).length).trim();
+            console.log("MUSIC TEXT: " + song);
+            if(song){    
+                if(connection){
+                    await playSong(song, connection, message.guild.id);
+                    //deleteFile(path.resolve(__dirname, `../../songs/song${message.guild.id}.mp3`));
+                } 
             }
+        }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.STOP_VOICE_COMMAND, message.guild.id))){
+            getAudioPlayer()?.stop();
+            //getSpeechAudioPlayer()?.stop;
         }
     }
 }

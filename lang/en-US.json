@@ -53,7 +53,9 @@
         "move-2": "go to",
         "who": "who",
         "connected": "connect",
-        "think": "think"
+        "think": "think",
+        "music": "put",
+        "stop": "stop"
     },
     "replys":{
         "join-channel": "I'm listennig you voice commands in: "
