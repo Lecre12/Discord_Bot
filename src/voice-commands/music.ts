@@ -15,7 +15,7 @@ const semChangeSong = new Semaphore(1);
 export async function playSong(song: string, connection: VoiceConnection, guildId: string) {
     await semDoubles.acquire();
         if(alreadyRequested){
-            console.log("No majo, no ya hay una cancion en marcha.");
+            console.log("No majo, no ya hay una canción en marcha.");
         
             semDoubles.release();
             return;

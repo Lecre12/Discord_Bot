@@ -1,6 +1,6 @@
 import { VoiceMessage } from "discord-speech-recognition";
 import { askOpenAi } from "../util/open-ai-integration";
-import { speakText } from "../util/ttsUtil";
+import { setCanContinue, speakText } from "../util/ttsUtil";
 import { alertUsers } from "../voice-commands/alert";
 import { getConnectedUsers } from "../voice-commands/connected-users";
 import { deafUser } from "../voice-commands/deaf";
@@ -97,6 +97,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
                 } 
             }
         }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.STOP_VOICE_COMMAND, message.guild.id))){
+            setCanContinue(false, message.guild.id);
             await stopAudioPlayer(message.guild.id);
         }
     }
