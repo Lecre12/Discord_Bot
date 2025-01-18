@@ -1,21 +1,16 @@
-import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, createAudioResource, NoSubscriberBehavior, StreamType, VoiceConnection } from "@discordjs/voice";
+import { AudioPlayer, AudioPlayerStatus, AudioResource, createAudioPlayer, createAudioResource, NoSubscriberBehavior, StreamType, VoiceConnection } from "@discordjs/voice";
 import { speakText } from "../util/ttsUtil";
 import { promisify } from "util";
 import { exec } from 'child_process';
 import { Semaphore } from "../util/semaphore";
 import path from "path";
-import { wait } from "../util/wait";
 import fs from 'fs';
+import { getAudioPlayer, getBuildedAudioPlayer, removeAudioPlayer } from "..";
 
 const execPromise = promisify(exec);
 let alreadyRequested = false;
 const semDoubles = new Semaphore(1);
 const semChangeSong = new Semaphore(1);
-
-let audioPlayer: AudioPlayer | null;
-export function getAudioPlayer(){
-    return audioPlayer;
-}
 
 export async function playSong(song: string, connection: VoiceConnection, guildId: string) {
     await semDoubles.acquire();
@@ -33,33 +28,34 @@ export async function playSong(song: string, connection: VoiceConnection, guildI
         const streamURL = await getStreamURL(song, guildId);
         if (!streamURL) {
             console.log("Canción no encontrada.");
+            alreadyRequested = false;
+            semDoubles.release();
             return;
         }
         
         console.log(streamURL);
         // Creamos el stream de audio usando la URL obtenida
         const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.mp3`);
-        const resource = createAudioResource(songPath, {
+        let resource: AudioResource<null> | null = createAudioResource(songPath, {
             //inputType: StreamType.Opus,
             inlineVolume: true
         });
     
         resource.volume?.setVolume(0.1);
+        console.log("Es leible: " + resource?.readable);
         
-        audioPlayer = createAudioPlayer({
-            behaviors: {
-            noSubscriber: NoSubscriberBehavior.Pause
-            }
-        });
+        const audioPlayer = getBuildedAudioPlayer(guildId);
+        if(!audioPlayer) return;
     
         console.log("Reproduciendo la canción...");
         audioPlayer.play(resource);
-        connection.subscribe(audioPlayer);
+        const audioPlayerSubscribe = connection.subscribe(audioPlayer);
         
-        //console.log(resource);
-        audioPlayer.on(AudioPlayerStatus.Idle, async () => {
-            speakText("Se ha terminado la canción", connection, guildId);
+        audioPlayer.once(AudioPlayerStatus.Idle, async () => {
+            //speakText("Se ha terminado la canción", connection, guildId);
             alreadyRequested = false;
+            audioPlayerSubscribe?.unsubscribe();
+            await deleteFile(songPath, guildId);
             semDoubles.release();
             return;
         });
@@ -85,7 +81,8 @@ async function getStreamURL(song: string, guildId: string): Promise<string | nul
     }
   }
 
-export function deleteFile(filePath: string): void {
+export async function deleteFile(filePath: string, guildId: string): Promise<void> {
+    
     setTimeout(() => {
         fs.unlink(filePath, (err) => {
             if (err) {
@@ -94,6 +91,14 @@ export function deleteFile(filePath: string): void {
             }
             console.log(`Archivo ${filePath} borrado exitosamente.`);
         });
+        console.log(getAudioPlayer(guildId));
         semChangeSong.release();
-    }, 1000)
+    }, 5000);
+    
+    /*try {
+        fs.unlinkSync(filePath);
+        console.log(`Archivo eliminado: ${filePath}`);
+    } catch (error) {
+        console.error(`Error al eliminar el archivo: ${error}`);
+    }*/
 }

@@ -43,13 +43,17 @@ export async function trueHandleInteraction(interaction: any): Promise<void>{
           config.CONNECT = initConnect
 
           const speechOptions: SpeechOptions = serverData.get(interaction.guildId)!.speechOptions;
+          const connection = serverData.get(interaction.guildId)!.connection;
+          const audioPlayer = serverData.get(interaction.guildId)!.audioPlayer;
           speechOptions.lang = config.LANG;
           serverData.set(interaction.guildId, {
             aliasUsers: config.USERS,
             moveChannels: config.CHANNELS,
             connect: config.CONNECT,
             lang: config.LANG,
-            speechOptions: speechOptions
+            speechOptions: speechOptions,
+            connection: undefined,
+            audioPlayer: undefined,
           })
           updateConfig(interaction.guildId as string, config);
     

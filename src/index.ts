@@ -1,3 +1,4 @@
+import { AudioPlayer, createAudioPlayer, NoSubscriberBehavior, VoiceConnection } from '@discordjs/voice';
 import { ActivityType, Client, GatewayIntentBits, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
 import { registerCommands } from './handlers/command-handler';
@@ -21,7 +22,7 @@ export const openIa = new OpenAI({
   apiKey: "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"
 });
 
-export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, connect:boolean, lang: string, speechOptions: SpeechOptions}>();
+export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, connect:boolean, lang: string, speechOptions: SpeechOptions, connection: VoiceConnection | undefined, audioPlayer: AudioPlayer | undefined}>();
 
 export function getLang(guildId: string): string | undefined{
   return serverData.get(guildId)?.lang;
@@ -34,7 +35,9 @@ export function setLang(newLang: string, guildId: string){
     moveChannels: data!.moveChannels,
     connect: data!.connect,
     lang: newLang,
-    speechOptions: data!.speechOptions
+    speechOptions: data!.speechOptions,
+    connection: undefined,
+    audioPlayer: undefined,
   });
 }
 
@@ -80,7 +83,9 @@ client.once('ready', async () => {
         moveChannels: config.CHANNELS,
         connect: config.CONNECT,
         lang: lang,
-        speechOptions: speechOptions
+        speechOptions: speechOptions,
+        connection: undefined,
+        audioPlayer: undefined,
       });
       console.log(`Language for this guild: ${lang}`);
       console.log(client.listenerCount("speech"));
@@ -167,4 +172,62 @@ export function deleteAllFilesInFolder(folderPath: string): void {
   } catch (err) {
       console.error(`Error al intentar borrar los archivos: ${err}`);
   }
+}
+
+export function setConnection(connection: VoiceConnection | undefined, guildId: string){
+  const oldServerDataGuild = serverData.get(guildId);
+  serverData.set(guildId, {
+    aliasUsers: oldServerDataGuild!.aliasUsers,
+    moveChannels: oldServerDataGuild!.moveChannels,
+    connect: oldServerDataGuild!.connect,
+    lang: oldServerDataGuild!.lang,
+    speechOptions: oldServerDataGuild!.speechOptions,
+    connection: connection,
+    audioPlayer: oldServerDataGuild!.audioPlayer,
+  });
+}
+
+function setAudioPlayer(audioPlayer: AudioPlayer | undefined, guildId: string){
+  const oldServerDataGuild = serverData.get(guildId);
+  serverData.set(guildId, {
+    aliasUsers: oldServerDataGuild!.aliasUsers,
+    moveChannels: oldServerDataGuild!.moveChannels,
+    connect: oldServerDataGuild!.connect,
+    lang: oldServerDataGuild!.lang,
+    speechOptions: oldServerDataGuild!.speechOptions,
+    connection: oldServerDataGuild!.connection,
+    audioPlayer: audioPlayer,
+  });
+}
+export function getConnection(guildId: string){
+  return serverData.get(guildId)!.connection;
+}
+
+export function getBuildedAudioPlayer(guildId: string){
+  makeAudioPlayer(guildId);
+  return serverData.get(guildId)!.audioPlayer;
+}
+export function getAudioPlayer(guildId: string){
+  return serverData.get(guildId)!.audioPlayer;
+}
+
+export async function stopAudioPlayer(guildId: string){
+  const idle = serverData.get(guildId)!.audioPlayer?.stop(true);
+  console.log("Exito en la parada: " + idle);
+  removeAudioPlayer(guildId);
+  
+}
+
+export function makeAudioPlayer(guildId: string){
+  removeAudioPlayer(guildId);
+  const audioPlayer = createAudioPlayer({
+    behaviors: {
+    noSubscriber: NoSubscriberBehavior.Pause
+    }
+  });
+  setAudioPlayer(audioPlayer, guildId);
+}
+
+export function removeAudioPlayer(guildId: string){
+  setAudioPlayer(undefined, guildId);
 }

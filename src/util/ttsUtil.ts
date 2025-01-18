@@ -1,20 +1,15 @@
-import { AudioPlayer, AudioPlayerStatus, createAudioPlayer, createAudioResource, VoiceConnection } from '@discordjs/voice';
+import { AudioPlayerStatus, createAudioPlayer, createAudioResource, VoiceConnection } from '@discordjs/voice';
 import * as googleTTS from 'google-tts-api';
 import { Readable } from 'stream';
 import axios from 'axios';
 import { spawn } from 'child_process';
-import * as fs from 'fs';
-import { serverData } from '..';
+import { getBuildedAudioPlayer, removeAudioPlayer, serverData } from '..';
 
 /**
  * Reproduce texto como audio en un canal de voz.
  * @param text El texto a leer.
  * @param voiceChannel El canal de voz donde reproducir el audio.
  */
-let audioPlayer : AudioPlayer | undefined;
-export function getSpeechAudioPlayer(){
-  return audioPlayer;
-}
 export async function speakText(text: string, connection: VoiceConnection, guildId: string ) {
 
   try {
@@ -45,10 +40,11 @@ export async function speakText(text: string, connection: VoiceConnection, guild
 
       // Crear recurso de audio para Discord
       const resource = createAudioResource(processedStream);
+      const audioPlayer = getBuildedAudioPlayer(guildId);
+      if(!audioPlayer) return;
 
       // Crear y reproducir audio
-      audioPlayer = createAudioPlayer();
-      connection.subscribe(audioPlayer);
+      const audioPlayerSubscribe = connection.subscribe(audioPlayer);
       audioPlayer.play(resource);
 
       // Esperar a que se reproduzca el fragmento antes de continuar con el siguiente
@@ -59,13 +55,16 @@ export async function speakText(text: string, connection: VoiceConnection, guild
       );
       
     }
-
+    removeAudioPlayer(guildId);
     console.log(`Reproduciendo TTS dividido en partes.`);
   } catch (error) {
     console.error('Error reproduciendo TTS:', error);
   }
 }
 
+/**
+ * @deprecated Use speakText instead.
+ */
 export async function playAudioFile(filePath: string, connection: VoiceConnection) {
     const player = createAudioPlayer();
     const resource = createAudioResource(filePath);

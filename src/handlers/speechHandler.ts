@@ -1,7 +1,6 @@
 import { VoiceMessage } from "discord-speech-recognition";
-import { connection } from "../commands/join";
 import { askOpenAi } from "../util/open-ai-integration";
-import { getSpeechAudioPlayer, speakText } from "../util/ttsUtil";
+import { speakText } from "../util/ttsUtil";
 import { alertUsers } from "../voice-commands/alert";
 import { getConnectedUsers } from "../voice-commands/connected-users";
 import { deafUser } from "../voice-commands/deaf";
@@ -11,15 +10,19 @@ import { muteUser } from "../voice-commands/mute";
 import { normalVoiceState } from "../voice-commands/unmute-undeaf";
 import { getMessage } from "../lang/lang-manager";
 import { LangKeys } from "../lang/lang-keys";
-import { client } from "..";
-import { deleteFile, getAudioPlayer, playSong } from "../voice-commands/music";
-import path from "path";
-import { Guild } from "discord.js";
+import { playSong } from "../voice-commands/music";
+import { salute } from "../voice-commands/salute";
+import { getConnection, stopAudioPlayer } from "..";
 
 
 export async function handleSpeech(message: VoiceMessage): Promise<void>{
     if (!message || !message.content) return;
     message.content = message.content!.toLowerCase();
+    const connection = getConnection(message.guild.id);
+    if(message.content.includes("hola marrón")){
+        await salute(message.guild.id);
+        return;
+    }
     if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id))){
         console.log("TEXT: " + message.content);
 
@@ -39,7 +42,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         }else if(message.content.includes(getMessage(LangKeys.NUMBER_VOICE_COMMAND, message.guild.id)) && (message.content.includes(getMessage(LangKeys.RANDOM_VOICE_COMMAND, message.guild.id)))){
 
             console.log("NUMBER TEXT: " + message.content);
-            await getAudioPlayer()?.stop();
+            await stopAudioPlayer(message.guild.id);
             if(connection)
             speakText('' + (Math.random() * 10).toFixed(), connection, message.guild.id);
 
@@ -48,7 +51,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
 
             const textAfterCommand = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id)).length).trim();
             console.log('THINK TEXT: ' + textAfterCommand);
-            await getAudioPlayer()?.stop();
+            await stopAudioPlayer(message.guild.id);
             if(textAfterCommand){
                 if(connection)
                     await askOpenAi(textAfterCommand, connection, message.guild.id);
@@ -94,8 +97,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
                 } 
             }
         }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.STOP_VOICE_COMMAND, message.guild.id))){
-            getAudioPlayer()?.stop();
-            //getSpeechAudioPlayer()?.stop;
+            await stopAudioPlayer(message.guild.id);
         }
     }
 }
