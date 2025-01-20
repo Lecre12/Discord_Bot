@@ -45,6 +45,7 @@ export async function askOpenAi(promtToChat: string, connection: VoiceConnection
             history = historyMessagesGuildId.get(guildId);
         }
         if(!history) return;
+        
         history.push({ role: 'user', content: promtToChat });
 
         const response = await openIa.chat.completions.create({
@@ -53,6 +54,7 @@ export async function askOpenAi(promtToChat: string, connection: VoiceConnection
             n: 1,
             max_tokens: 500,
         });
+        
         console.log("IA responde: " + response.choices[0].message.content);
         if(response.choices[0].message.content)
         history.push({ role: 'assistant', content: response.choices[0].message.content });

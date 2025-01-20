@@ -215,7 +215,6 @@ export async function stopAudioPlayer(guildId: string){
   const idle = serverData.get(guildId)!.audioPlayer?.stop(true);
   console.log("Exito en la parada: " + idle);
   removeAudioPlayer(guildId);
-  
 }
 
 export function makeAudioPlayer(guildId: string){

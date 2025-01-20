@@ -20,6 +20,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
     message.content = message.content!.toLowerCase();
     const connection = getConnection(message.guild.id);
     if(message.content.includes("hola marrón")){
+        await stopAllAuidio(message.guild.id);
         await salute(message.guild.id);
         return;
     }
@@ -30,6 +31,24 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             console.log("NUKE TEXT: ")
             await kickAll(message);
             return;
+        }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id))){
+            const song = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id)).length).trim();
+            console.log("MUSIC TEXT: " + song);
+            if(song){    
+                if(connection){
+                    await playSong(song, connection, message.guild.id);
+                    //deleteFile(path.resolve(__dirname, `../../songs/song${message.guild.id}.mp3`));
+                } 
+            }
+        }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id))){
+
+            const textAfterCommand = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id)).length).trim();
+            console.log('THINK TEXT: ' + textAfterCommand);
+            await stopAllAuidio(message.guild.id);
+            if(textAfterCommand){
+                if(connection)
+                    await askOpenAi(textAfterCommand, connection, message.guild.id);
+            }
         }else if(message.content.includes(getMessage(LangKeys.KICK_VOICE_COMMAND, message.guild.id))){
 
             console.log("KICK TEXT: " + message.content)
@@ -42,20 +61,10 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         }else if(message.content.includes(getMessage(LangKeys.NUMBER_VOICE_COMMAND, message.guild.id)) && (message.content.includes(getMessage(LangKeys.RANDOM_VOICE_COMMAND, message.guild.id)))){
 
             console.log("NUMBER TEXT: " + message.content);
-            await stopAudioPlayer(message.guild.id);
+            await stopAllAuidio(message.guild.id);
             if(connection)
             speakText('' + (Math.random() * 10).toFixed(), connection, message.guild.id);
 
-        }else 
-        if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id))){
-
-            const textAfterCommand = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id)).length).trim();
-            console.log('THINK TEXT: ' + textAfterCommand);
-            await stopAudioPlayer(message.guild.id);
-            if(textAfterCommand){
-                if(connection)
-                    await askOpenAi(textAfterCommand, connection, message.guild.id);
-            }
         }else if(message.content.includes(getMessage(LangKeys.MUTE_VOICE_COMMAND, message.guild.id))){
 
             console.log("MUTE TEXT: " + message.content)
@@ -87,18 +96,13 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             console.log("ALERT TEXT: " + message.content)
             await alertUsers(message);
 
-        }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id))){
-            const song = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id)).length).trim();
-            console.log("MUSIC TEXT: " + song);
-            if(song){    
-                if(connection){
-                    await playSong(song, connection, message.guild.id);
-                    //deleteFile(path.resolve(__dirname, `../../songs/song${message.guild.id}.mp3`));
-                } 
-            }
         }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.STOP_VOICE_COMMAND, message.guild.id))){
-            setCanContinue(false, message.guild.id);
-            await stopAudioPlayer(message.guild.id);
+            await stopAllAuidio(message.guild.id);
         }
     }
+}
+
+async function stopAllAuidio(guildId: string){
+    setCanContinue(false, guildId);
+    await stopAudioPlayer(guildId);
 }
