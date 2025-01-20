@@ -22,5 +22,9 @@ export async function executeHelp(interaction: any) {
     "6. " + getMessage(LangKeys.SPEAK_DESCRIPTION, interaction.guildId) +
     "7. " + getMessage(LangKeys.MOVE_DESCRIPTION, interaction.guildId) +
     "8. " + getMessage(LangKeys.WHO_CONNECTED_DESCRIPTION, interaction.guildId) +
-    "9. " + getMessage(LangKeys.THINK_DESCRIPTION, interaction.guildId), flags: MessageFlags.Ephemeral})
+    "9. " + getMessage(LangKeys.THINK_DESCRIPTION, interaction.guildId) + 
+    "10. " + getMessage(LangKeys.MUSIC_DESCRIPTION, interaction.guildId) +
+    "11. " + getMessage(LangKeys.STOP_ALL_AUDIO, interaction.guildId)
+    , flags: MessageFlags.Ephemeral})
+    
 }

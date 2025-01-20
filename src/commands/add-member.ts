@@ -15,7 +15,7 @@ export async function executeAddUserMenu(interaction: any, handlerContext: Handl
     handlerContext.userId = member.id;
     if(serverConfig){
       const config = getConfig(interaction.guildId as string);
-      serverConfig.aliasUsers[alias.toLowerCase()] = handlerContext.userId;
+      serverConfig.aliasUsers[alias.toLowerCase()] = member.id;
       config.USERS = serverConfig.aliasUsers;
       let banned = false;
       for (const banAlias of bannedAlias) {

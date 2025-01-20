@@ -19,7 +19,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
     if (!message || !message.content) return;
     message.content = message.content!.toLowerCase();
     const connection = getConnection(message.guild.id);
-    if(message.content.includes("hola marrón")){
+    if(message.content.startsWith(getMessage(LangKeys.SALUTE_VOICE_COMMAND, message.guild.id))){
         await stopAllAuidio(message.guild.id);
         await salute(message.guild.id);
         return;

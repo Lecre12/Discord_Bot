@@ -15,12 +15,16 @@ export enum LangKeys{
     MOVE_DESCRIPTION = "command.voice-commands-description.move-description",
     WHO_CONNECTED_DESCRIPTION = "command.voice-commands-description.who-connected-description",
     THINK_DESCRIPTION = "command.voice-commands-description.think-description",
+    MUSIC_DESCRIPTION = "commands.voice-commands-description.music-description",
+    STOP_ALL_AUDIO = "commands.voice-commands-description.stop-all-speech-description",
 
     ERR_FILL_FIELDS = "errors.fill-fields",
     CONFIRMATION_CONFIG_SAVED = "confirmations.config-saved",
     CONFIRMATION_CHANNEL_SAVED = "confirmations.channel-saved",
     CONFIRMATION_USER_SAVED = "confirmations.user-saved",
+    CONFIRMATION_USER_DELETED = "confirmations.user-deleted",
     ERR_BOT_NAME_ON_ALIAS = "errors.bot-name-on-alias",
+    ERR_ALIAS_NOT_FOUND = "errors.alias-not-found",
     ENGLISH = "english",
     SPANISH = "spanish",
     PLACEHOLDER_LANGUAGE = "config.placeholder-language",
@@ -47,6 +51,7 @@ export enum LangKeys{
     THINK_VOICE_COMMAND = "voice.think",
     MUSIC_VOICE_COMMAND = "voice.music",
     STOP_VOICE_COMMAND = "voice.stop",
+    SALUTE_VOICE_COMMAND = "voice.salute",
 
     ERR_NOT_ON_CHANNEL = "errors.not-on-channel",
     JOIN_CHANNEL_REPLY = "replys.join-channel"

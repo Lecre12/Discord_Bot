@@ -15,18 +15,23 @@
             "speak-description": "'oye marrón habla' -> desensordece y desmutea a todos los usuarios del canal\n",
             "move-description": "'oye marrón mueve <alias canal>' -> mueve a todos los usuarios del canal de voz al canal identificado con el alias\n",
             "who-connected-description": "'oye marrón quién esta conectado' -> cita por voz que usuarios identificados por alias están online\n",
-            "think-description": "'oye marrón piensa <promt>' -> le pregunta a chatGPT una pregunta y devuelve la respuesta por voz\n"
+            "think-description": "'oye marrón piensa <promt>' -> le pregunta a chatGPT una pregunta y devuelve la respuesta por voz\n",
+            "music-description": "'oye marrón pon <canción>' -> busca una canción en youtube y la reproduce\n",
+            "stop-all-speech-description": "'oye marrón para' -> para toda reproduccion de audio del momento\n"
         }
     },
     "confirmations":{
         "config-saved": "Configuration saved!",
         "channel-saved": "Channel saved as: ",
-        "user-saved": "User saved as: "
+        "user-saved": "User saved as: ",
+        "user-deleted": "User alias deleted"
     },
     "errors":{
         "fill-fields": "You have to fill all the fields",
         "bot-name-on-alias": "'Brown' or simmilar can't apear in the alias",
-        "not-on-channel": "You are not in a channel, cazurro"
+        "not-on-channel": "You are not in a channel, cazurro",
+        
+        "alias-not-found": "No se ha encontrado el alias"
     },
     "english": "English",
     "spanish": "Spanish",
@@ -55,7 +60,8 @@
         "connected": "connect",
         "think": "think",
         "music": "put",
-        "stop": "stop"
+        "stop": "stop",
+        "salute": "hello brown"
     },
     "replys":{
         "join-channel": "I'm listennig you voice commands in: "

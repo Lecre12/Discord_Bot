@@ -33,8 +33,8 @@ export function createConfig(guildId: string){
         LANG: 'es-ES', // Idioma por defecto
         CHANNEL1: '0',
         CHANNEL2: '0',
-        USERS:'',
-        CHANNELS: '',
+        USERS: {},
+        CHANNELS: {},
         CONNECT: false,
 
     };
