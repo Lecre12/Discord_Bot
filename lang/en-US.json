@@ -24,14 +24,15 @@
         "config-saved": "Configuration saved!",
         "channel-saved": "Channel saved as: ",
         "user-saved": "User saved as: ",
-        "user-deleted": "User alias deleted"
+        "user-deleted": "User alias deleted",
+        "searching-song": "Wait, I'm searching the song"
     },
     "errors":{
         "fill-fields": "You have to fill all the fields",
         "bot-name-on-alias": "'Brown' or simmilar can't apear in the alias",
         "not-on-channel": "You are not in a channel, cazurro",
-        
-        "alias-not-found": "No se ha encontrado el alias"
+        "alias-not-found": "No se ha encontrado el alias",
+        "song-not-found": "Song not found"
     },
     "english": "English",
     "spanish": "Spanish",

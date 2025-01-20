@@ -6,29 +6,38 @@ import { Semaphore } from "../util/semaphore";
 import path from "path";
 import fs from 'fs';
 import { getAudioPlayer, getBuildedAudioPlayer, removeAudioPlayer } from "..";
+import { getMessage } from "../lang/lang-manager";
+import { LangKeys } from "../lang/lang-keys";
 
 const execPromise = promisify(exec);
-let alreadyRequested = false;
 const semDoubles = new Semaphore(1);
 const semChangeSong = new Semaphore(1);
 
+const alreadyRequestedGuild = new Map<string, { alreadyRequested: boolean }>();
+
 export async function playSong(song: string, connection: VoiceConnection, guildId: string) {
     await semDoubles.acquire();
-        if(alreadyRequested){
+
+        if(!alreadyRequestedGuild.get(guildId)){
+            alreadyRequestedGuild.set(guildId, {alreadyRequested: false});
+        }
+
+        if(alreadyRequestedGuild.get(guildId)?.alreadyRequested){
             console.log("No majo, no ya hay una canción en marcha.");
         
             semDoubles.release();
             return;
         }
-        alreadyRequested = true;
+        alreadyRequestedGuild.get(guildId)!.alreadyRequested = true;
         semDoubles.release();
         console.log("Busco: " + song);
     try {
-        speakText("Estoy buscando la cancion, espera", connection, guildId);
+        speakText(getMessage(LangKeys.CONFIRMATION_SEARCHING_SONG, guildId), connection, guildId);
         const streamURL = await getStreamURL(song, guildId);
         if (!streamURL) {
             console.log("Canción no encontrada.");
-            alreadyRequested = false;
+            speakText(getMessage(LangKeys.ERR_SONG_NOT_FOUND, guildId), connection, guildId);
+            alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
             semDoubles.release();
             return;
         }
@@ -53,7 +62,7 @@ export async function playSong(song: string, connection: VoiceConnection, guildI
         
         audioPlayer.once(AudioPlayerStatus.Idle, async () => {
             //speakText("Se ha terminado la canción", connection, guildId);
-            alreadyRequested = false;
+            alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
             audioPlayerSubscribe?.unsubscribe();
             await deleteFile(songPath, guildId);
             semDoubles.release();

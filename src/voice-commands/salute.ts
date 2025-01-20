@@ -1,6 +1,7 @@
 import { AudioPlayerStatus, createAudioPlayer, createAudioResource, NoSubscriberBehavior } from "@discordjs/voice";
 import path from "path";
 import { getBuildedAudioPlayer, getConnection, removeAudioPlayer } from '..';
+import { stopAllAuidio } from "../handlers/speechHandler";
 
 let numberOfSalutes: number = 0;;
 export async function salute(guildId: string){
@@ -10,6 +11,7 @@ export async function salute(guildId: string){
     numberOfSalutes++;
     console.log("numero de saludos: " + numberOfSalutes);
     if(numberOfSalutes > 2){
+        await stopAllAuidio(guildId);
         if(connection){
             let songPath;
             switch((Math.random() * 4).toFixed()){

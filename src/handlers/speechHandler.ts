@@ -14,13 +14,25 @@ import { playSong } from "../voice-commands/music";
 import { salute } from "../voice-commands/salute";
 import { getConnection, stopAudioPlayer } from "..";
 
+const lastSpeechTimes = new Map<string, number>();
 
 export async function handleSpeech(message: VoiceMessage): Promise<void>{
     if (!message || !message.content) return;
+
+    const now = Date.now();
+    const lastTime = lastSpeechTimes.get(message.member!.id) || 0;
+
+    if (now - lastTime > 1500) { // Solo procesar si han pasado más de 1.5 segundos
+        lastSpeechTimes.set(message.member!.id, now);
+        // Procesar el evento de voz aquí
+    } else {
+        //console.log(`Ignorando discurso duplicado de ${message.member!.id}`);
+        return;
+    }
+
     message.content = message.content!.toLowerCase();
     const connection = getConnection(message.guild.id);
     if(message.content.startsWith(getMessage(LangKeys.SALUTE_VOICE_COMMAND, message.guild.id))){
-        await stopAllAuidio(message.guild.id);
         await salute(message.guild.id);
         return;
     }
@@ -102,7 +114,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
     }
 }
 
-async function stopAllAuidio(guildId: string){
+export async function stopAllAuidio(guildId: string){
     setCanContinue(false, guildId);
     await stopAudioPlayer(guildId);
 }

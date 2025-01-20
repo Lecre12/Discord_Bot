@@ -1,9 +1,9 @@
-import { AudioPlayer, createAudioPlayer, NoSubscriberBehavior, VoiceConnection } from '@discordjs/voice';
-import { ActivityType, Client, GatewayIntentBits, VoiceState } from 'discord.js';
+import { AudioPlayer, createAudioPlayer, joinVoiceChannel, NoSubscriberBehavior, VoiceConnection } from '@discordjs/voice';
+import { ActivityType, Client, GatewayIntentBits, InternalDiscordGatewayAdapterCreator, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
 import { registerCommands } from './handlers/command-handler';
 import { exeCommand } from './handlers/command-handler'
-import { getConfig } from './util/bot-config';
+import { createConfig, getConfig } from './util/bot-config';
 import { handleInteraction } from './commands/configuration';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { executeJoin } from './commands/join';
@@ -13,6 +13,7 @@ const { EventEmitter } = require('events');
 import { Semaphore } from './util/semaphore';
 import fs from 'fs';
 import path from 'path';
+import { wait } from './util/wait';
 EventEmitter.defaultMaxListeners = 0;
 
 dotenv.config();
@@ -54,26 +55,15 @@ export const semUpdateStatus = new Semaphore(1);
 
 client.once('ready', async () => {
   console.log(`Logged in as ${client.user?.tag}!`);
+  const listOfGuilds = new Map<string, {channelId: string, voiceAdapter: InternalDiscordGatewayAdapterCreator}>();
 
-  client.user?.setActivity('VoiceCommands', { type: ActivityType.Listening });
-
-  let totalConnections = 0;
-    for (const [_, guild] of client.guilds.cache) {
-        const voiceStates = guild.voiceStates.cache;
-        for (const [_, voiceState] of voiceStates) {
-            if (voiceState.channel && voiceState.member?.id === client.user?.id) {
-                voiceState.disconnect();
-                totalConnections++;
-            }
-        }
-    }
-  console.log("Cerradas " + totalConnections + " conexiones");
+  client.user?.setActivity('Voice Commands', { type: ActivityType.Listening });
   deleteAllFilesInFolder(path.resolve(__dirname, '../songs/'));
   await registerCommands();
   client.guilds.cache.forEach(async guild => {
     const config = await getConfig(guild.id);
+    let speechOptions : SpeechOptions = addSpeechEvent(client);
     if (config) {
-      let speechOptions : SpeechOptions = addSpeechEvent(client);
       console.log(`Loaded config for guild ${guild.id}:`, config);
       const lang = config.LANG;
       speechOptions.lang = lang;
@@ -89,8 +79,38 @@ client.once('ready', async () => {
       });
       console.log(`Language for this guild: ${lang}`);
       console.log(client.listenerCount("speech"));
+    }else{
+      createConfig(guild.id);
+      const defaultConfig = getConfig(guild.id);
+      const lang = config.LANG;
+      speechOptions.lang = lang;
+      speechOptions.profanityFilter = false;
+      serverData.set(guild.id, {
+        aliasUsers: defaultConfig.USERS,
+        moveChannels: defaultConfig.CHANNELS,
+        connect: defaultConfig.CONNECT,
+        lang: lang,
+        speechOptions: speechOptions,
+        connection: undefined,
+        audioPlayer: undefined,
+      });
     }
+    
   });
+  
+  let totalConnections = 0;
+  for (const [_, guild] of client.guilds.cache) {
+    const voiceStates = guild.voiceStates.cache;
+    for (const [_, voiceState] of voiceStates) {
+        if (voiceState.channel && voiceState.member?.id === client.user?.id) {
+          listOfGuilds.set(guild.id, {channelId: voiceState.channel.id, voiceAdapter: voiceState.channel.guild.voiceAdapterCreator});
+          
+            voiceState.disconnect();
+            totalConnections++;
+        }
+    }
+}
+console.log("Total disconnected connections: " + totalConnections);
 
 });
 
@@ -115,6 +135,21 @@ client.on('guildCreate', (guild) =>{
     // Utilizar la configuración cargada
     const lang = config.LANG;
     console.log(`Language for this guild: ${lang}`);
+  }else{
+    let speechOptions : SpeechOptions = addSpeechEvent(client);
+    const defaultConfig = createConfig(guild.id);
+      const lang = config.LANG;
+      speechOptions.lang = lang;
+      speechOptions.profanityFilter = false;
+      serverData.set(guild.id, {
+        aliasUsers: defaultConfig.USERS,
+        moveChannels: defaultConfig.CHANNELS,
+        connect: defaultConfig.CONNECT,
+        lang: lang,
+        speechOptions: speechOptions,
+        connection: undefined,
+        audioPlayer: undefined,
+      });
   }
 });
 

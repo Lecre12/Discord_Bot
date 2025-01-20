@@ -6,7 +6,7 @@ import { openIa } from "../index"
 import { Semaphore } from "./semaphore";
 
 const sem = new Semaphore(1);
-let alreadyRequested = false;
+const alreadyRequestedGuild = new Map<string, { alreadyRequested: boolean }>();
 
 const historyMessagesGuildId = new Map<string, { role: string, content: string }[]>();
 
@@ -30,11 +30,14 @@ export async function textToSpeech(text: string, connection: VoiceConnection){
 
 export async function askOpenAi(promtToChat: string, connection: VoiceConnection, guildId: string){
     await sem.acquire();
-    if(alreadyRequested){
+    if(!alreadyRequestedGuild.get(guildId)){
+        alreadyRequestedGuild.set(guildId, {alreadyRequested: false});
+    }
+    if(alreadyRequestedGuild.get(guildId)!.alreadyRequested){
         sem.release();
         return;
     }else{
-        alreadyRequested = true;
+        alreadyRequestedGuild.get(guildId)!.alreadyRequested = true;
         sem.release();
     }
     try{
@@ -71,6 +74,6 @@ export async function askOpenAi(promtToChat: string, connection: VoiceConnection
         console.error("Error al obtener la respuesta de la IA: " + err);
         speakText("He tenido un error al peguntarle a la ia, disculpe las molestias", connection, guildId);
     }
-    alreadyRequested = false;
+    alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
     
 }

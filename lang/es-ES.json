@@ -24,13 +24,15 @@
         "config-saved": "Se ha guardado tu configuracion!",
         "channel-saved": "Canal guardado como: ",
         "user-saved": "Usuario guardado como: ",
-        "user-deleted": "Alias de usuario eliminado"
+        "user-deleted": "Alias de usuario eliminado",
+        "searching-song": "Estoy buscando la canción, espera"
     },
     "errors":{
         "fill-fields": "Debes rellenar todos los campos",
         "bot-name-on-alias": "No puede aparecer 'marrón' o parecidos en el alias",
         "not-on-channel": "No estas en ningun canal, cazurro",
-        "alias-not-found": "No se ha encontrado el alias"
+        "alias-not-found": "No se ha encontrado el alias",
+        "song-not-found": "Canción no encontrada"
     },
     "english": "Inglés",
     "spanish": "Español",

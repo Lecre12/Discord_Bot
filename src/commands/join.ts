@@ -4,13 +4,28 @@ import { AudioPlayerStatus, createAudioPlayer, NoSubscriberBehavior, VoiceConnec
 import { getMessage } from '../lang/lang-manager';
 import { LangKeys } from '../lang/lang-keys';
 import { getConnection, semUpdateStatus, setConnection } from '..';
+import { Semaphore } from '../util/semaphore';
+
+const sem = new Semaphore(1);
 
 export const joinCommand = new SlashCommandBuilder()
   .setName('join')
   .setDescription('Joins your channel and listens for voice commands');
 
+const lastSpeechTimes = new Map<string, number>();
 export async function executeJoin(interaction: any) {
   await semUpdateStatus.acquire();
+
+  const now = Date.now();
+    const lastTime = lastSpeechTimes.get(interaction.guildId) || 0;
+
+    if (now - lastTime > 1500) { // Solo procesar si han pasado más de 1.5 segundos
+        lastSpeechTimes.set(interaction.guildId, now);
+    } else {
+      semUpdateStatus.release();
+      //console.log(`Ignorando discurso duplicado de ${message.member!.id}`);
+      return;
+    }
 
   let connection = getConnection(interaction.guildId);
   if(connection) return;
