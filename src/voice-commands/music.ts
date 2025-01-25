@@ -8,28 +8,25 @@ import fs from 'fs';
 import { getAudioPlayer, getBuildedAudioPlayer, removeAudioPlayer } from "..";
 import { getMessage } from "../lang/lang-manager";
 import { LangKeys } from "../lang/lang-keys";
+import { stopAllAuidio } from "../handlers/speechHandler";
 
 const execPromise = promisify(exec);
-const semDoubles = new Semaphore(1);
-const semChangeSong = new Semaphore(1);
 
-const alreadyRequestedGuild = new Map<string, { alreadyRequested: boolean }>();
+const alreadyRequestedGuild = new Map<string, { alreadyRequested: boolean, songList: Array<string> }>();
 
 export async function playSong(song: string, connection: VoiceConnection, guildId: string) {
-    await semDoubles.acquire();
 
         if(!alreadyRequestedGuild.get(guildId)){
-            alreadyRequestedGuild.set(guildId, {alreadyRequested: false});
+            alreadyRequestedGuild.set(guildId, {alreadyRequested: false, songList: new Array<string>});
+            
         }
 
         if(alreadyRequestedGuild.get(guildId)?.alreadyRequested){
-            console.log("No majo, no ya hay una canción en marcha.");
-        
-            semDoubles.release();
+            console.log("No majo, no ya hay una canción en marcha, añado a la cola: " + song);
+            alreadyRequestedGuild.get(guildId)?.songList.push(song);
             return;
         }
         alreadyRequestedGuild.get(guildId)!.alreadyRequested = true;
-        semDoubles.release();
         console.log("Busco: " + song);
     try {
         speakText(getMessage(LangKeys.CONFIRMATION_SEARCHING_SONG, guildId), connection, guildId);
@@ -38,13 +35,12 @@ export async function playSong(song: string, connection: VoiceConnection, guildI
             console.log("Canción no encontrada.");
             speakText(getMessage(LangKeys.ERR_SONG_NOT_FOUND, guildId), connection, guildId);
             alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
-            semDoubles.release();
             return;
         }
         
         console.log(streamURL);
         // Creamos el stream de audio usando la URL obtenida
-        const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.mp3`);
+        const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.wav`);
         let resource: AudioResource<null> | null = createAudioResource(songPath, {
             //inputType: StreamType.Opus,
             inlineVolume: true
@@ -63,9 +59,15 @@ export async function playSong(song: string, connection: VoiceConnection, guildI
         audioPlayer.once(AudioPlayerStatus.Idle, async () => {
             //speakText("Se ha terminado la canción", connection, guildId);
             alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
-            audioPlayerSubscribe?.unsubscribe();
-            await deleteFile(songPath, guildId);
-            semDoubles.release();
+            if(alreadyRequestedGuild.get(guildId)!.songList.length > 0){
+                nextSong(guildId, connection);
+                await deleteFile(songPath, guildId);
+            }else{
+                audioPlayerSubscribe?.unsubscribe();
+                clearSongList(guildId);
+                await deleteFile(songPath, guildId);
+            }
+            
             return;
         });
     
@@ -81,7 +83,7 @@ export async function playSong(song: string, connection: VoiceConnection, guildI
 async function getStreamURL(song: string, guildId: string): Promise<string | null> {
     try {
       // Usamos yt-dlp para obtener el enlace de audio del video de YouTube
-      const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.mp3`);
+      const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.wav`);
       const { stdout } = await execPromise(`yt-dlp -f bestaudio[ext=webm] -o "${songPath}" --no-post-overwrites "ytsearch:${song}"`);
       return stdout.trim();
     } catch (error) {
@@ -101,8 +103,7 @@ export async function deleteFile(filePath: string, guildId: string): Promise<voi
             console.log(`Archivo ${filePath} borrado exitosamente.`);
         });
         console.log(getAudioPlayer(guildId));
-        semChangeSong.release();
-    }, 5000);
+    }, 1000);
     
     /*try {
         fs.unlinkSync(filePath);
@@ -110,4 +111,19 @@ export async function deleteFile(filePath: string, guildId: string): Promise<voi
     } catch (error) {
         console.error(`Error al eliminar el archivo: ${error}`);
     }*/
+}
+
+export async function clearSongList(guildId: string){
+    alreadyRequestedGuild.get(guildId)!.songList = new Array<string>;
+    console.log("Se ha eliminado la lista de canciones: " + alreadyRequestedGuild.get(guildId)!.songList.length);
+}
+
+export function nextSong(guildId: string, connection: VoiceConnection){
+    if(alreadyRequestedGuild.get(guildId)!.songList.length > 0){
+        alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
+        const nextSong = alreadyRequestedGuild.get(guildId)!.songList.shift()!;
+        playSong(nextSong, connection, guildId);
+    }else{
+        stopAllAuidio(guildId);
+    }
 }

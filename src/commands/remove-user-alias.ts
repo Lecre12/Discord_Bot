@@ -1,4 +1,4 @@
-import { GuildMember, MessageFlags, SlashCommandBuilder } from 'discord.js';
+import { GuildMember, MessageFlags, PermissionFlagsBits, SlashCommandBuilder } from 'discord.js';
 import { serverData } from '..';
 import { createConfig, getConfig, updateConfig } from '../util/bot-config';
 import { getMessage } from '../lang/lang-manager';
@@ -7,6 +7,7 @@ import { LangKeys } from '../lang/lang-keys';
 export const removeUserAlias = new SlashCommandBuilder()
   .setName('remove-user-alias')
   .setDescription('Removes an user alias')
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addStringOption((option) =>
     option.setName("alias").setDescription("Alias of the user").setRequired(false))
   .addUserOption((option) => 

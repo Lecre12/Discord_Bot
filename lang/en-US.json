@@ -62,7 +62,9 @@
         "think": "think",
         "music": "put",
         "stop": "stop",
-        "salute": "hello brown"
+        "salute": "hello brown",
+        "delete-song-list": "elimina canci",
+        "next-song": "next"
     },
     "replys":{
         "join-channel": "I'm listennig you voice commands in: "

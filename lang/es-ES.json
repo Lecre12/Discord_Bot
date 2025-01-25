@@ -62,7 +62,9 @@
         "think": "piensa",
         "music": "pon",
         "stop": "para",
-        "salute": "hola marrón"
+        "salute": "hola marrón",
+        "delete-song-list": "borra cola",
+        "next-song": "siguiente"
     },
     "replys":{
         "join-channel": "Estoy escuchando tus comandos de voz en: "

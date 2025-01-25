@@ -54,6 +54,8 @@ export enum LangKeys{
     MUSIC_VOICE_COMMAND = "voice.music",
     STOP_VOICE_COMMAND = "voice.stop",
     SALUTE_VOICE_COMMAND = "voice.salute",
+    DELETE_SONG_LIST_VOICE_COMMAND = "voice.delete-song-list",
+    NEXT_SONG_VOICE_COMMAND = "voice.next-song",
 
     ERR_NOT_ON_CHANNEL = "errors.not-on-channel",
     JOIN_CHANNEL_REPLY = "replys.join-channel"

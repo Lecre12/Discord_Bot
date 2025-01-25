@@ -10,9 +10,10 @@ import { muteUser } from "../voice-commands/mute";
 import { normalVoiceState } from "../voice-commands/unmute-undeaf";
 import { getMessage } from "../lang/lang-manager";
 import { LangKeys } from "../lang/lang-keys";
-import { playSong } from "../voice-commands/music";
+import { clearSongList, nextSong, playSong } from "../voice-commands/music";
 import { salute } from "../voice-commands/salute";
 import { getConnection, stopAudioPlayer } from "..";
+import { stopAudio } from "../util/musicVirtualMic";
 
 const lastSpeechTimes = new Map<string, number>();
 
@@ -105,16 +106,25 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
 
         }else if(message.content.includes(getMessage(LangKeys.ALERT_VOICE_COMMAND, message.guild.id))){
 
-            console.log("ALERT TEXT: " + message.content)
+            console.log("ALERT TEXT: " + message.content);
             await alertUsers(message);
 
         }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.STOP_VOICE_COMMAND, message.guild.id))){
             await stopAllAuidio(message.guild.id);
+        }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.DELETE_SONG_LIST_VOICE_COMMAND, message.guild.id))){
+            console.log("DELETE SONG LIST TEXT: " + message.content);
+            clearSongList(message.guild.id);
+        }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.NEXT_SONG_VOICE_COMMAND, message.guild.id))){
+            console.log("NEXT SONG TEXT: " + message.content);
+            if(connection)
+            nextSong(message.guild.id, connection);
         }
     }
 }
 
 export async function stopAllAuidio(guildId: string){
+    clearSongList(guildId);
     setCanContinue(false, guildId);
     await stopAudioPlayer(guildId);
+    //stopAudio();
 }
