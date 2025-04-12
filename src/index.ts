@@ -1,267 +1,91 @@
-import { AudioPlayer, createAudioPlayer, joinVoiceChannel, NoSubscriberBehavior, VoiceConnection } from '@discordjs/voice';
-import { ActivityType, Client, GatewayIntentBits, InternalDiscordGatewayAdapterCreator, VoiceState } from 'discord.js';
+import { Client, GatewayIntentBits, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
-import { registerCommands } from './handlers/command-handler';
-import { exeCommand } from './handlers/command-handler'
-import { createConfig, getConfig } from './util/bot-config';
-import { handleInteraction } from './commands/configuration';
+import OpenAI from 'openai';
+import { EventEmitter } from 'events';
+import { executeCommand, registerCommands } from './handler/command-handler';
+import { addServerData, getServerData, getServersData, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
-import { executeJoin } from './commands/join';
-import { OpenAI } from 'openai';
-import { handleSpeech } from './handlers/speechHandler';
-const { EventEmitter } = require('events');
-import { Semaphore } from './util/semaphore';
-import fs from 'fs';
-import path from 'path';
-import { wait } from './util/wait';
-EventEmitter.defaultMaxListeners = 0;
-
+import { disconnectOnLoad } from './util/disconnect-on-load';
+import { handleSpeech } from './handler/speech-handler';
+import { handleInteraction } from './handler/interaction-handler';
 dotenv.config();
+
+EventEmitter.defaultMaxListeners = 20;
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string
 export const openIa = new OpenAI({
-  apiKey: "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"
+  apiKey: process.env.OPENAI_API_KEY
 });
-
-export const serverData = new Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, connect:boolean, lang: string, speechOptions: SpeechOptions, connection: VoiceConnection | undefined, audioPlayer: AudioPlayer | undefined}>();
-
-export function getLang(guildId: string): string | undefined{
-  return serverData.get(guildId)?.lang;
-}
-export function setLang(newLang: string, guildId: string){
-  const data = serverData.get(guildId);
-  data!.speechOptions.lang = newLang;
-  serverData.set(guildId, {
-    aliasUsers: data!.aliasUsers,
-    moveChannels: data!.moveChannels,
-    connect: data!.connect,
-    lang: newLang,
-    speechOptions: data!.speechOptions,
-    connection: undefined,
-    audioPlayer: undefined,
-  });
-}
 
 export const client = new Client({ intents: [
-  GatewayIntentBits.Guilds,
-  GatewayIntentBits.GuildVoiceStates,
-  GatewayIntentBits.MessageContent,
-  GatewayIntentBits.GuildMessages,
-  GatewayIntentBits.GuildPresences,
-] });
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildPresences,
+  ] });
 
-export const semUpdateStatus = new Semaphore(1);
+client.once("ready", async () => {
+    console.log(`Logged in as ${client.user?.tag}!`);
 
+    disconnectOnLoad(client);
+    await registerCommands();
+    startServerData();
 
-client.once('ready', async () => {
-  console.log(`Logged in as ${client.user?.tag}!`);
-  const listOfGuilds = new Map<string, {channelId: string, voiceAdapter: InternalDiscordGatewayAdapterCreator}>();
-
-  client.user?.setActivity('Voice Commands', { type: ActivityType.Listening });
-  deleteAllFilesInFolder(path.resolve(__dirname, '../songs/'));
-  await registerCommands();
-  client.guilds.cache.forEach(async guild => {
-    const config = await getConfig(guild.id);
-    let speechOptions : SpeechOptions = addSpeechEvent(client);
-    if (config) {
-      console.log(`Loaded config for guild ${guild.id}:`, config);
-      const lang = config.LANG;
-      speechOptions.lang = lang;
-      speechOptions.profanityFilter = false;
-      serverData.set(guild.id, {
-        aliasUsers: config.USERS,
-        moveChannels: config.CHANNELS,
-        connect: config.CONNECT,
-        lang: lang,
-        speechOptions: speechOptions,
-        connection: undefined,
-        audioPlayer: undefined,
-      });
-      console.log(`Language for this guild: ${lang}`);
-      console.log(client.listenerCount("speech"));
-    }else{
-      createConfig(guild.id);
-      const defaultConfig = getConfig(guild.id);
-      const lang = config.LANG;
-      speechOptions.lang = lang;
-      speechOptions.profanityFilter = false;
-      serverData.set(guild.id, {
-        aliasUsers: defaultConfig.USERS,
-        moveChannels: defaultConfig.CHANNELS,
-        connect: defaultConfig.CONNECT,
-        lang: lang,
-        speechOptions: speechOptions,
-        connection: undefined,
-        audioPlayer: undefined,
-      });
-    }
-    
-  });
-  
-  let totalConnections = 0;
-  for (const [_, guild] of client.guilds.cache) {
-    const voiceStates = guild.voiceStates.cache;
-    for (const [_, voiceState] of voiceStates) {
-        if (voiceState.channel && voiceState.member?.id === client.user?.id) {
-          listOfGuilds.set(guild.id, {channelId: voiceState.channel.id, voiceAdapter: voiceState.channel.guild.voiceAdapterCreator});
-          
-            voiceState.disconnect();
-            totalConnections++;
+    client.guilds.cache.forEach(async guild => {
+        const lang = getServerData(guild.id)?.lang;
+        if(lang){
+            const speechOptions : SpeechOptions = addSpeechEvent(client);
+            speechOptions.lang = lang;
+            speechOptions.profanityFilter = false;
+            setServerSpeechOptions(speechOptions, guild.id);
+            //console.log(`Config for this guild ${guild.id}:`, getServerData(guild.id));
+        }else {
+            const speechOptions : SpeechOptions = addSpeechEvent(client);
+            speechOptions.lang = 'es';
+            speechOptions.profanityFilter = false;
+            addServerData(guild.id, {}, {}, false, 'es', speechOptions, undefined, undefined);
         }
-    }
-}
-console.log("Total disconnected connections: " + totalConnections);
-
+    });
+    
 });
+
 
 client.on('interactionCreate', async (interaction: any) => {
-  if(!interaction.guild){
-    interaction.reply('This command can only be used in a server')
-    return;
-  }
-
-  if (interaction.isCommand()){
-    exeCommand(interaction, interaction.commandName)
-  }else{
-    handleInteraction(interaction)
-  }
+    if(!interaction.guild){
+      interaction.reply('This command can only be used in a server');
+      return;
+    }
+  
+    if (interaction.isCommand()){
+        executeCommand(interaction, interaction.commandName);
+    }else{
+        handleInteraction(interaction);
+    }
 });
 
-client.on('guildCreate', (guild) =>{
-  const config = getConfig(guild.id as string);
-  if(config){
-    console.log(`Loaded config for guild ${guild.id}:`, config);
-
-    // Utilizar la configuración cargada
-    const lang = config.LANG;
-    console.log(`Language for this guild: ${lang}`);
-  }else{
-    let speechOptions : SpeechOptions = addSpeechEvent(client);
-    const defaultConfig = createConfig(guild.id);
-      const lang = config.LANG;
-      speechOptions.lang = lang;
-      speechOptions.profanityFilter = false;
-      serverData.set(guild.id, {
-        aliasUsers: defaultConfig.USERS,
-        moveChannels: defaultConfig.CHANNELS,
-        connect: defaultConfig.CONNECT,
-        lang: lang,
-        speechOptions: speechOptions,
-        connection: undefined,
-        audioPlayer: undefined,
-      });
-  }
+client.on("guildCreate", (guild) => {
+    const speechOptions : SpeechOptions = addSpeechEvent(client);
+    speechOptions.lang = 'es';
+    speechOptions.profanityFilter = false;
+    addServerData(guild.id, {}, {}, false, 'es', speechOptions, undefined, undefined);
 });
 
-client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
-  await semUpdateStatus.acquire();
-
-  const botMember = await newState.guild.members.fetch(client.user!.id);
-  const botVoiceChannel = botMember.voice.channel?.id;
-  // Verificar si el miembro que se ha unido es alguien que no es el bot
-  if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel && serverData.get(oldState.guild.id)?.connect) {
-    // Simular la ejecución del comando /join
-    const interaction = {
-      guildId: newState.guild.id,
-      user: { id: newState.member?.id },
-      guild: newState.guild,
-      reply: async (message: string) => console.log('Reply:', message),
-    };
-
-    executeJoin(interaction);
-  }
-
-  // Verificar si el bot está solo en el canal de voz
-  if (oldState.channel) {
-    const channel = oldState.channel;
-    const botMember = channel.guild.members.me;
-    if(channel.members.has(oldState.client.user!.id)){
-      const membersInChannel = channel.members.filter(member => !member.user.bot); // Excluir bots
-      if (membersInChannel.size === 0) {
-        // Si no hay más usuarios (excepto el bot) en el canal, desconectar el bot
-        botMember?.voice.disconnect();
-        console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
+client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
+    const botId = client.user?.id;
+  
+    // Comprobamos si el bot era el que estaba en el canal
+    if (oldState.member?.user.id === botId) {
+      const wasInChannel = oldState.channelId;
+      const isInChannel = newState.channelId;
+  
+      if (wasInChannel && !isInChannel) {
+        console.log('🔌 El bot se ha desconectado del canal de voz.');
+        setConnection(undefined, oldState.guild.id);
       }
     }
-    
-  }
-
-  semUpdateStatus.release();
-});
+  });
 
 client.on('speech', handleSpeech);
 
 client.login(BOT_TOKEN);
-
-export function deleteAllFilesInFolder(folderPath: string): void {
-  try {
-      const files = fs.readdirSync(folderPath); // Leer todos los archivos en la carpeta
-      files.forEach((file) => {
-          const filePath = path.join(folderPath, file);
-          if (fs.statSync(filePath).isFile()) { // Verificar si es un archivo
-              fs.unlinkSync(filePath); // Eliminar el archivo
-              console.log(`Archivo eliminado: ${filePath}`);
-          }
-      });
-      console.log(`Todos los archivos en '${folderPath}' han sido eliminados.`);
-  } catch (err) {
-      console.error(`Error al intentar borrar los archivos: ${err}`);
-  }
-}
-
-export function setConnection(connection: VoiceConnection | undefined, guildId: string){
-  const oldServerDataGuild = serverData.get(guildId);
-  serverData.set(guildId, {
-    aliasUsers: oldServerDataGuild!.aliasUsers,
-    moveChannels: oldServerDataGuild!.moveChannels,
-    connect: oldServerDataGuild!.connect,
-    lang: oldServerDataGuild!.lang,
-    speechOptions: oldServerDataGuild!.speechOptions,
-    connection: connection,
-    audioPlayer: oldServerDataGuild!.audioPlayer,
-  });
-}
-
-function setAudioPlayer(audioPlayer: AudioPlayer | undefined, guildId: string){
-  const oldServerDataGuild = serverData.get(guildId);
-  serverData.set(guildId, {
-    aliasUsers: oldServerDataGuild!.aliasUsers,
-    moveChannels: oldServerDataGuild!.moveChannels,
-    connect: oldServerDataGuild!.connect,
-    lang: oldServerDataGuild!.lang,
-    speechOptions: oldServerDataGuild!.speechOptions,
-    connection: oldServerDataGuild!.connection,
-    audioPlayer: audioPlayer,
-  });
-}
-export function getConnection(guildId: string){
-  return serverData.get(guildId)!.connection;
-}
-
-export function getBuildedAudioPlayer(guildId: string){
-  makeAudioPlayer(guildId);
-  return serverData.get(guildId)!.audioPlayer;
-}
-export function getAudioPlayer(guildId: string){
-  return serverData.get(guildId)!.audioPlayer;
-}
-
-export async function stopAudioPlayer(guildId: string){
-  const idle = serverData.get(guildId)!.audioPlayer?.stop(true);
-  console.log("Exito en la parada: " + idle);
-  removeAudioPlayer(guildId);
-}
-
-export function makeAudioPlayer(guildId: string){
-  removeAudioPlayer(guildId);
-  const audioPlayer = createAudioPlayer({
-    behaviors: {
-    noSubscriber: NoSubscriberBehavior.Pause
-    }
-  });
-  setAudioPlayer(audioPlayer, guildId);
-}
-
-export function removeAudioPlayer(guildId: string){
-  setAudioPlayer(undefined, guildId);
-}
