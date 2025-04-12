@@ -1,6 +1,5 @@
 import { Client, GatewayIntentBits, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
 import { EventEmitter } from 'events';
 import { executeCommand, registerCommands } from './handler/command-handler';
 import { addServerData, getServerData, getServersData, setAudioPlayer, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
@@ -14,9 +13,7 @@ dotenv.config();
 EventEmitter.defaultMaxListeners = 20;
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string
-export const openIa = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+
 
 export const client = new Client({ intents: [
     GatewayIntentBits.Guilds,
