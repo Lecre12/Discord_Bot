@@ -24,7 +24,8 @@ export async function executeHelp(interaction: any) {
     "8. " + getMessage(LangKeys.WHO_CONNECTED_DESCRIPTION, interaction.guildId) +
     "9. " + getMessage(LangKeys.THINK_DESCRIPTION, interaction.guildId) + 
     "10. " + getMessage(LangKeys.MUSIC_DESCRIPTION, interaction.guildId) +
-    "11. " + getMessage(LangKeys.STOP_ALL_AUDIO, interaction.guildId)
+    "11. " + getMessage(LangKeys.STOP_ALL_AUDIO, interaction.guildId) +
+    "12. " + getMessage(LangKeys.STOP_ALL_AUDIO, interaction.guildId)
     , flags: MessageFlags.Ephemeral})
     
 }

@@ -27,7 +27,7 @@ export async function salute(guildId: string){
                 case '3':
                     console.log(3)
                     //songPath = path.resolve(__dirname, `../../el-senor-de-la-noche-don-omar.mp3`);
-                    songPath = path.resolve(__dirname, `../../hola-emotiza.mp3`);
+                    songPath = path.resolve(__dirname, `../../se-me-sale-la-caca.mp3`);
                     break
                 default:
                     console.log("defaoult")

@@ -114,12 +114,16 @@ export async function deleteFile(filePath: string, guildId: string): Promise<voi
 }
 
 export async function clearSongList(guildId: string){
+    if(!alreadyRequestedGuild.get(guildId)){
+        alreadyRequestedGuild.set(guildId, {alreadyRequested: false, songList: new Array<string>});
+        
+    }
     alreadyRequestedGuild.get(guildId)!.songList = new Array<string>;
     console.log("Se ha eliminado la lista de canciones: " + alreadyRequestedGuild.get(guildId)!.songList.length);
 }
 
 export function nextSong(guildId: string, connection: VoiceConnection){
-    if(alreadyRequestedGuild.get(guildId)!.songList.length > 0){
+    if(alreadyRequestedGuild.get(guildId)!.songList.length > 0 && alreadyRequestedGuild.get(guildId)!.songList){
         alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
         const nextSong = alreadyRequestedGuild.get(guildId)!.songList.shift()!;
         playSong(nextSong, connection, guildId);
