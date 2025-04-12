@@ -64,6 +64,15 @@ export function setConnection(connection: VoiceConnection | undefined, guildId: 
     getServersData()?.set(guildId, actualServerData);
 }
 
+export function setAudioPlayer(audioPlayer: AudioPlayer | undefined, guildId: string){
+    const actualServerData = getServerData(guildId);
+    if(actualServerData === null){
+        return;
+    }
+    actualServerData.audioPlayer = audioPlayer;
+    getServersData()?.set(guildId, actualServerData);
+}
+
 export function addServerData(guildId: string, aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, auto_connect:boolean, lang: string, speechOptions: SpeechOptions | undefined, connection: VoiceConnection | undefined, audioPlayer: AudioPlayer | undefined){
     getServersData()?.set(guildId, {
         aliasUsers: aliasUsers,

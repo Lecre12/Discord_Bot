@@ -110,6 +110,6 @@
   },
   "include": [
     "old_src/src",
-    "package.json",
+    "package.json", "src/util/wait.ts", "src/util/music.ts",
   ],
 }

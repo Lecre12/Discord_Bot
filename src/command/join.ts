@@ -1,6 +1,6 @@
-import { joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
+import { createAudioPlayer, joinVoiceChannel, VoiceConnection } from "@discordjs/voice";
 import { MessageFlags, SlashCommandBuilder } from "discord.js";
-import { getServerData, setConnection } from "../util/server-data";
+import { getServerData, setAudioPlayer, setConnection } from "../util/server-data";
 
 export const joinCommand = new SlashCommandBuilder()
   .setName('join')
@@ -31,7 +31,9 @@ export async function executeJoin(interaction: any) {
       adapterCreator: voiceChannel.guild.voiceAdapterCreator,
       selfDeaf: false,
     });
-    
+    const audioPlayer = createAudioPlayer();
+
+    setAudioPlayer(audioPlayer, interaction.guildId as string);
     setConnection(connection, interaction.guildId as string);
     await interaction.reply({ content: '¡Hola! Estoy escuchando tus comandos' });
 }

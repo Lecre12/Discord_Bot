@@ -21,7 +21,7 @@ export async function executeAddUserMenu(interaction: any){
 
     if(member.id == "1322495591242272768"){
         interaction.reply({
-          content: "Usted sabe que tengo el control sobre usted verdad? Intenta ponerme a mi en mi propia lista negra y tendremos problemas tu y yo...",
+          content: "Usted sabe que tengo el control sobre usted verdad? Intenta ponerme a mi en mi propia lista negra y tendremos problemas usted y yo...",
           components: [],
         });
         return;
@@ -33,7 +33,7 @@ export async function executeAddUserMenu(interaction: any){
         serverConfig.aliasUsers[alias.toLowerCase()] = member.id;
         addUserAlias(interaction.guildId as string, member.id, alias);
     }else {
-        addServerData(interaction.guildId as string, { [alias.toLowerCase()]: member.id }, {}, false, 'es', undefined, undefined, undefined);
+        addServerData(interaction.guildId as string, { [alias.toLowerCase()]: member.id }, {}, false, 'es-ES', undefined, undefined, undefined);
     }
 
     await interaction.reply({

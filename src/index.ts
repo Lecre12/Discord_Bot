@@ -3,11 +3,12 @@ import dotenv from 'dotenv';
 import OpenAI from 'openai';
 import { EventEmitter } from 'events';
 import { executeCommand, registerCommands } from './handler/command-handler';
-import { addServerData, getServerData, getServersData, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
+import { addServerData, getServerData, getServersData, setAudioPlayer, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { disconnectOnLoad } from './util/disconnect-on-load';
 import { handleSpeech } from './handler/speech-handler';
 import { handleInteraction } from './handler/interaction-handler';
+import { executeJoin } from './command/join';
 dotenv.config();
 
 EventEmitter.defaultMaxListeners = 20;
@@ -42,9 +43,9 @@ client.once("ready", async () => {
             //console.log(`Config for this guild ${guild.id}:`, getServerData(guild.id));
         }else {
             const speechOptions : SpeechOptions = addSpeechEvent(client);
-            speechOptions.lang = 'es';
+            speechOptions.lang = 'es-ES';
             speechOptions.profanityFilter = false;
-            addServerData(guild.id, {}, {}, false, 'es', speechOptions, undefined, undefined);
+            addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
         }
     });
     
@@ -66,26 +67,64 @@ client.on('interactionCreate', async (interaction: any) => {
 
 client.on("guildCreate", (guild) => {
     const speechOptions : SpeechOptions = addSpeechEvent(client);
-    speechOptions.lang = 'es';
+    speechOptions.lang = 'es-ES';
     speechOptions.profanityFilter = false;
-    addServerData(guild.id, {}, {}, false, 'es', speechOptions, undefined, undefined);
+    addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
 });
 
 client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
     const botId = client.user?.id;
   
     // Comprobamos si el bot era el que estaba en el canal
-    if (oldState.member?.user.id === botId) {
-      const wasInChannel = oldState.channelId;
-      const isInChannel = newState.channelId;
-  
-      if (wasInChannel && !isInChannel) {
-        console.log('🔌 El bot se ha desconectado del canal de voz.');
-        setConnection(undefined, oldState.guild.id);
-      }
-    }
   });
 
+
+client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
+    const botMember = await newState.guild.members.fetch(client.user!.id);
+	const guildMember = await newState.guild.members.fetch(newState.member!.id);
+	const botId = client.user?.id;
+    const botVoiceChannel = botMember.voice.channel?.id;
+
+	//Gestion cuando el bot se desconecta
+	if (oldState.member?.user.id === botId) {
+		const wasInChannel = oldState.channelId;
+		const isInChannel = newState.channelId;
+	
+		if (wasInChannel && !isInChannel) {
+			console.log('🔌 El bot se ha desconectado del canal de voz.');
+			setConnection(undefined, oldState.guild.id);
+			setAudioPlayer(undefined, oldState.guild.id);
+		}
+		return;
+	}
+
+    // Verificar si el miembro que se ha unido es alguien que no es el bot
+    if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel && getServerData(oldState.guild.id)?.auto_connect) {
+		// Simular la ejecución del comando /join
+		const interaction = {
+			guildId: newState.guild.id,
+			user: { id: newState.member?.id },
+			member: guildMember,
+			guild: newState.guild,
+			reply: async (message: string) => console.log('Reply:', message),
+		};
+
+		executeJoin(interaction);
+    }
+
+    // Verificar si el bot está solo en el canal de voz y si es asi desconectarlo
+    if (oldState.channel) {
+		const channel = oldState.channel;
+		const botMember = channel.guild.members.me;
+		if(channel.members.has(oldState.client.user!.id)){
+			const membersInChannel = channel.members.filter(member => !member.user.bot);
+			if (membersInChannel.size === 0) {
+				botMember?.voice.disconnect();
+				console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
+			}
+		}
+	}
+});
 client.on('speech', handleSpeech);
 
 client.login(BOT_TOKEN);
