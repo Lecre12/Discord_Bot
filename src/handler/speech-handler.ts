@@ -14,6 +14,7 @@ import { speakText } from "../util/tts";
 import { getConnectedUsers } from "../voice-command/connected-users";
 import { moveToChannel } from "../voice-command/move";
 import { askOpenAi } from "../voice-command/think";
+import { russianRoulette, shootRandom } from "../voice-command/gambling";
 
 const lastSpeechTimes = new Map<string, number>();
 export async function handleSpeech(message: VoiceMessage): Promise<void>{
@@ -74,6 +75,10 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         speakText(` ${(Math.random() * 10).toFixed()}`, message.guild.id);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.ALERT_VOICE_COMMAND, message.guild.id))){
         alertUsers(message);
+    }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.RUSSIAN_ROULETTE_VOICE_COMMAND, message.guild.id))){
+        russianRoulette(message);
+    }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SHOOT_RANDOM_VOICE_COMMAND, message.guild.id))){
+        shootRandom(message);
     }
     
 }

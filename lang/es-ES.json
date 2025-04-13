@@ -57,7 +57,9 @@
         "server-configuration": "Configuración del servidor:",
         "language": "Idioma",
         "user-alias": "Alias de usuarios: ",
-        "channels": "Canales: "
+        "channels": "Canales: ",
+        "russian-roulette": "ruleta rusa",
+        "shoot-random": "dispar"
     },
     "on": "Activado",
     "off": "Desactivado",

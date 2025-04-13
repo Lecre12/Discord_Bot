@@ -72,6 +72,8 @@ export enum LangKeys{
     SALUTE_VOICE_COMMAND = "voice.salute",
     DELETE_SONG_LIST_VOICE_COMMAND = "voice.delete-song-list",
     NEXT_SONG_VOICE_COMMAND = "voice.next-song",
+    RUSSIAN_ROULETTE_VOICE_COMMAND = "voice.russian-roulette",
+    SHOOT_RANDOM_VOICE_COMMAND = "voice.shoot-random",
 
     ERR_NOT_ON_CHANNEL = "errors.not-on-channel",
     JOIN_CHANNEL_REPLY = "replys.join-channel",

@@ -81,7 +81,9 @@
         "stop": "stop",
         "salute": "hello brown",
         "delete-song-list": "elimina canci",
-        "next-song": "next"
+        "next-song": "next",
+        "russian-roulette": "russian roulette",
+        "shoot-random": "shoot"
     },
     "replys":{
         "join-channel": "I'm listennig you voice commands in: "
