@@ -5,6 +5,8 @@ export enum LangKeys{
     JOIN_DESCRIPTION = "command.join-description",
     ADD_MEMBER_DESCRIPTION = "command.add-member-description",
     ADD_CHANNEL_DESCRIPTION = "command.add-channel-description",
+    REMOVE_USER_DESCRIPTION = "command.remove-user-description",
+    REMOVE_CHANNEL_DESCRIPTION = "command.remove-channel-description",
     VOICE_COMMANDS_DESCRIPTION = "command.voice-commands-description",
     KICK_DESCRIPTION = "command.voice-commands-description.kick-description",
     ALERT_DESCRIPTION = "command.voice-commands-description.alert-description",

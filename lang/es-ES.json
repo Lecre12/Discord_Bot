@@ -6,6 +6,8 @@
         "join-description": "/join -> Se mete al canal de voz y empieza a escuchar comandos de voz\n",
         "add-member-description": "/addmember -> Añade un usuario con un alias para que el bot lo reconozca (admin requerido)\n",
         "add-channel-description": "/addchannel -> Añade un canal para que el bot lo reconozca con un alias (admin requerido)\n",
+        "remove-user-description": "/removeuser <user> ¿<alias>? -> Elimina un usuario de la lista de usuarios (admin requerido)\n",
+        "remove-channel-description": "/removechannel <channel> -> Elimina un canal de la lista de canales (admin requerido)\n",
         "voice-commands-description":{
             "kick-description": "'oye marrón expulsa <alias>' -> expulsa al usuario identificado por el alias\n",
             "alert-description": "'oye marrón alerta' -> alerta a los usuarios ensordecidos del canal hasta que se desensordezcan\n",

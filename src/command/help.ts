@@ -12,6 +12,8 @@ export async function executeHelp(interaction: any) {
     "3. " + getMessage(LangKeys.JOIN_DESCRIPTION, interaction.guildId) +
     "4. " + getMessage(LangKeys.ADD_MEMBER_DESCRIPTION, interaction.guildId) +
     "5. " + getMessage(LangKeys.ADD_CHANNEL_DESCRIPTION, interaction.guildId) +
+    "6. " + getMessage(LangKeys.REMOVE_USER_DESCRIPTION, interaction.guildId) +
+    "7. " + getMessage(LangKeys.REMOVE_CHANNEL_DESCRIPTION, interaction.guildId) +
     "\n" +
     "VOICE COMMANDS:\n" +
     "1. " + getMessage(LangKeys.KICK_DESCRIPTION, interaction.guildId) +
@@ -25,7 +27,8 @@ export async function executeHelp(interaction: any) {
     "9. " + getMessage(LangKeys.THINK_DESCRIPTION, interaction.guildId) + 
     "10. " + getMessage(LangKeys.MUSIC_DESCRIPTION, interaction.guildId) +
     "11. " + getMessage(LangKeys.STOP_ALL_AUDIO, interaction.guildId) +
-    "12. " + getMessage(LangKeys.STOP_ALL_AUDIO, interaction.guildId)
+    "12. " + getMessage(LangKeys.DELETE_SONG_LIST_DESCRIPTION, interaction.guildId) +
+    "13. " + getMessage(LangKeys.NEXT_SONG_DESCRIPTION, interaction.guildId)
     , flags: MessageFlags.Ephemeral})
     
 }
