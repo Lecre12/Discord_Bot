@@ -17,7 +17,9 @@
             "who-connected-description": "'oye marrón quién esta conectado' -> cita por voz que usuarios identificados por alias están online\n",
             "think-description": "'oye marrón piensa <promt>' -> le pregunta a chatGPT una pregunta y devuelve la respuesta por voz\n",
             "music-description": "'oye marrón pon <canción>' -> busca una canción en youtube y la reproduce\n",
-            "stop-all-speech-description": "'oye marrón para' -> para toda reproduccion de audio del momento\n"
+            "stop-all-speech-description": "'oye marrón para' -> para toda reproduccion de audio del momento\n",
+            "delete-song-list-description": "'oye marrón borra cola' -> elimina la cola de canciones\n",
+            "next-song-description": "'oye marrón siguiente' -> pasa a la siguiente canción de la cola\n"
         }
     },
     "confirmations":{

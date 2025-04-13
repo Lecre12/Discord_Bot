@@ -15,8 +15,10 @@ export enum LangKeys{
     MOVE_DESCRIPTION = "command.voice-commands-description.move-description",
     WHO_CONNECTED_DESCRIPTION = "command.voice-commands-description.who-connected-description",
     THINK_DESCRIPTION = "command.voice-commands-description.think-description",
-    MUSIC_DESCRIPTION = "commands.voice-commands-description.music-description",
-    STOP_ALL_AUDIO = "commands.voice-commands-description.stop-all-speech-description",
+    MUSIC_DESCRIPTION = "command.voice-commands-description.music-description",
+    STOP_ALL_AUDIO = "command.voice-commands-description.stop-all-speech-description",
+    DELETE_SONG_LIST_DESCRIPTION = "command.voice-commands-description.delete-song-list-description",
+    NEXT_SONG_DESCRIPTION = "command.voice-commands-description.next-song-description",
 
     ERR_FILL_FIELDS = "errors.fill-fields",
     CONFIRMATION_CONFIG_SAVED = "confirmations.config-saved",

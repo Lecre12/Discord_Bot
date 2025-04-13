@@ -7,7 +7,7 @@
         "add-member-description": "/addmember -> Añade un usuario con un alias para que el bot lo reconozca (admin requerido)\n",
         "add-channel-description": "/addchannel -> Añade un canal para que el bot lo reconozca con un alias (admin requerido)\n",
         "voice-commands-description":{
-            "kick-description": "'oye marrón expulsa <alias/todos>' -> expulsa al usuario identificado por el alias\n",
+            "kick-description": "'oye marrón expulsa <alias>' -> expulsa al usuario identificado por el alias\n",
             "alert-description": "'oye marrón alerta' -> alerta a los usuarios ensordecidos del canal hasta que se desensordezcan\n",
             "random-number-description": "'oye marrón número aleatorio' -> da un número aleatorio\n",
             "mute-description": "'oye marrón silencia <alias>' -> silencia de servidor al usuario identificado con el alias\n",
