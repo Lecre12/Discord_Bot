@@ -15,6 +15,7 @@ import { getConnectedUsers } from "../voice-command/connected-users";
 import { moveToChannel } from "../voice-command/move";
 import { askOpenAi } from "../voice-command/think";
 import { russianRoulette, shootRandom } from "../voice-command/gambling";
+import { reproduceSound } from "../voice-command/sound";
 
 const lastSpeechTimes = new Map<string, number>();
 export async function handleSpeech(message: VoiceMessage): Promise<void>{
@@ -79,6 +80,8 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         russianRoulette(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SHOOT_RANDOM_VOICE_COMMAND, message.guild.id))){
         shootRandom(message);
+    }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SOUND_VOICE_COMMAND, message.guild.id))){
+        reproduceSound(message);
     }
     
 }

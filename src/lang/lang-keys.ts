@@ -21,6 +21,8 @@ export enum LangKeys{
     STOP_ALL_AUDIO = "command.voice-commands-description.stop-all-speech-description",
     DELETE_SONG_LIST_DESCRIPTION = "command.voice-commands-description.delete-song-list-description",
     NEXT_SONG_DESCRIPTION = "command.voice-commands-description.next-song-description",
+    RUSSIAN_ROULETTE_DESCRIPTION = "command.voice-commands-description.russian-roulette-description",
+    SHOOT_RANDOM_DESCRIPTION = "command.voice-commands-description.shoot-random-description",
 
     ERR_FILL_FIELDS = "errors.fill-fields",
     CONFIRMATION_CONFIG_SAVED = "confirmations.config-saved",
@@ -74,6 +76,7 @@ export enum LangKeys{
     NEXT_SONG_VOICE_COMMAND = "voice.next-song",
     RUSSIAN_ROULETTE_VOICE_COMMAND = "voice.russian-roulette",
     SHOOT_RANDOM_VOICE_COMMAND = "voice.shoot-random",
+    SOUND_VOICE_COMMAND = "voice.sound",
 
     ERR_NOT_ON_CHANNEL = "errors.not-on-channel",
     JOIN_CHANNEL_REPLY = "replys.join-channel",

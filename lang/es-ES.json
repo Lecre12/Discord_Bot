@@ -21,7 +21,9 @@
             "music-description": "'oye marrón pon <canción>' -> busca una canción en youtube y la reproduce\n",
             "stop-all-speech-description": "'oye marrón para' -> para toda reproduccion de audio del momento\n",
             "delete-song-list-description": "'oye marrón borra cola' -> elimina la cola de canciones\n",
-            "next-song-description": "'oye marrón siguiente' -> pasa a la siguiente canción de la cola\n"
+            "next-song-description": "'oye marrón siguiente' -> pasa a la siguiente canción de la cola\n",
+            "russian-roulette-description": "'oye marrón ruleta rusa' -> hace un juego de ruleta rusa\n",
+            "shoot-random-description": "'oye marrón dispara/o' -> hace un disparo al azar\n"
         }
     },
     "confirmations":{
@@ -57,9 +59,7 @@
         "server-configuration": "Configuración del servidor:",
         "language": "Idioma",
         "user-alias": "Alias de usuarios: ",
-        "channels": "Canales: ",
-        "russian-roulette": "ruleta rusa",
-        "shoot-random": "dispar"
+        "channels": "Canales: "
     },
     "on": "Activado",
     "off": "Desactivado",
@@ -83,7 +83,10 @@
         "stop": "para",
         "salute": "hola marrón",
         "delete-song-list": "borra cola",
-        "next-song": "siguiente"
+        "next-song": "siguiente",
+        "russian-roulette": "ruleta rusa",
+        "shoot-random": "dispar",
+        "sound": "sonido"
     },
     "replys":{
         "join-channel": "Estoy escuchando tus comandos de voz en: "

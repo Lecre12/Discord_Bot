@@ -30,8 +30,8 @@ export async function shootRandom(message: VoiceMessage){
     const numberOfUsersInChat = membersCopy.length;
 
     let done = false;
-        const randomNumberToGet = Math.floor(Math.random() * numberOfUsersInChat);
-        
+    const randomNumberToGet = Math.floor(Math.random() * numberOfUsersInChat);
+    console.log(randomNumberToGet);
     if(membersCopy[randomNumberToGet] && membersCopy[randomNumberToGet].voice && membersCopy[randomNumberToGet].id != "1322495591242272768"){
         console.log(`Expulsado ${membersCopy[randomNumberToGet].displayName}`);
         playAudio(path.resolve(__dirname, "../../static-audio/shot.mp3"), message.guild.id);

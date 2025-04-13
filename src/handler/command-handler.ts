@@ -9,6 +9,7 @@ import { changeLang, executeChangeLang } from "../command/change-lang";
 import { showConfig, executeShowConfig } from "../command/show-config";
 import { removeUserAliasCommand, executeRemoveUserAlias } from "../command/remove-user-alias";
 import { executeRemoveChannel, removeChannelCommand } from "../command/remove-channel";
+import { addCustomAudioCommand, executeAddCustomAudio } from "../command/add-custom-audio";
 
 dotenv.config();
 
@@ -21,7 +22,8 @@ const commands =[
     changeLang.toJSON(),
     showConfig.toJSON(),
     removeUserAliasCommand.toJSON(),
-    removeChannelCommand.toJSON()
+    removeChannelCommand.toJSON(),
+    addCustomAudioCommand.toJSON()
 ];
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string 
@@ -72,6 +74,9 @@ export function executeCommand(interaction: any, commandName: string){
             break;
         case 'remove-channel':
             executeRemoveChannel(interaction);
+            break;
+        case 'add-custom-audio':
+            executeAddCustomAudio(interaction);
             break;
         default: 
             interaction.reply({ content: "Mi rey ese puto comando no tengo ni idea de lo que pollas hace, un cordial saludo", flags: MessageFlags.Ephemeral})
