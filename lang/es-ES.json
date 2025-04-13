@@ -51,8 +51,14 @@
         "placeholder-channel1": "Primer canal donde se moverá al usuario alertado",
         "placeholder-channel2": "Segundo canal donde se moverá al usuario alertado",
         "autoconnect": "Autoconectarse",
-        "reply-global": "Rellene los campos y confirme, gracias :)"
+        "reply-global": "Rellene los campos y confirme, gracias :)",
+        "server-configuration": "Configuración del servidor:",
+        "language": "Idioma",
+        "user-alias": "Alias de usuarios: ",
+        "channels": "Canales: "
     },
+    "on": "Activado",
+    "off": "Desactivado",
     "voice":{
         "activation": "oye marrón",
         "nuke": "nuke",

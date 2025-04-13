@@ -12,16 +12,16 @@ export const showConfig = new SlashCommandBuilder()
 export async function executeShowConfig(interaction: any) {
     const data = getServerData(interaction.guildId as string);
     if (data) {
-        let configMessage = `Configuración del servidor: \n`;
-        configMessage += `Idioma: ${data.lang}\n`;
-        configMessage += `Auto connect: ${data.auto_connect ? 'Activado' : 'Desactivado'}\n`;
+        let configMessage = `${getMessage(LangKeys.SERVER_CONFIGURATION, interaction.guildId as string)} \n`;
+        configMessage += `${getMessage(LangKeys.LANGUAGE_CONFIG, interaction.guildId as string)} ${data.lang}\n`;
+        configMessage += `${getMessage(LangKeys.AUTOCONNECT_CONFIG, interaction.guildId as string)}: ${data.auto_connect ? getMessage(LangKeys.ON, interaction.guildId as string) : getMessage(LangKeys.OFF, interaction.guildId as string)}\n`;
         
-        configMessage += `\nAlias de usuarios:\n`;
+        configMessage += `\n${getMessage(LangKeys.USER_ALIAS_CONFIG, interaction.guildId as string)}\n`;
         for (const [alias, userId] of Object.entries(data.aliasUsers)) {
             configMessage += `${alias}: ${userId}\n`;
         }
         
-        configMessage += `\nCanales configurados:\n`;
+        configMessage += `\n${getMessage(LangKeys.CHANNEL_CONFIG, interaction.guildId as string)}\n`;
         for (const [channelId, alias] of Object.entries(data.moveChannels)) {
             configMessage += `${channelId}: ${alias}\n`;
         }

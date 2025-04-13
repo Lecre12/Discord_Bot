@@ -42,6 +42,11 @@ export enum LangKeys{
     CONTENT_BUTTON_CONFIRM = "config.confirm-button",
     AUTOCONNECT = "config.autoconnect",
     REPLY_GLOBAL_CONFIG = "config.reply-global",
+    SERVER_CONFIGURATION = "config.server-configuration",
+    LANGUAGE_CONFIG = "config.language",
+    AUTOCONNECT_CONFIG = "config.autoconnect",
+    USER_ALIAS_CONFIG = "config.user-alias",
+    CHANNEL_CONFIG = "config.channels",
 
     ACTIVATION_VOICE_COMMAND = "voice.activation",
     NUKE_VOICE_COMMAND = "voice.nuke",
@@ -65,5 +70,8 @@ export enum LangKeys{
     NEXT_SONG_VOICE_COMMAND = "voice.next-song",
 
     ERR_NOT_ON_CHANNEL = "errors.not-on-channel",
-    JOIN_CHANNEL_REPLY = "replys.join-channel"
+    JOIN_CHANNEL_REPLY = "replys.join-channel",
+
+    ON = "on",
+    OFF = "off"
 }

@@ -5,5 +5,5 @@ export const ping = new SlashCommandBuilder()
   .setDescription('Te devuelve una poronga, yeyyyy!');
 
 export async function executePing(interaction: any) {
-  await interaction.reply({ content: 'Porongaaaaaaaaaaaaaaaa! ', flags: MessageFlags.Ephemeral,});
+  await interaction.reply({ content: 'Porongaaaaaaaaaaaaaaaa! v1.2.1', flags: MessageFlags.Ephemeral,});
 }

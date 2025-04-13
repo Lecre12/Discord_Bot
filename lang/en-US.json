@@ -49,8 +49,14 @@
         "placeholder-channel1": "First channel where the alerted user will be moved",
         "placeholder-channel2": "Second channel where the alerted user will be moved",
         "autoconnect": "Autoconnect",
-        "reply-global": "Fill in the fields and confirm, thank you :)"
+        "reply-global": "Fill in the fields and confirm, thank you :)",
+        "server-configuration": "Server configuration:",
+        "language": "Language",
+        "user-alias": "User alias:",
+        "channels": "Channels:"
     },
+    "on": "Activated",
+    "off": "Desactivated",
     "voice":{
         "activation": "hear me brown",
         "nuke": "nuke",
