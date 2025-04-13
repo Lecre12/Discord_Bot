@@ -30,7 +30,8 @@
         "searching-song": "Estoy buscando la canción, espera",
         "change-lang": "Idioma cambiado",
         "user-added": "Usuario añadido como: ",
-        "channel-deleted": "Canal eliminado"
+        "channel-deleted": "Canal eliminado",
+        "user-removed": "Alias de usuario eliminado"
     },
     "errors":{
         "fill-fields": "Debes rellenar todos los campos",
@@ -40,8 +41,7 @@
         "song-not-found": "Canción no encontrada",
         "bot-id": "Usted sabe que tengo el control sobre usted verdad? Intenta ponerme a mi en mi propia lista negra y tendremos problemas usted y yo...",
         "not-found-config": "No se ha encontrado la configuracion del servidor",
-        "already-joined": "Ya estoy conectado a un canal de voz",
-        "user-removed": "Alias de usuario eliminado"
+        "already-joined": "Ya estoy conectado a un canal de voz"
     },
     "english": "Inglés",
     "spanish": "Español",
