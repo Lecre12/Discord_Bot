@@ -102,3 +102,30 @@ export function addChannel(guildId: string, channelId: string, alias: string){
         saveServerData(data, guildId);
     }
 }
+
+export function removeChannel(guildId: string, channelId: string){
+    const data = getServerData(guildId);
+    if (data) {
+        delete data.moveChannels[channelId];
+        saveServerData(data, guildId);
+    }
+}
+
+export function removeUserAlias(guildId: string, userId: string, userAlias: string){
+    const data = getServerData(guildId);
+    if (data) {
+        if(userAlias){
+            if(data.aliasUsers[userAlias.toLowerCase()] === userId){
+                delete data.aliasUsers[userAlias.toLowerCase()];
+                saveServerData(data, guildId);
+            }
+        }else {
+            for (const [alias, id] of Object.entries(data.aliasUsers)) {
+                if (id === userId) {
+                    delete data.aliasUsers[alias];
+                }
+            }
+            saveServerData(data, guildId);
+        }
+    }
+}

@@ -1,6 +1,8 @@
 import { GuildMember, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { addServerData, addUserAlias, getServerData } from "../util/server-data";
 import { PermissionFlagsBits } from "discord.js";
+import { getMessage } from "../lang/lang-manager";
+import { LangKeys } from "../lang/lang-keys";
 
 export const addUser = new SlashCommandBuilder()
   .setName('add-user')
@@ -21,7 +23,7 @@ export async function executeAddUserMenu(interaction: any){
 
     if(member.id == "1322495591242272768"){
         interaction.reply({
-          content: "Usted sabe que tengo el control sobre usted verdad? Intenta ponerme a mi en mi propia lista negra y tendremos problemas usted y yo...",
+          content: getMessage(LangKeys.ERR_ID_BOT_ON_ADDUSER, interaction.guildId as string),
           components: [],
         });
         return;
@@ -37,7 +39,7 @@ export async function executeAddUserMenu(interaction: any){
     }
 
     await interaction.reply({
-      content: ` ${member.user.username} añadido correctamente como: ${alias}, let's have fun ;)`,
+      content:  getMessage(LangKeys.CONFIRMATION_USER_ADDED, interaction.guildId as string) + `let's have fun ;)`,
       components: [],
       flags: MessageFlags.Ephemeral,
     });

@@ -27,14 +27,21 @@
         "channel-saved": "Canal guardado como: ",
         "user-saved": "Usuario guardado como: ",
         "user-deleted": "Alias de usuario eliminado",
-        "searching-song": "Estoy buscando la canción, espera"
+        "searching-song": "Estoy buscando la canción, espera",
+        "change-lang": "Idioma cambiado",
+        "user-added": "Usuario añadido como: ",
+        "channel-deleted": "Canal eliminado"
     },
     "errors":{
         "fill-fields": "Debes rellenar todos los campos",
         "bot-name-on-alias": "No puede aparecer 'marrón' o parecidos en el alias",
         "not-on-channel": "No estas en ningun canal, cazurro",
         "alias-not-found": "No se ha encontrado el alias",
-        "song-not-found": "Canción no encontrada"
+        "song-not-found": "Canción no encontrada",
+        "bot-id": "Usted sabe que tengo el control sobre usted verdad? Intenta ponerme a mi en mi propia lista negra y tendremos problemas usted y yo...",
+        "not-found-config": "No se ha encontrado la configuracion del servidor",
+        "already-joined": "Ya estoy conectado a un canal de voz",
+        "user-removed": "Alias de usuario eliminado"
     },
     "english": "Inglés",
     "spanish": "Español",

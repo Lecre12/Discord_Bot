@@ -109,7 +109,6 @@
     "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
   },
   "include": [
-    "old_src/src",
-    "package.json", "src/util/wait.ts", "src/util/music.ts",
+    "src"
   ],
 }

@@ -25,14 +25,21 @@
         "channel-saved": "Channel saved as: ",
         "user-saved": "User saved as: ",
         "user-deleted": "User alias deleted",
-        "searching-song": "Wait, I'm searching the song"
+        "searching-song": "Wait, I'm searching the song",
+        "change-lang": "Language changed",
+        "user-added": "User added as: ",
+        "user-removed": "User removed as: ",
+        "channel-deleted": "Channel deleted"
     },
     "errors":{
         "fill-fields": "You have to fill all the fields",
         "bot-name-on-alias": "'Brown' or simmilar can't apear in the alias",
         "not-on-channel": "You are not in a channel, cazurro",
         "alias-not-found": "No se ha encontrado el alias",
-        "song-not-found": "Song not found"
+        "song-not-found": "Song not found",
+        "bot-id": "You know I have control over you, right? Try to put me on my own blacklist and we'll have problems, you and I...",
+        "not-found-config": "Server configuration not found",
+        "already-joined": "I'm already connected to a voice channel"
     },
     "english": "English",
     "spanish": "Spanish",

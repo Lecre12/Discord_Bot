@@ -4,6 +4,10 @@ import dotenv from 'dotenv';
 import { joinCommand, executeJoin } from "../command/join";
 import { addUser, executeAddUserMenu } from "../command/add-user";
 import { addChannelCommand, executeAddChannelMenu } from "../command/add-channel";
+import { executeHelp, helpCommand } from "../command/help";
+import { changeLang, executeChangeLang } from "../command/change-lang";
+import { showConfig, executeShowConfig } from "../command/show-config";
+import { removeUserAliasCommand, executeRemoveUserAlias } from "../command/remove-user-alias";
 
 dotenv.config();
 
@@ -12,6 +16,10 @@ const commands =[
     joinCommand.toJSON(),
     addUser.toJSON(),
     addChannelCommand.toJSON(),
+    helpCommand.toJSON(),
+    changeLang.toJSON(),
+    showConfig.toJSON(),
+    removeUserAliasCommand.toJSON()
 ];
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string 
@@ -47,6 +55,18 @@ export function executeCommand(interaction: any, commandName: string){
             break;
         case 'add-channel':
             executeAddChannelMenu(interaction);
+            break;
+        case 'change-lang':
+            executeChangeLang(interaction);
+            break;
+        case 'help':
+            executeHelp(interaction);
+            break;
+        case 'show-config':
+            executeShowConfig(interaction);
+            break;
+        case 'remove-user-alias':
+            executeRemoveUserAlias(interaction);
             break;
         default: 
             interaction.reply({ content: "Mi rey ese puto comando no tengo ni idea de lo que pollas hace, un cordial saludo", flags: MessageFlags.Ephemeral})
