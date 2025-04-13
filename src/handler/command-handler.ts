@@ -8,6 +8,7 @@ import { executeHelp, helpCommand } from "../command/help";
 import { changeLang, executeChangeLang } from "../command/change-lang";
 import { showConfig, executeShowConfig } from "../command/show-config";
 import { removeUserAliasCommand, executeRemoveUserAlias } from "../command/remove-user-alias";
+import { executeRemoveChannel, removeChannelCommand } from "../command/remove-channel";
 
 dotenv.config();
 
@@ -19,7 +20,8 @@ const commands =[
     helpCommand.toJSON(),
     changeLang.toJSON(),
     showConfig.toJSON(),
-    removeUserAliasCommand.toJSON()
+    removeUserAliasCommand.toJSON(),
+    removeChannelCommand.toJSON()
 ];
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string 
@@ -67,6 +69,9 @@ export function executeCommand(interaction: any, commandName: string){
             break;
         case 'remove-user-alias':
             executeRemoveUserAlias(interaction);
+            break;
+        case 'remove-channel':
+            executeRemoveChannel(interaction);
             break;
         default: 
             interaction.reply({ content: "Mi rey ese puto comando no tengo ni idea de lo que pollas hace, un cordial saludo", flags: MessageFlags.Ephemeral})
