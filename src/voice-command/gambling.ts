@@ -1,5 +1,4 @@
 import { VoiceMessage } from "discord-speech-recognition";
-import { getServerData } from "../util/server-data";
 import { GuildMember } from "discord.js";
 import { playAudio } from "../util/play-audio";
 import path from "path";
@@ -30,19 +29,14 @@ export async function shootRandom(message: VoiceMessage){
     const numberOfUsersInChat = membersCopy.length;
 
     let done = false;
-    const randomNumberToGet = Math.floor(Math.random() * numberOfUsersInChat);
-    console.log(randomNumberToGet);
-    if(membersCopy[randomNumberToGet] && membersCopy[randomNumberToGet].voice && membersCopy[randomNumberToGet].id != "1322495591242272768"){
-        console.log(`Expulsado ${membersCopy[randomNumberToGet].displayName}`);
-        playAudio(path.resolve(__dirname, "../../static-audio/shot.mp3"), message.guild.id);
-        await wait(1000);
-        await membersCopy[randomNumberToGet].voice.disconnect();
-        done = true;
-    }else if(membersCopy[0] && membersCopy[0].voice) {
-        console.log(`Expulsado ${membersCopy[0].displayName}`);
-        playAudio(path.resolve(__dirname, "../../static-audio/shot.mp3"), message.guild.id);
-        await wait(1000);
-        await membersCopy[0].voice.disconnect();
-        done = true;
-    }
+    do{
+        const randomNumberToGet = Math.floor(Math.random() * numberOfUsersInChat);
+        if(membersCopy[randomNumberToGet] && membersCopy[randomNumberToGet].voice && membersCopy[randomNumberToGet].id != "1322495591242272768"){
+            console.log(`Expulsado ${membersCopy[randomNumberToGet].displayName}`);
+            playAudio(path.resolve(__dirname, "../../static-audio/shot.mp3"), message.guild.id);
+            await wait(1000);
+            await membersCopy[randomNumberToGet].voice.disconnect();
+            done = true;
+        }
+    }while(!done);
 }
