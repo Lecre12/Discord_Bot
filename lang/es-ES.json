@@ -9,8 +9,8 @@
         "remove-user-description": "/removeuser <user> ¿<alias>? -> Elimina un usuario de la lista de usuarios (admin requerido)\n",
         "remove-channel-description": "/removechannel <channel> -> Elimina un canal de la lista de canales (admin requerido)\n",
         "voice-commands-description":{
-            "kick-description": "'oye marrón expulsa <alias>' -> expulsa al usuario identificado por el alias\n",
-            "alert-description": "'oye marrón alerta' -> alerta a los usuarios ensordecidos del canal hasta que se desensordezcan\n",
+            "kick-description": "'oye marrón expulsa <alias>' -> expulsa al usuario identificado por el alias\nNo querrás probar que hace 'oye marrón nuke'???\n",
+            "alert-description": "'oye marrón alerta' -> alerta a los usuarios ensordecidos del canal hasta que se desensordezcan\n(Usa los dos primeros canales configurados para alertar a los usuarios)\n",
             "random-number-description": "'oye marrón número aleatorio' -> da un número aleatorio\n",
             "mute-description": "'oye marrón silencia <alias>' -> silencia de servidor al usuario identificado con el alias\n",
             "deaf-description": "'oye marrón ensordece <alias>' -> ensordece de servidor al usuario identificado con el alias\n",

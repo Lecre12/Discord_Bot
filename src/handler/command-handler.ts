@@ -23,7 +23,8 @@ const commands =[
     showConfig.toJSON(),
     removeUserAliasCommand.toJSON(),
     removeChannelCommand.toJSON(),
-    addCustomAudioCommand.toJSON()
+    addCustomAudioCommand.toJSON(),
+    changeLang.toJSON()
 ];
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string 
@@ -77,6 +78,9 @@ export function executeCommand(interaction: any, commandName: string){
             break;
         case 'add-custom-audio':
             executeAddCustomAudio(interaction);
+            break;
+        case 'change-lang':
+            executeChangeLang(interaction);
             break;
         default: 
             interaction.reply({ content: "Mi rey ese puto comando no tengo ni idea de lo que pollas hace, un cordial saludo", flags: MessageFlags.Ephemeral})

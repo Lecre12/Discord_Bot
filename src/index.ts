@@ -25,7 +25,7 @@ export const client = new Client({ intents: [
 
 client.once("ready", async () => {
     console.log(`Logged in as ${client.user?.tag}!`);
-
+    client.user?.setActivity('Voice Commands', { type: ActivityType.Listening });
     disconnectOnLoad(client);
     await registerCommands();
     startServerData();
@@ -47,8 +47,6 @@ client.once("ready", async () => {
     });
     
 });
-
-client.user?.setActivity('Voice Commands', { type: ActivityType.Listening });
 
 client.on('interactionCreate', async (interaction: any) => {
     if(!interaction.guild){
