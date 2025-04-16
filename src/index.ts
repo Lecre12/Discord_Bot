@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, VoiceState } from 'discord.js';
+import { ActivityType, Client, GatewayIntentBits, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
 import { EventEmitter } from 'events';
 import { executeCommand, registerCommands } from './handler/command-handler';
@@ -48,6 +48,7 @@ client.once("ready", async () => {
     
 });
 
+client.user?.setActivity('Voice Commands', { type: ActivityType.Listening });
 
 client.on('interactionCreate', async (interaction: any) => {
     if(!interaction.guild){
