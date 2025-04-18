@@ -43,6 +43,9 @@ export function setServerLang(newLang: string, guildId: string){
         return;
     }
     actualServerData.lang = newLang;
+    if(actualServerData.speechOptions)
+    actualServerData.speechOptions.lang = newLang;
+
     getServersData()?.set(guildId, actualServerData);
 }
 
@@ -129,4 +132,13 @@ export function removeUserAlias(guildId: string, userId: string, userAlias: stri
         }
     }
 }
+
+export function setAutoJoin(guildId: string, autoConnect: boolean){
+    const data = getServerData(guildId);
+    if (data) {
+        data.auto_connect = autoConnect;
+        saveServerData(data, guildId);
+    }
+}
+    
     

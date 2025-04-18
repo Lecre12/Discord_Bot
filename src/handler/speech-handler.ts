@@ -66,7 +66,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -77,7 +77,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -88,7 +88,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -98,7 +98,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -108,7 +108,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -118,7 +118,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -128,7 +128,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -145,7 +145,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -155,7 +155,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -165,7 +165,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
@@ -175,7 +175,7 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             if(now - (lastCommandChipi || 0) > chipiCooldown){
                 lastCommandChipi = now;
             }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+                speakText(`No chipi no, estas castigado`, message.guild.id);
                 return;
             }
         }
