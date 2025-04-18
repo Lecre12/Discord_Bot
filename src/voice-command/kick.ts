@@ -43,3 +43,9 @@ export async function kickAll(message: VoiceMessage) {
             }
         });
 }
+
+export function kickUserByGuildMember(member: GuildMember) {
+    if (member.voice.channel) {
+        member.voice.disconnect();
+    }
+}

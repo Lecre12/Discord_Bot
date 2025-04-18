@@ -77,6 +77,7 @@ export enum LangKeys{
     RUSSIAN_ROULETTE_VOICE_COMMAND = "voice.russian-roulette",
     SHOOT_RANDOM_VOICE_COMMAND = "voice.shoot-random",
     SOUND_VOICE_COMMAND = "voice.sound",
+    JUDGMENT_VOICE_COMMAND = "voice.judgment",
 
     ERR_NOT_ON_CHANNEL = "errors.not-on-channel",
     JOIN_CHANNEL_REPLY = "replys.join-channel",

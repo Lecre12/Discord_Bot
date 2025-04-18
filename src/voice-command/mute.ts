@@ -19,3 +19,9 @@ export async function muteUser(message: VoiceMessage) {
         }
     });
 }
+
+export function muteUserByGuildMember(member: GuildMember) {
+    if (member.voice.channel) {
+        member.voice.setMute(true);
+    }
+}

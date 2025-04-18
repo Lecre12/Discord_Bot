@@ -19,3 +19,9 @@ export async function deafUser(message: VoiceMessage) {
             }
         });
 }
+
+export function deafUserByGuildMember(member: GuildMember) {
+    if (member.voice.channel) {
+        member.voice.setDeaf(true);
+    }
+}

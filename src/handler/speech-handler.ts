@@ -16,10 +16,12 @@ import { moveToChannel } from "../voice-command/move";
 import { askOpenAi } from "../voice-command/think";
 import { russianRoulette, shootRandom } from "../voice-command/gambling";
 import { reproduceSound } from "../voice-command/sound";
+import { handleJudgment, initJudgment } from "../voice-command/judgment";
 
 const lastSpeechTimes = new Map<string, number>();
 let lastCommandChipi: number = 0;
 const chipiCooldown = 600000;
+const stateJudging = new Map<string, boolean>();
 export async function handleSpeech(message: VoiceMessage): Promise<void>{
     if (!message || !message.content) return;
 
@@ -37,6 +39,12 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
     const connection = getServerData(message.guild.id)?.connection;
     if(!connection) return;
 
+    if(stateJudging.get(message.guild.id)){
+        handleJudgment(message);
+        return;
+    }else{
+        stateJudging.set(message.guild.id, false);
+    }
     if(message.content.startsWith(getMessage(LangKeys.SALUTE_VOICE_COMMAND, message.guild.id))){
         salute(message.guild.id);
         return;
@@ -180,6 +188,12 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             }
         }
         reproduceSound(message);
+    }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.JUDGMENT_VOICE_COMMAND, message.guild.id))){
+        console.log("JUDGMENT");
+        if(initJudgment(message, stateJudging)){
+            speakText("¡Juez, acusador, acusado, comienza el juicio!", message.guild.id);
+            stateJudging.set(message.guild.id, true);
+        }
     }
     
 }

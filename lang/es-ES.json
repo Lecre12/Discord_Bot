@@ -86,7 +86,8 @@
         "next-song": "siguiente",
         "russian-roulette": "ruleta rusa",
         "shoot-random": "dispar",
-        "sound": "sonido"
+        "sound": "sonido",
+        "judgment": "juicio"
     },
     "replys":{
         "join-channel": "Estoy escuchando tus comandos de voz en: "
