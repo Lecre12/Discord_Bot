@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import { getServerData, setAutoJoin } from "../util/server-data";
 import { MessageFlags } from "discord.js";
 
-export const toogleAutoJoin = new SlashCommandBuilder()
+export const toggleAutoJoin = new SlashCommandBuilder()
   .setName('toggle-autojoin')
   .setDescription('Activa o desactiva el autojoin');
 

@@ -10,7 +10,7 @@ import { showConfig, executeShowConfig } from "../command/show-config";
 import { removeUserAliasCommand, executeRemoveUserAlias } from "../command/remove-user-alias";
 import { executeRemoveChannel, removeChannelCommand } from "../command/remove-channel";
 import { addCustomAudioCommand, executeAddCustomAudio } from "../command/add-custom-audio";
-import { executeToggleAutoJoin, toogleAutoJoin } from "../command/toggle-autojoin";
+import { executeToggleAutoJoin, toggleAutoJoin } from "../command/toggle-autojoin";
 
 dotenv.config();
 
@@ -25,8 +25,7 @@ const commands =[
     removeUserAliasCommand.toJSON(),
     removeChannelCommand.toJSON(),
     addCustomAudioCommand.toJSON(),
-    changeLang.toJSON(),
-    toogleAutoJoin.toJSON()
+    toggleAutoJoin.toJSON()
 ];
 
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string 
