@@ -17,7 +17,7 @@ import { askOpenAi } from "../voice-command/think";
 import { russianRoulette, shootRandom } from "../voice-command/gambling";
 import { reproduceSound } from "../voice-command/sound";
 import { handleJudgment, initJudgment } from "../voice-command/judgment";
-import { insultUser } from "../voice-command/insult";
+import { globalInsult, insultUser } from "../voice-command/insult";
 import { GuildMember } from "discord.js";
 
 const lastSpeechTimes = new Map<string, number>();
@@ -215,7 +215,11 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         }else{
             console.log("aliasUsers es: " + aliasUsers);
         }
-        insultUser(userToInsult, message.guild.id);
+        if(userToInsult){
+            insultUser(userToInsult, message.guild.id);
+        }else{
+            globalInsult(message.guild.id);
+        }
     }
     
 }
