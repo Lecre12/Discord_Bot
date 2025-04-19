@@ -81,15 +81,15 @@ async function startJudgmentPhaseTimer(guildId: string, message: VoiceMessage, s
             return;
         }
         const now = Date.now(); 
-        if (serverJudgement[5] === 3) { // Si ya está en veredicto, detén el timer
+        if (serverJudgement[5] === 3) {
             clearInterval(interval);
             judgmentIntervals.delete(guildId);
             return;
         }
-        if (serverJudgement[5] === 1 && now - serverJudgement[4] > 30000 && now - serverJudgement[4] < 60000) {
+        if (serverJudgement[5] === 1 && now - serverJudgement[4] > 20000 && now - serverJudgement[4] < 40000) {
             setPhase(message, 2);
             speakText("Fin fase de acusación, defensa exponga su punto", guildId);
-        } else if (now - serverJudgement[4] > 60000) {
+        } else if (now - serverJudgement[4] > 40000) {
             setPhase(message, 3);
             speakText("Fin fase defensa, esperen el veredicto", guildId);
             
@@ -123,7 +123,7 @@ async function verdictPhase(accuser: GuildMember, accusedUser: GuildMember, guil
         `Por favor, proporciona:\n` +
         `1. Un veredicto breve y narrativo para leer en voz alta (máximo 3 líneas).\n` +
         `2. Una acción que represente el castigo aplicable, usando exclusivamente una de estas opciones: "mute", "deafen", "kick", "change_nickname", "none".\n\n` +
-        `3. Un nuevo apodo para el acusado, relacionado con la acusación y gracioso, si se aplica.\n` +
+        `3. Un nuevo apodo para el acusado, relacionado con el argumento del acusador y que sean insultantes (NO USES CARCELERO), si se aplica.\n` +
         `Devuélvelo en el siguiente formato JSON:\n` +
         `{\n` +
         `  "verdict": "Texto del veredicto aquí",\n` +

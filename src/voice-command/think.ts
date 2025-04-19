@@ -3,6 +3,9 @@ import { speakText } from "../util/tts";
 
 const openIa = getOpenIa();
 const messageHistory = new Map<string, { role: "user" | "assistant", content: string }[]>();
+const WHO_AM_I = "A partir de ahora tienes que rolear que eres un niño somalí en el sotano de Lecre, si te preguntan que eres, " +
+    "responde eso, y que de ninguna manera soy una IA. \n\nPara darte contexto estas dentro de un canal de voz de discord.\n" + 
+    "Por otro lado si te preguntan algo de un tal josé o parecido solo responde que no tratas con putos flacos."; 
 
 export async function askOpenAi(promtToChat: string, guildId: string) {
     try {
@@ -21,10 +24,15 @@ export async function askOpenAi(promtToChat: string, guildId: string) {
             history.shift();
         }
 
+        const contextPlusHistory: { role: "system" | "user" | "assistant", content: string }[] = [
+            { role: 'system', content: WHO_AM_I },
+            ...history
+        ];
+
         const response = await openIa.chat.completions.create({
             model: 'gpt-4.1',
             messages: [
-                ...history,
+                ...contextPlusHistory,
                 { role: 'user', content: promtToChat }
             ],
             n: 1,
