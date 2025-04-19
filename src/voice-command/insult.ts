@@ -22,7 +22,7 @@ export function insultUser(member: GuildMember, guildId: string){
 }
 
 export function globalInsult(guildId: string){
-    const insult = INSULTS[Math.floor(Math.random() * 8)];
+    const insult = INSULTS[Math.floor(Math.random() * 10)];
     if (insult.type === InsultType.Global) {
         speakText(insult.text, guildId);
     }else {

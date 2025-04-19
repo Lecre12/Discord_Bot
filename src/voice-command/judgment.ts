@@ -117,12 +117,13 @@ async function verdictPhase(accuser: GuildMember, accusedUser: GuildMember, guil
     const defenseStatement = data[3];
     
     const promptToChat = 
-        `Estamos realizando un juicio simulado. Tú eres el juez y debes dar un veredicto imparcial, aunque no te den muchos argumentos, creetelos para que sea mas sencillo todo.\n\n` +
+        `Estamos realizando un juicio simulado. Tú eres el juez y debes dar un veredicto, ponte ligeramente del lado del acusador, pero no olvides la defensa del acusado, aunque no te den muchos argumentos, creetelos para que sea mas sencillo todo.\n\n` +
         `Argumento del acusador:\n${accuserStatement}\n\n` +
         `Argumento del acusado:\n${defenseStatement}\n\n` +
         `Por favor, proporciona:\n` +
         `1. Un veredicto breve y narrativo para leer en voz alta (máximo 3 líneas).\n` +
         `2. Una acción que represente el castigo aplicable, usando exclusivamente una de estas opciones: "mute", "deafen", "kick", "change_nickname", "none".\n\n` +
+        `3. Un nuevo apodo para el acusado, relacionado con la acusación y gracioso, si se aplica.\n` +
         `Devuélvelo en el siguiente formato JSON:\n` +
         `{\n` +
         `  "verdict": "Texto del veredicto aquí",\n` +
