@@ -10,7 +10,7 @@ export async function askOpenAi(promtToChat: string, guildId: string) {
             console.error("El mensaje es vacío o nulo.");
             return;
         }
-        promtToChat = promtToChat + "\nPor favor, responde sin ningún formato como negritas, cursivas o títulos. Solo texto plano.";
+        promtToChat = promtToChat + "\nPor favor, responde sin ningún formato como negritas, cursivas o títulos. Solo texto plano. De manera escueta.";
 
         speakText("Te he entendido, espera que piense", guildId);
 
