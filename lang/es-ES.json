@@ -87,7 +87,8 @@
         "russian-roulette": "ruleta rusa",
         "shoot-random": "dispar",
         "sound": "sonido",
-        "judgment": "juicio"
+        "judgment": "juicio",
+        "insult": "insult"
     },
     "replys":{
         "join-channel": "Estoy escuchando tus comandos de voz en: "

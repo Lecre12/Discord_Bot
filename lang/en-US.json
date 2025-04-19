@@ -87,7 +87,8 @@
         "russian-roulette": "russian roulette",
         "shoot-random": "shoot",
         "sound": "sound",
-        "judgment": "judgment"
+        "judgment": "judgment",
+        "insult": "insult"
     },
     "replys":{
         "join-channel": "I'm listennig you voice commands in: "

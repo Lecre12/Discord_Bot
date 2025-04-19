@@ -78,6 +78,7 @@ export enum LangKeys{
     SHOOT_RANDOM_VOICE_COMMAND = "voice.shoot-random",
     SOUND_VOICE_COMMAND = "voice.sound",
     JUDGMENT_VOICE_COMMAND = "voice.judgment",
+    INSULT_VOICE_COMMAND = "voice.insult",
 
     ERR_NOT_ON_CHANNEL = "errors.not-on-channel",
     JOIN_CHANNEL_REPLY = "replys.join-channel",

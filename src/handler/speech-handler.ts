@@ -17,6 +17,8 @@ import { askOpenAi } from "../voice-command/think";
 import { russianRoulette, shootRandom } from "../voice-command/gambling";
 import { reproduceSound } from "../voice-command/sound";
 import { handleJudgment, initJudgment } from "../voice-command/judgment";
+import { insultUser } from "../voice-command/insult";
+import { GuildMember } from "discord.js";
 
 const lastSpeechTimes = new Map<string, number>();
 let lastCommandChipi: number = 0;
@@ -194,6 +196,26 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             speakText("¡Juez, acusador, acusado, comienza el juicio!", message.guild.id);
             stateJudging.set(message.guild.id, true);
         }
+    }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.INSULT_VOICE_COMMAND, message.guild.id))){
+        const aliasUsers = getServerData(message.guild.id)?.aliasUsers;
+        let userToInsult: GuildMember | undefined;
+        if(aliasUsers){
+            Object.keys(aliasUsers).forEach((name) => {
+                if (message.content?.includes(name)) {
+                const userId = aliasUsers[name];
+                if(!message.member?.voice.channel) return
+                const membersCopy: GuildMember[] = Array.from(message.guild.members.cache.values()).slice() as GuildMember[];
+                membersCopy.forEach(async (m: GuildMember) => {
+                    if (m.id == userId) {
+                        userToInsult = m;
+                    }
+                });
+                }
+            });
+        }else{
+            console.log("aliasUsers es: " + aliasUsers);
+        }
+        insultUser(userToInsult, message.guild.id);
     }
     
 }
