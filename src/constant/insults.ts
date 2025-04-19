@@ -18,9 +18,9 @@ export const INSULTS: Insult[] = [
     {type: InsultType.User, text: "<nombre>, tu evolución personal parece estar en pausa desde el 2012."},
     {type: InsultType.User, text: "<nombre>, tus ideas son tan prácticas como un manual de economía socialista: suenan bien hasta que alguien las intenta usar."},
     {type: InsultType.User, text: "<nombre>, no es que no cambies, es que te aferras a ser una versión peor de ti mismo."},
-    {type: InsultType.User, text: "<nombre>, eres tan innecesario como el tutorial de ‘cómo abrir una botella’."},
-    {type: InsultType.User, text: "<nombre>, eres tan innecesario como el tutorial de ‘cómo abrir una botella’."},
-    {type: InsultType.User, text: "<nombre>, eres tan innecesario como el tutorial de ‘cómo abrir una botella’."},
+    {type: InsultType.User, text: "<nombre>, si tu vida fuera una serie, estaría en la categoría de ‘basada en errores reales’."},
+    {type: InsultType.User, text: "<nombre>, si fueras un logro, sería decepcionar a todos los que te conocen.."},
+    {type: InsultType.User, text: "<nombre>, tus ideas son tan prácticas como un manual de economía socialista: suenan bien hasta que alguien las intenta usar."},
     {type: InsultType.User, text: "<nombre>, si fueras un logro, sería decepcionar a todos los que te conocen."},
     {type: InsultType.User, text: "<nombre>, si la mediocridad tuviera competencia, ganarias con mucha ventaja."},
 ];
