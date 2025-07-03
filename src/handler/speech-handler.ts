@@ -24,6 +24,18 @@ const lastSpeechTimes = new Map<string, number>();
 let lastCommandChipi: number = 0;
 const chipiCooldown = 600000;
 const stateJudging = new Map<string, boolean>();
+function checkChipiCooldown(message: VoiceMessage, now: number): boolean {
+    if (message.member?.id == "567777196048121856") {
+        if (now - (lastCommandChipi || 0) > chipiCooldown) {
+            lastCommandChipi = now;
+        } else {
+            speakText(`No chipi no, estas castigado`, message.guild.id);
+            return true; // Bloquea la ejecución
+        }
+    }
+    return false; // Permite la ejecución
+}
+
 export async function handleSpeech(message: VoiceMessage): Promise<void>{
     if (!message || !message.content) return;
 
@@ -62,85 +74,45 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
                 } 
             }
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.KICK_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi, no estas castigado`, message.guild.id);
+            if (checkChipiCooldown(message, now)) {
                 return;
             }
-        }
         kickUser(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.NUKE_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         kickAll(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id))){
         const textAfterCommand = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id)).length).trim();
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         stopAudio(message.guild.id);
         askOpenAi(textAfterCommand, message.guild.id);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUTE_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         muteUser(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SPEAK_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         normalVoiceState(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.DEAF_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         deafUser(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MOVE_VOICE_COMMAND, message.guild.id)) ||message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MOVE_VOICE_COMMANDV2, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         moveToChannel(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.WHO_VOICE_COMMAND, message.guild.id)) && message.content.includes(getMessage(LangKeys.CONNECTED_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         getConnectedUsers(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.DELETE_SONG_LIST_VOICE_COMMAND, message.guild.id))){
@@ -151,43 +123,23 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         stopAudio(message.guild.id);
         speakText(` ${(Math.random() * 10).toFixed()}`, message.guild.id);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.ALERT_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         alertUsers(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.RUSSIAN_ROULETTE_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         russianRoulette(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SHOOT_RANDOM_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         shootRandom(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SOUND_VOICE_COMMAND, message.guild.id))){
-        if(message.member?.id == "567777196048121856"){
-            if(now - (lastCommandChipi || 0) > chipiCooldown){
-                lastCommandChipi = now;
-            }else {
-                speakText(`No chipi no, estas castigado`, message.guild.id);
-                return;
-            }
+        if (checkChipiCooldown(message, now)) {
+            return;
         }
         reproduceSound(message);
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.JUDGMENT_VOICE_COMMAND, message.guild.id))){

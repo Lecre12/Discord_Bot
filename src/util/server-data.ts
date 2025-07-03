@@ -63,6 +63,9 @@ export function setConnection(connection: VoiceConnection | undefined, guildId: 
     if(actualServerData === null){
         return;
     }
+    if(connection === undefined){
+        actualServerData.connection?.destroy();
+    }
     actualServerData.connection = connection;
     getServersData()?.set(guildId, actualServerData);
 }
