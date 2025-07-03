@@ -8,8 +8,6 @@ import { disconnectOnLoad } from './util/disconnect-on-load';
 import { handleSpeech } from './handler/speech-handler';
 import { handleInteraction } from './handler/interaction-handler';
 import { executeJoin } from './command/join';
-import { speakText } from './util/tts';
-import { wait } from './util/wait';
 dotenv.config();
 
 EventEmitter.defaultMaxListeners = 20;
@@ -70,42 +68,18 @@ client.on("guildCreate", (guild) => {
     addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
 });
 
+client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
+    const botId = client.user?.id;
+  
+    // Comprobamos si el bot era el que estaba en el canal
+  });
+
 
 client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
     const botMember = await newState.guild.members.fetch(client.user!.id);
 	const guildMember = await newState.guild.members.fetch(newState.member!.id);
 	const botId = client.user?.id;
     const botVoiceChannel = botMember.voice.channel?.id;
-
-
-    if (newState.member?.id === botId) {
-		const wasInChannel = oldState.channel;
-		const isInChannel = newState.channel;
-
-		if (wasInChannel && isInChannel && wasInChannel.id !== isInChannel.id) {
-			console.log(`⚠️ El bot fue movido de ${wasInChannel.name} a ${isInChannel.name}. Desconectando...`);
-			const botMember = await newState.guild.members.fetch(botId!);
-			await botMember.voice.disconnect();
-            //console.log(membersInOldChannel);
-
-			console.log(`🔌 Bot desconectado tras ser movido manualmente.`);
-            setConnection(undefined, oldState.guild.id);
-			setAudioPlayer(undefined, oldState.guild.id);
-            await wait(2000);
-            const membersInOldChannel = oldState.channel?.members.filter(member => !member.user.bot);
-            const oldGuildMember = await oldState.guild.members.fetch(membersInOldChannel?.first()?.user.id!)
-            const interaction = {
-                guildId: oldState.guild.id,
-                user: { id: membersInOldChannel?.first()?.user.id },
-                member: oldGuildMember,
-                guild: oldState.guild,
-                reply: async (message: string) => console.log('Reply:', message),
-            };
-            await executeJoin(interaction);
-            speakText("Joselu, me cago en tu puta madre, un cordial saludo", oldState.guild.id);
-            return;
-		}
-    }
 
 	//Gestion cuando el bot se desconecta
 	if (oldState.member?.user.id === botId) {
@@ -117,6 +91,7 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
 			setConnection(undefined, oldState.guild.id);
 			setAudioPlayer(undefined, oldState.guild.id);
 		}
+		return;
 	}
 
     // Verificar si el miembro que se ha unido es alguien que no es el bot
