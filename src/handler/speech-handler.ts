@@ -19,11 +19,17 @@ import { reproduceSound } from "../voice-command/sound";
 import { handleJudgment, initJudgment } from "../voice-command/judgment";
 import { globalInsult, insultUser } from "../voice-command/insult";
 import { GuildMember } from "discord.js";
+import { clasificateSpeech } from "../util/open-ia";
+
+// TODO: HAcer un refactor completo de la parte de speech-handler a que sea un mcp y demass
 
 const lastSpeechTimes = new Map<string, number>();
 let lastCommandChipi: number = 0;
 const chipiCooldown = 600000;
 const stateJudging = new Map<string, boolean>();
+/** 
+ * @deprecated Usa `handleSpeechAi` en su lugar.
+ */
 export async function handleSpeech(message: VoiceMessage): Promise<void>{
     if (!message || !message.content) return;
 
@@ -221,5 +227,182 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
             globalInsult(message.guild.id);
         }
     }
-    
+}
+
+function controlChipiPunishment(message: VoiceMessage): boolean {
+    const now = Date.now();
+    if(message.member?.id == "567777196048121856"){
+        if(now - (lastCommandChipi || 0) > chipiCooldown){
+            lastCommandChipi = now;
+            return true;
+        }else {
+            speakText(`No chipi no, estas castigado`, message.guild.id);
+            return false;
+        }
+    }else{
+        return true;
+    }
+}
+
+export async function handleSpeechAi(message: VoiceMessage): Promise<void>{
+    if (!message || !message.content) return;
+    message.content = message.content!.toLowerCase();
+
+    const now = Date.now();
+    const lastTime = lastSpeechTimes.get(message.member!.id) || 0;
+
+    if (now - lastTime > 3000) { 
+        lastSpeechTimes.set(message.member!.id, now);
+    } else {
+        return;
+    }
+
+    const connection = getServerData(message.guild.id)?.connection;
+    if(!connection) return;
+
+    if(stateJudging.get(message.guild.id)){
+        handleJudgment(message);
+        return;
+    }else{
+        stateJudging.set(message.guild.id, false);
+    }
+
+    const messageContent = message.content;
+
+    if(message.content.startsWith(getMessage(LangKeys.SALUTE_VOICE_COMMAND, message.guild.id))){
+        salute(message.guild.id);
+        return;
+    }
+
+    if(!messageContent.includes
+        (getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id))
+    ){
+        return;
+    }
+    const realMessageContent = messageContent.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id)) ? messageContent.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id)).length).trim() : messageContent;
+
+    if(realMessageContent.length === 0) return;
+    if(!controlChipiPunishment(message)) return;
+
+    console.log("Real message content: " + realMessageContent);
+
+    switch ((await clasificateSpeech(realMessageContent)).option) {
+        case "saludar":
+            salute(message.guild.id);
+            break;
+        case "parar":
+            stopAudio(message.guild.id);
+            break;
+        case "callar":
+            stopAudio(message.guild.id);
+            break;
+        case "ruleta_rusa":
+            russianRoulette(message);
+            break;
+        case "disparar_aleatorio":
+            shootRandom(message);
+            break;
+        case "insultar":
+            const aliasUsers = getServerData(message.guild.id)?.aliasUsers;
+            let userToInsult: GuildMember | undefined;
+            if(aliasUsers){
+                Object.keys(aliasUsers).forEach((name) => {
+                    if (message.content?.includes(name)) {
+                    const userId = aliasUsers[name];
+                    if(!message.member?.voice.channel) return
+                    const membersCopy: GuildMember[] = Array.from(message.guild.members.cache.values()).slice() as GuildMember[];
+                    membersCopy.forEach(async (m: GuildMember) => {
+                        if (m.id == userId) {
+                            userToInsult = m;
+                        }
+                    });
+                    }
+                });
+            }else{
+                console.log("aliasUsers es: " + aliasUsers);
+            }
+            if(userToInsult){
+                insultUser(userToInsult, message.guild.id);
+            }else{
+                globalInsult(message.guild.id);
+            }
+            break;
+        case "juicio":
+            console.log("JUDGMENT");
+        
+            if(initJudgment(message, stateJudging)){
+                speakText("¡Juez, acusador, acusado, comienza el juicio!", message.guild.id);
+                stateJudging.set(message.guild.id, true);
+            }
+            break;
+        case "desilenciar_desensordecer":
+            normalVoiceState(message);
+            break;
+        case "silenciar":
+            muteUser(message);
+            break;
+        case "ensordecer":
+            deafUser(message);
+            break;
+        case "mover_de_canales":
+            moveToChannel(message);
+            break;
+        case "quien_esta_conectado":
+            getConnectedUsers(message);
+            break;
+        case "alerta":
+            alertUsers(message);
+            break;
+        case "expulsar_usuario":
+            kickUser(message);
+            break;
+        case "nuke":
+            kickAll(message);
+            break;
+        case "expulsar_todos":
+            kickAll(message);
+            break;
+        case "poner_cancion":
+            const song = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id)).length).trim();
+            console.log("MUSIC TEXT: " + song);
+            if(song){    
+                if(connection){
+                    await playSong(song, message.guild.id);
+                } 
+            }
+            break;
+        case "limpiar_lista_canciones":
+            clearSongList(message.guild.id);
+            break;
+        case "siguiente_cancion":
+            nextSong(message.guild.id);
+            break;
+        case "opinar":
+        case "aconsejar":
+        case "pensar":
+            let textAfterCommand = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.THINK_VOICE_COMMAND, message.guild.id)).length).trim();
+            if(textAfterCommand.length === 0 && realMessageContent.length > 0){
+                textAfterCommand = realMessageContent;
+            }
+            stopAudio(message.guild.id);
+            askOpenAi(textAfterCommand, message.guild.id);
+            break;
+        case "alerta":
+            alertUsers(message);
+            break;
+        case "numero_aleatorio":
+            stopAudio(message.guild.id);
+            speakText(` ${(Math.random() * 10).toFixed()}`, message.guild.id);
+            break;
+        case "none":
+            console.log("Comando no reconocido.");
+            break;
+        default:
+            console.log("Comando no implementado o no reconocido.");
+            break;
+    }
+        
+
+
+
 }

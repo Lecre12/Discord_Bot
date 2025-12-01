@@ -3,9 +3,9 @@ import dotenv from 'dotenv';
 import { EventEmitter } from 'events';
 import { executeCommand, registerCommands } from './handler/command-handler';
 import { addServerData, getServerData, getServersData, setAudioPlayer, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
-import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
+import { addSpeechEvent, SpeechOptions, VoiceMessage } from 'discord-speech-recognition';
 import { disconnectOnLoad } from './util/disconnect-on-load';
-import { handleSpeech } from './handler/speech-handler';
+import { handleSpeech, handleSpeechAi } from './handler/speech-handler';
 import { handleInteraction } from './handler/interaction-handler';
 import { executeJoin } from './command/join';
 dotenv.config();
@@ -68,12 +68,6 @@ client.on("guildCreate", (guild) => {
     addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
 });
 
-client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
-    const botId = client.user?.id;
-  
-    // Comprobamos si el bot era el que estaba en el canal
-  });
-
 
 client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
     const botMember = await newState.guild.members.fetch(client.user!.id);
@@ -121,6 +115,13 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
 		}
 	}
 });
-client.on('speech', handleSpeech);
+client.on('speech', async (message: VoiceMessage) => {
+  if (!message.content || message.content.trim() === '') return;
+  try {
+    await handleSpeechAi(message);
+  } catch (err) {
+    console.warn('Error procesando audio:', err);
+  }
+});
 
 client.login(BOT_TOKEN);

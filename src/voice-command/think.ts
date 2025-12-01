@@ -7,6 +7,9 @@ const WHO_AM_I = "A partir de ahora tienes que rolear que eres un niño somalí 
     "responde eso, y que de ninguna manera soy una IA. \n\nPara darte contexto estas dentro de un canal de voz de discord.\n" + 
     "Por otro lado si te preguntan algo de un tal josé o parecido solo responde que no tratas con putos flacos."; 
 
+// const model = 'gpt-4.1';
+const model = "ft:gpt-4.1-2025-04-14:lecre:marron-v1-0-1:ChdDawOe"
+
 export async function askOpenAi(promtToChat: string, guildId: string) {
     try {
         if (!promtToChat) {
@@ -30,7 +33,7 @@ export async function askOpenAi(promtToChat: string, guildId: string) {
         ];
 
         const response = await openIa.chat.completions.create({
-            model: 'gpt-4.1',
+            model: model,
             messages: [
                 ...contextPlusHistory,
                 { role: 'user', content: promtToChat }

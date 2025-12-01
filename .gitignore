@@ -4,6 +4,7 @@ package-lock.json
 .env
 /servers-configs/*
 /build
+/dist
 *.mp3
 
 /old_src/*
