@@ -1,5 +1,5 @@
 import { VoiceConnection } from "@discordjs/voice";
-import { VoiceMessage } from "discord-speech-recognition";
+import { VoiceMessage } from "../type/voice-message";
 import { GuildMember } from "discord.js";
 import { getServerData } from "../util/server-data";
 import { playAudio } from "../util/play-audio";

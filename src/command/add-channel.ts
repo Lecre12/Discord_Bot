@@ -34,7 +34,7 @@ export async function executeAddChannelMenu(interaction: any){
         serverConfig.moveChannels[channel.id] = alias.toLowerCase();
         addChannel(interaction.guildId as string, channel.id, alias);
     } else {
-        addServerData(interaction.guildId as string, {}, { [channel.id]: alias.toLowerCase() }, false, 'es-ES', undefined, undefined, undefined);
+        addServerData(interaction.guildId as string, {}, { [channel.id]: alias.toLowerCase() }, false, 'es-ES', undefined, undefined, undefined, undefined);
     }
 
     await interaction.reply({

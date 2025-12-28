@@ -1,10 +1,10 @@
+import { SpeechManager } from './../voice-recognition/recognizer';
 import { AudioPlayer, VoiceConnection } from "@discordjs/voice";
-import { SpeechOptions } from "discord-speech-recognition";
 import { getServerData as getSavedServerData, saveServerData } from '../config/save-server-data';
 import fs from 'fs';
 import path from 'path';
 
-let serverData: Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, auto_connect:boolean, lang: string, speechOptions: SpeechOptions | undefined, connection: VoiceConnection | undefined, audioPlayer: AudioPlayer | undefined}> | null = null;
+let serverData: Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, auto_connect:boolean, lang: string, speechOptions: any | undefined, connection: VoiceConnection | undefined, audioPlayer: AudioPlayer | undefined, speechManager?: SpeechManager}> | null = null;
 
 export function getServersData(){
     return serverData;
@@ -49,7 +49,7 @@ export function setServerLang(newLang: string, guildId: string){
     getServersData()?.set(guildId, actualServerData);
 }
 
-export function setServerSpeechOptions(newSpeechOptions: SpeechOptions, guildId: string){
+export function setServerSpeechOptions(newSpeechOptions: any, guildId: string){
     const actualServerData = getServerData(guildId);
     if(actualServerData === null){
         return;
@@ -76,7 +76,7 @@ export function setAudioPlayer(audioPlayer: AudioPlayer | undefined, guildId: st
     getServersData()?.set(guildId, actualServerData);
 }
 
-export function addServerData(guildId: string, aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, auto_connect:boolean, lang: string, speechOptions: SpeechOptions | undefined, connection: VoiceConnection | undefined, audioPlayer: AudioPlayer | undefined){
+export function addServerData(guildId: string, aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, auto_connect:boolean, lang: string, speechOptions: any | undefined, connection: VoiceConnection | undefined, audioPlayer: AudioPlayer | undefined, speechManager?: SpeechManager){
     getServersData()?.set(guildId, {
         aliasUsers: aliasUsers,
             moveChannels: moveChannels,
@@ -85,6 +85,7 @@ export function addServerData(guildId: string, aliasUsers: { [key: string]: stri
             speechOptions: speechOptions,
             connection: connection,
             audioPlayer: audioPlayer,
+            speechManager: speechManager
     });
   console.log(`Language for this guild: ${lang}`);
   saveServerData({aliasUsers, moveChannels, auto_connect, lang}, guildId);

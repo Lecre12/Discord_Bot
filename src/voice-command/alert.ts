@@ -1,4 +1,4 @@
-import { VoiceMessage } from "discord-speech-recognition";
+import { VoiceMessage } from "../type/voice-message";
 import { GuildMember, VoiceChannel } from "discord.js";
 import { legacyAlarmCommand } from "../util/legacyAlarm";
 import { getServerData } from "../util/server-data";

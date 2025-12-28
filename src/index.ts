@@ -3,11 +3,15 @@ import dotenv from 'dotenv';
 import { EventEmitter } from 'events';
 import { executeCommand, registerCommands } from './handler/command-handler';
 import { addServerData, getServerData, getServersData, setAudioPlayer, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
-import { addSpeechEvent, SpeechOptions, VoiceMessage } from 'discord-speech-recognition';
 import { disconnectOnLoad } from './util/disconnect-on-load';
 import { handleSpeech, handleSpeechAi } from './handler/speech-handler';
 import { handleInteraction } from './handler/interaction-handler';
 import { executeJoin } from './command/join';
+import { SpeechManager } from './voice-recognition/recognizer';
+import { voskModel } from './voice-recognition/vosk';
+import { Worker } from "worker_threads";
+import path from "path";
+import { VoiceMessage } from "./type/voice-message";
 dotenv.config();
 
 EventEmitter.defaultMaxListeners = 20;
@@ -33,16 +37,12 @@ client.once("ready", async () => {
     client.guilds.cache.forEach(async guild => {
         const lang = getServerData(guild.id)?.lang;
         if(lang){
-            const speechOptions : SpeechOptions = addSpeechEvent(client);
-            speechOptions.lang = lang;
-            speechOptions.profanityFilter = false;
+            const speechOptions : any = null;
             setServerSpeechOptions(speechOptions, guild.id);
             //console.log(`Config for this guild ${guild.id}:`, getServerData(guild.id));
         }else {
-            const speechOptions : SpeechOptions = addSpeechEvent(client);
-            speechOptions.lang = 'es-ES';
-            speechOptions.profanityFilter = false;
-            addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
+            const speechOptions : any = null;
+            addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined, undefined);
         }
     });
     
@@ -61,18 +61,18 @@ client.on('interactionCreate', async (interaction: any) => {
     }
 });
 
-client.on("guildCreate", (guild) => {
-    const speechOptions : SpeechOptions = addSpeechEvent(client);
-    speechOptions.lang = 'es-ES';
-    speechOptions.profanityFilter = false;
-    addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
-});
+// client.on("guildCreate", (guild) => {
+//     const speechOptions : SpeechOptions = addSpeechEvent(client);
+//     speechOptions.lang = 'es-ES';
+//     speechOptions.profanityFilter = false;
+//     addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
+// });
 
 
 client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
     const botMember = await newState.guild.members.fetch(client.user!.id);
-	const guildMember = await newState.guild.members.fetch(newState.member!.id);
-	const botId = client.user?.id;
+	  const guildMember = await newState.guild.members.fetch(newState.member!.id);
+	  const botId = client.user?.id;
     const botVoiceChannel = botMember.voice.channel?.id;
 
 	//Gestion cuando el bot se desconecta
@@ -114,14 +114,26 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
 			}
 		}
 	}
-});
-client.on('speech', async (message: VoiceMessage) => {
-  if (!message.content || message.content.trim() === '') return;
-  try {
-    await handleSpeechAi(message);
-  } catch (err) {
-    console.warn('Error procesando audio:', err);
+
+  if (!oldState.channel && newState.channel) {
+    // Nuevo usuario entró
+    console.log(`${newState.member?.user.tag} se unió al canal ${newState.channel.name}`);
+
+    // Opcional: si quieres empezar a escucharlo
+    const serverData = getServerData(newState.guild.id);
+    if (serverData?.connection) {
+      serverData.speechManager?.listenUser(newState.member?.id!);
+    }
   }
 });
+// client.on('speech', async (message: VoiceMessage) => {
+//   if (!message.content || message.content.trim() === '') return;
+//   try {
+//     await handleSpeechAi(message);
+//   } catch (err) {
+//     console.warn('Error procesando audio:', err);
+//   }
+// });
+
 
 client.login(BOT_TOKEN);

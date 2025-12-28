@@ -1,12 +1,12 @@
-import { VoiceMessage } from "discord-speech-recognition";
+import { VoiceMessage } from "../type/voice-message";
 import { LangKeys } from "../lang/lang-keys";
 import { getMessage } from "../lang/lang-manager";
 import { playAudio } from "../util/play-audio";
 import path from "path";
 import fs from "fs";
 
-export function reproduceSound(message: VoiceMessage){
-    const soundToSearch = message.content?.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SOUND_VOICE_COMMAND, message.guild.id)).length).trim();
+export function reproduceSound(message: VoiceMessage, sonido?: string) {
+    let soundToSearch = sonido || message.content?.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SOUND_VOICE_COMMAND, message.guild.id)).length).trim();
 
     console.log(soundToSearch);
 

@@ -4,7 +4,7 @@ export const voiceCommandsList = [
     "ensordecer",
     "ruleta_rusa",
     "disparar_aleatorio",
-    "insultar",
+    // "insultar",
     "juicio",
     "expulsar_usuario",
     "nuke",

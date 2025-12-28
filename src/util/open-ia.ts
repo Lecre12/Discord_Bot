@@ -1,5 +1,8 @@
 import OpenAI from "openai";
-import { voiceCommandsList } from "../constant/voice-commands-list.js";
+import { voiceCommandsList } from "../constant/voice-commands-list";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const openIa = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
@@ -8,7 +11,7 @@ const openIa = new OpenAI({
 export const getOpenIa = () => openIa;
 
 
-export async function clasificateSpeech(speech: string): Promise<{option: string, confidence: number}> 
+export async function clasificateSpeech(speech: string): Promise<{option: string, confidence: number, sound?: string}> 
 {
     const response = await openIa.chat.completions.create({
         model: "gpt-4.1-nano-2025-04-14",
@@ -19,7 +22,7 @@ export async function clasificateSpeech(speech: string): Promise<{option: string
                 Tienes que clasificar el siguiente texto en una de las siguientes opciones:
                 ${voiceCommandsList.join(", ")}. Si no encuentras ninguna accion adecuada, devuelve "none".
                 Devuelves la opción y un nivel de confianza entre 0 y 1 en formato JSON.
-                {"option": "nombre_de_la_opcion", "confidence": nivel_de_confianza}`
+                {"option": "nombre_de_la_opcion", "confidence": nivel_de_confianza, "sound": "nombre_del_sonido_opcional"}`
             },
             {
                 role: "user",

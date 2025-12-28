@@ -1,4 +1,4 @@
-import { VoiceMessage } from 'discord-speech-recognition';
+import { VoiceMessage } from '../type/voice-message';
 import { GuildMember } from 'discord.js';
 export async function normalVoiceState(message: VoiceMessage) {
     if(!message.member?.voice.channel) return;

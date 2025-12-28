@@ -1,4 +1,4 @@
-import { VoiceMessage } from "discord-speech-recognition";
+import { VoiceMessage } from "../type/voice-message";
 import { salute } from "../voice-command/salute";
 import { getMessage } from "../lang/lang-manager";
 import { LangKeys } from "../lang/lang-keys";
@@ -285,8 +285,9 @@ export async function handleSpeechAi(message: VoiceMessage): Promise<void>{
     if(!controlChipiPunishment(message)) return;
 
     console.log("Real message content: " + realMessageContent);
+    const classification = await clasificateSpeech(realMessageContent)
 
-    switch ((await clasificateSpeech(realMessageContent)).option) {
+    switch (classification.option) {
         case "saludar":
             salute(message.guild.id);
             break;
@@ -386,6 +387,9 @@ export async function handleSpeechAi(message: VoiceMessage): Promise<void>{
             }
             stopAudio(message.guild.id);
             askOpenAi(textAfterCommand, message.guild.id);
+            break;
+        case "poner_sonido_especifico":
+            reproduceSound(message, classification.sound);
             break;
         case "alerta":
             alertUsers(message);

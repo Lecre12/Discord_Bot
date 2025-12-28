@@ -1,4 +1,4 @@
-import { VoiceMessage } from "discord-speech-recognition";
+import { VoiceMessage } from "../type/voice-message";
 import { GuildMember } from "discord.js";
 import { playAudio } from "../util/play-audio";
 import path from "path";
