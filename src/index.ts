@@ -74,6 +74,9 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
 	  const guildMember = await newState.guild.members.fetch(newState.member!.id);
 	  const botId = client.user?.id;
     const botVoiceChannel = botMember.voice.channel?.id;
+    
+    // Log de debug para rastrear eventos
+    console.log(`[DEBUG] voiceStateUpdate: ${newState.member?.user.tag} | OldChannel: ${oldState.channelId} | NewChannel: ${newState.channelId} | BotInChannel: ${botVoiceChannel}`);
 
 	//Gestion cuando el bot se desconecta
 	if (oldState.member?.user.id === botId) {
@@ -89,17 +92,26 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
 	}
 
     // Verificar si el miembro que se ha unido es alguien que no es el bot
+    // Activar auto-join en cualquier actualización de voz, pero solo si hay usuarios en el canal
     if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel && getServerData(oldState.guild.id)?.auto_connect) {
-		// Simular la ejecución del comando /join
-		const interaction = {
-			guildId: newState.guild.id,
-			user: { id: newState.member?.id },
-			member: guildMember,
-			guild: newState.guild,
-			reply: async (message: string) => console.log('Reply:', message),
-		};
+		// Verificar que hay usuarios reales en el canal antes de conectar
+		const membersInChannel = newState.channel.members.filter(member => !member.user.bot);
+		// Solo conectar si hay usuarios reales actualmente en el canal
+		if (membersInChannel.size > 0) {
+			// Simular la ejecución del comando /join
+      console.log('🤖 Auto-join activado: usuarios reales detectados en el canal', membersInChannel);
+			const interaction = {
+				guildId: newState.guild.id,
+				user: { id: newState.member?.id },
+				member: guildMember,
+				guild: newState.guild,
+				reply: async (message: string) => console.log('Reply:', message),
+			};
 
-		executeJoin(interaction);
+			executeJoin(interaction);
+		} else {
+			console.log('🚫 Auto-join cancelado: no hay usuarios reales en el canal');
+		}
     }
 
     // Verificar si el bot está solo en el canal de voz y si es asi desconectarlo
@@ -109,7 +121,13 @@ client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState)
 		if(channel.members.has(oldState.client.user!.id)){
 			const membersInChannel = channel.members.filter(member => !member.user.bot);
 			if (membersInChannel.size === 0) {
-				botMember?.voice.disconnect();
+				// Destruir la conexión para evitar reconexión automática
+				const serverData = getServerData(oldState.guild.id);
+				if (serverData?.connection) {
+					serverData.connection.destroy();
+					console.log(`🔌 Destruyendo conexión porque no hay usuarios en ${channel.name}`);
+				}
+				await botMember?.voice.disconnect();
 				console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
 			}
 		}
