@@ -1,117 +1,134 @@
-import { VoiceConnection, AudioResource, createAudioResource, AudioPlayerStatus, createAudioPlayer } from "@discordjs/voice";
+import { AudioPlayerStatus, AudioResource, createAudioPlayer, createAudioResource } from "@discordjs/voice";
 import { exec } from "child_process";
+import { createReadStream, mkdirSync } from "fs";
 import path from "path";
 import { promisify } from "util";
 import { LangKeys } from "../lang/lang-keys";
 import { getMessage } from "../lang/lang-manager";
 import { speakText } from "../util/tts";
-import { getServerData, setAudioPlayer } from "./server-data";
 import { deleteFile } from "../handler/file-handler";
 import { stopAllAudio } from "./audio-continue";
-import { createReadStream } from "fs";
-
-
+import { getServerData, setAudioPlayer } from "./server-data";
 
 const execPromise = promisify(exec);
-
 const alreadyRequestedGuild = new Map<string, { alreadyRequested: boolean, songList: Array<string> }>();
 
+function ensureGuildQueue(guildId: string) {
+    if (!alreadyRequestedGuild.get(guildId)) {
+        alreadyRequestedGuild.set(guildId, { alreadyRequested: false, songList: [] });
+    }
+
+    return alreadyRequestedGuild.get(guildId)!;
+}
+
+function isYoutubeUrl(input: string): boolean {
+    return /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(input.trim());
+}
+
+function getSongPath(song: string): string {
+    const safeName = song
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9-_]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 80) || "song";
+
+    const songsDir = path.resolve(__dirname, "../../songs");
+    mkdirSync(songsDir, { recursive: true });
+    return path.join(songsDir, `song-${Date.now()}-${safeName}.wav`);
+}
+
+async function downloadSong(song: string): Promise<string | null> {
+    try {
+        const songPath = getSongPath(song);
+        const ytDlpPath = path.resolve(__dirname, "../../yt-dlp/yt-dlp.exe");
+        const source = isYoutubeUrl(song) ? song : `ytsearch:${song}`;
+        await execPromise(`"${ytDlpPath}" -x --audio-format wav -o "${songPath}" --no-post-overwrites "${source}"`);
+        return songPath;
+    } catch (error) {
+        console.error("Error al obtener el audio:", error);
+        return null;
+    }
+}
+
 export async function playSong(song: string, guildId: string) {
+    const queue = ensureGuildQueue(guildId);
 
-        if(!alreadyRequestedGuild.get(guildId)){
-            alreadyRequestedGuild.set(guildId, {alreadyRequested: false, songList: new Array<string>});
-        }
+    if (queue.alreadyRequested) {
+        console.log("Ya hay una cancion en marcha, añado a la cola: " + song);
+        queue.songList.push(song);
+        return;
+    }
 
-        if(alreadyRequestedGuild.get(guildId)?.alreadyRequested){
-            console.log("No majo, no ya hay una canción en marcha, añado a la cola: " + song);
-            alreadyRequestedGuild.get(guildId)?.songList.push(song);
-            return;
-        }
-        alreadyRequestedGuild.get(guildId)!.alreadyRequested = true;
-        console.log("Busco: " + song);
+    queue.alreadyRequested = true;
+    console.log("Busco: " + song);
+
     try {
         speakText(getMessage(LangKeys.CONFIRMATION_SEARCHING_SONG, guildId), guildId);
-        const streamURL = await getStreamURL(song);
-        if (!streamURL) {
-            console.log("Canción no encontrada.");
+        const songPath = await downloadSong(song);
+        if (!songPath) {
+            console.log("Cancion no encontrada.");
             speakText(getMessage(LangKeys.ERR_SONG_NOT_FOUND, guildId), guildId);
-            alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
+            queue.alreadyRequested = false;
             return;
         }
-        
-        console.log(streamURL);
-        const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.wav`);
-        const stream = createReadStream(songPath);
-        let resource: AudioResource<null> | null = createAudioResource(stream, {
-            inlineVolume: true
-        });
-    
-        resource.volume?.setVolume(0.1);
-        console.log("Es leible: " + resource?.readable);
-        
+
         const connection = getServerData(guildId)?.connection;
-        if(!connection) return;
+        if (!connection) {
+            queue.alreadyRequested = false;
+            await deleteFile(songPath, guildId);
+            return;
+        }
+
+        const stream = createReadStream(songPath);
+        const resource: AudioResource<null> = createAudioResource(stream, { inlineVolume: true });
+        resource.volume?.setVolume(0.1);
+
         let audioPlayer = getServerData(guildId)?.audioPlayer;
-        if(!audioPlayer){
+        if (!audioPlayer) {
             audioPlayer = createAudioPlayer();
             setAudioPlayer(audioPlayer, guildId);
         }
-    
-        console.log("Reproduciendo la canción...");
+
         audioPlayer.play(resource);
         const audioPlayerSubscribe = connection.subscribe(audioPlayer);
-        
+
         audioPlayer.once(AudioPlayerStatus.Idle, async () => {
-            alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
+            queue.alreadyRequested = false;
             stream.close();
-            if(alreadyRequestedGuild.get(guildId)!.songList.length > 0){
+            if (queue.songList.length > 0) {
                 nextSong(guildId);
                 await deleteFile(songPath, guildId);
-            }else{
+            } else {
                 audioPlayerSubscribe?.unsubscribe();
                 clearSongList(guildId);
                 await deleteFile(songPath, guildId);
             }
-            
-            return;
         });
-    
-        audioPlayer.on("error", (error) => {
-            console.error("Error al reproducir la canción:", error);
+
+        audioPlayer.once("error", (error) => {
+            queue.alreadyRequested = false;
+            console.error("Error al reproducir la cancion:", error);
         });
-        
-        
     } catch (error) {
-        console.error("Hubo un error al intentar reproducir la canción:", error);
-    }
-  }
-async function getStreamURL(song: string): Promise<string | null> {
-    try {
-      const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.wav`);
-      const ytDlpPath = path.resolve(__dirname, '../../yt-dlp/yt-dlp.exe');
-      const { stdout } = await execPromise(`"${ytDlpPath}" -x --audio-format wav -o "${songPath}" --no-post-overwrites "ytsearch:${song}"`);
-      return stdout.trim();
-    } catch (error) {
-      console.error("Error al obtener la URL del audio:", error);
-      return null;
+        queue.alreadyRequested = false;
+        console.error("Hubo un error al intentar reproducir la cancion:", error);
     }
 }
 
-export async function clearSongList(guildId: string){
-    if(!alreadyRequestedGuild.get(guildId)){
-        alreadyRequestedGuild.set(guildId, {alreadyRequested: false, songList: new Array<string>});
-        
-    }
-    alreadyRequestedGuild.get(guildId)!.songList = new Array<string>;
-    console.log("Se ha eliminado la lista de canciones: " + alreadyRequestedGuild.get(guildId)!.songList.length);
+export async function clearSongList(guildId: string) {
+    const queue = ensureGuildQueue(guildId);
+    queue.songList = [];
+    console.log("Se ha eliminado la lista de canciones: " + queue.songList.length);
 }
 
-export function nextSong(guildId: string){
-    if(alreadyRequestedGuild.get(guildId)!.songList.length > 0 && alreadyRequestedGuild.get(guildId)!.songList){
-        alreadyRequestedGuild.get(guildId)!.alreadyRequested = false;
-        const nextSong = alreadyRequestedGuild.get(guildId)!.songList.shift()!;
-        playSong(nextSong, guildId);
-    }else{
+export function nextSong(guildId: string) {
+    const queue = ensureGuildQueue(guildId);
+    if (queue.songList.length > 0) {
+        queue.alreadyRequested = false;
+        const nextQueuedSong = queue.songList.shift()!;
+        playSong(nextQueuedSong, guildId);
+    } else {
         stopAllAudio(guildId);
     }
 }

@@ -1,12 +1,10 @@
 import path from "path";
 import fs from 'fs';
 import { LangKeys } from "./lang-keys";
-import { getServerData } from "../util/server-data";
-
-const lastSpeechTimes = new Map<string, number>();
+import { SPANISH_LOCALE } from '../constant/language';
 
 export function getMessage(key: LangKeys, guildId: string): string{
-    const configPath = path.resolve(__dirname, `../../lang/${getServerData(guildId)?.lang || 'es-ES'}.json`);
+    const configPath = path.resolve(__dirname, `../../lang/${SPANISH_LOCALE}.json`);
     if (fs.existsSync(configPath)) {
         const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 

@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { voiceCommandsList } from "../constant/voice-commands-list.js";
+import { voiceCommandsList } from "../constant/voice-commands-list";
 
 const openIa = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY
@@ -7,18 +7,18 @@ const openIa = new OpenAI({
 
 export const getOpenIa = () => openIa;
 
-
-export async function clasificateSpeech(speech: string): Promise<{option: string, confidence: number}> 
+export async function clasificateSpeech(speech: string): Promise<{option: string, confidence: number}>
 {
     const response = await openIa.chat.completions.create({
         model: "gpt-4.1-nano-2025-04-14",
         messages: [
             {
                 role: "system",
-                content: `Eres un clasificador de comandos para un bot de Discord. 
+                content: `Eres un clasificador de comandos para un bot de Discord.
+                Solo debes interpretar comandos en español.
                 Tienes que clasificar el siguiente texto en una de las siguientes opciones:
                 ${voiceCommandsList.join(", ")}. Si no encuentras ninguna accion adecuada, devuelve "none".
-                Devuelves la opción y un nivel de confianza entre 0 y 1 en formato JSON.
+                Devuelve la opcion y un nivel de confianza entre 0 y 1 en formato JSON.
                 {"option": "nombre_de_la_opcion", "confidence": nivel_de_confianza}`
             },
             {

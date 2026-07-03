@@ -15,7 +15,7 @@ export async function executeHelp(interaction: any) {
     "6. " + getMessage(LangKeys.REMOVE_USER_DESCRIPTION, interaction.guildId) +
     "7. " + getMessage(LangKeys.REMOVE_CHANNEL_DESCRIPTION, interaction.guildId) +
     "\n" +
-    "VOICE COMMANDS:\n" +
+    "COMANDOS DE VOZ:\n" +
     "1. " + getMessage(LangKeys.KICK_DESCRIPTION, interaction.guildId) +
     "2. " + getMessage(LangKeys.ALERT_DESCRIPTION, interaction.guildId) +
     "3. " + getMessage(LangKeys.RANDOM_NUMBER_DESCRIPTION, interaction.guildId) +

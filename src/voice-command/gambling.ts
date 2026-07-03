@@ -3,13 +3,14 @@ import { GuildMember } from "discord.js";
 import { playAudio } from "../util/play-audio";
 import path from "path";
 import { wait } from "../util/wait";
+import { STATIC_AUDIO_DIR } from "../constant/paths";
 
 export async function russianRoulette(message: VoiceMessage) {
     if(!message.member?.voice.channel) return
 
     const randomNumberToGet = (Math.random() * 6).toFixed()
 
-    playAudio(path.resolve(__dirname, "../../static-audio/chamber_spin.mp3"), message.guild.id);
+    playAudio(path.join(STATIC_AUDIO_DIR, "chamber_spin.mp3"), message.guild.id);
     await wait(1200);
 
     const membersCopy: GuildMember[] = Array.from(message.member.voice.channel.members.values()).slice() as GuildMember[];
@@ -17,7 +18,7 @@ export async function russianRoulette(message: VoiceMessage) {
             const randomNumberUser = (Math.random() * 6).toFixed();
             if(m.voice && randomNumberToGet === randomNumberUser){
                 console.log(`Expulsado ${m.displayName}`);
-                playAudio(path.resolve(__dirname, "../../static-audio/shot.mp3"), message.guild.id);
+                playAudio(path.join(STATIC_AUDIO_DIR, "shot.mp3"), message.guild.id);
                 await wait(1000);
                 await m.voice.disconnect();
             }
@@ -33,7 +34,7 @@ export async function shootRandom(message: VoiceMessage){
         const randomNumberToGet = Math.floor(Math.random() * numberOfUsersInChat);
         if(membersCopy[randomNumberToGet] && membersCopy[randomNumberToGet].voice && membersCopy[randomNumberToGet].id != "1322495591242272768"){
             console.log(`Expulsado ${membersCopy[randomNumberToGet].displayName}`);
-            playAudio(path.resolve(__dirname, "../../static-audio/shot.mp3"), message.guild.id);
+            playAudio(path.join(STATIC_AUDIO_DIR, "shot.mp3"), message.guild.id);
             await wait(1000);
             await membersCopy[randomNumberToGet].voice.disconnect();
             done = true;

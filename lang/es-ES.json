@@ -1,69 +1,69 @@
 {
-    "bot-name":"marrón",
-    "command":{
+    "bot-name": "marrón",
+    "command": {
         "configuration-description": "/configuration -> Configura las propiedades del bot (admin requerido)\n",
         "help-description": "/help -> Muestra este mensaje\n",
         "join-description": "/join -> Se mete al canal de voz y empieza a escuchar comandos de voz\n",
-        "add-member-description": "/addmember -> Añade un usuario con un alias para que el bot lo reconozca (admin requerido)\n",
-        "add-channel-description": "/addchannel -> Añade un canal para que el bot lo reconozca con un alias (admin requerido)\n",
-        "remove-user-description": "/removeuser <user> ¿<alias>? -> Elimina un usuario de la lista de usuarios (admin requerido)\n",
-        "remove-channel-description": "/removechannel <channel> -> Elimina un canal de la lista de canales (admin requerido)\n",
-        "voice-commands-description":{
-            "kick-description": "'oye marrón expulsa <alias>' -> expulsa al usuario identificado por el alias\nNo querrás probar que hace 'oye marrón nuke'???\n",
+        "add-member-description": "/add-user -> Añade un usuario con un alias para que el bot lo reconozca (admin requerido)\n",
+        "add-channel-description": "/add-channel -> Añade un canal para que el bot lo reconozca con un alias (admin requerido)\n",
+        "remove-user-description": "/remove-user-alias <user> ¿<alias>? -> Elimina un usuario de la lista de usuarios (admin requerido)\n",
+        "remove-channel-description": "/remove-channel <channel> -> Elimina un canal de la lista de canales (admin requerido)\n",
+        "voice-commands-description": {
+            "kick-description": "'oye marrón expulsa <alias>' -> expulsa al usuario identificado por el alias\nNo querrás probar qué hace 'oye marrón nuke'...\n",
             "alert-description": "'oye marrón alerta' -> alerta a los usuarios ensordecidos del canal hasta que se desensordezcan\n(Usa los dos primeros canales configurados para alertar a los usuarios)\n",
             "random-number-description": "'oye marrón número aleatorio' -> da un número aleatorio\n",
             "mute-description": "'oye marrón silencia <alias>' -> silencia de servidor al usuario identificado con el alias\n",
             "deaf-description": "'oye marrón ensordece <alias>' -> ensordece de servidor al usuario identificado con el alias\n",
             "speak-description": "'oye marrón habla' -> desensordece y desmutea a todos los usuarios del canal\n",
             "move-description": "'oye marrón mueve <alias canal>' -> mueve a todos los usuarios del canal de voz al canal identificado con el alias\n",
-            "who-connected-description": "'oye marrón quién esta conectado' -> cita por voz que usuarios identificados por alias están online\n",
-            "think-description": "'oye marrón piensa <promt>' -> le pregunta a chatGPT una pregunta y devuelve la respuesta por voz\n",
-            "music-description": "'oye marrón pon <canción>' -> busca una canción en youtube y la reproduce\n",
-            "stop-all-speech-description": "'oye marrón para' -> para toda reproduccion de audio del momento\n",
+            "who-connected-description": "'oye marrón quién está conectado' -> cita por voz qué usuarios identificados por alias están online\n",
+            "think-description": "'oye marrón piensa <prompt>' -> le pregunta a ChatGPT y devuelve la respuesta por voz\n",
+            "music-description": "'oye marrón pon <canción>' -> busca una canción en YouTube y la reproduce\n",
+            "stop-all-speech-description": "'oye marrón para' -> para toda reproducción de audio del momento\n",
             "delete-song-list-description": "'oye marrón borra cola' -> elimina la cola de canciones\n",
             "next-song-description": "'oye marrón siguiente' -> pasa a la siguiente canción de la cola\n",
             "russian-roulette-description": "'oye marrón ruleta rusa' -> hace un juego de ruleta rusa\n",
-            "shoot-random-description": "'oye marrón dispara/o' -> hace un disparo al azar\n"
+            "shoot-random-description": "'oye marrón dispara' -> hace un disparo al azar\n"
         }
     },
-    "confirmations":{
-        "config-saved": "Se ha guardado tu configuracion!",
+    "confirmations": {
+        "config-saved": "Se ha guardado tu configuración",
         "channel-saved": "Canal guardado como: ",
         "user-saved": "Usuario guardado como: ",
         "user-deleted": "Alias de usuario eliminado",
         "searching-song": "Estoy buscando la canción, espera",
-        "change-lang": "Idioma cambiado",
+        "change-lang": "El bot solo usa español",
         "user-added": "Usuario añadido como: ",
         "channel-deleted": "Canal eliminado",
         "user-removed": "Alias de usuario eliminado"
     },
-    "errors":{
+    "errors": {
         "fill-fields": "Debes rellenar todos los campos",
         "bot-name-on-alias": "No puede aparecer 'marrón' o parecidos en el alias",
-        "not-on-channel": "No estas en ningun canal, cazurro",
+        "not-on-channel": "No estás en ningún canal de voz",
         "alias-not-found": "No se ha encontrado el alias",
         "song-not-found": "Canción no encontrada",
-        "bot-id": "Usted sabe que tengo el control sobre usted verdad? Intenta ponerme a mi en mi propia lista negra y tendremos problemas usted y yo...",
-        "not-found-config": "No se ha encontrado la configuracion del servidor",
+        "bot-id": "No puedes añadirme a mí como usuario",
+        "not-found-config": "No se ha encontrado la configuración del servidor",
         "already-joined": "Ya estoy conectado a un canal de voz"
     },
     "english": "Inglés",
     "spanish": "Español",
-    "config":{
-        "placeholder-language": "Seleccione un idioma",
+    "config": {
+        "placeholder-language": "Español (España)",
         "confirm-button": "Confirmar",
         "placeholder-channel1": "Primer canal donde se moverá al usuario alertado",
         "placeholder-channel2": "Segundo canal donde se moverá al usuario alertado",
         "autoconnect": "Autoconectarse",
-        "reply-global": "Rellene los campos y confirme, gracias :)",
+        "reply-global": "Rellena los campos y confirma",
         "server-configuration": "Configuración del servidor:",
-        "language": "Idioma",
+        "language": "Idioma: ",
         "user-alias": "Alias de usuarios: ",
         "channels": "Canales: "
     },
     "on": "Activado",
     "off": "Desactivado",
-    "voice":{
+    "voice": {
         "activation": "oye marrón",
         "nuke": "nuke",
         "kick": "expuls",
@@ -90,7 +90,7 @@
         "judgment": "juicio",
         "insult": "insult"
     },
-    "replys":{
-        "join-channel": "Estoy escuchando tus comandos de voz en: "
+    "replys": {
+        "join-channel": "Estoy escuchando comandos de voz en: "
     }
 }

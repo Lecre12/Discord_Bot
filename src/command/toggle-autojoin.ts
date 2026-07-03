@@ -1,6 +1,5 @@
-import { SlashCommandBuilder } from "discord.js";
+import { MessageFlags, SlashCommandBuilder } from "discord.js";
 import { getServerData, setAutoJoin } from "../util/server-data";
-import { MessageFlags } from "discord.js";
 
 export const toggleAutoJoin = new SlashCommandBuilder()
   .setName('toggle-autojoin')

@@ -5,6 +5,7 @@ import { getServerData } from "../util/server-data";
 import { playAudio } from "../util/play-audio";
 import path from "path";
 import { wait } from "../util/wait";
+import { STATIC_AUDIO_DIR } from "../constant/paths";
 
 export async function kickUser(message: VoiceMessage){
     const aliasUsers = getServerData(message.guild.id)?.aliasUsers;
@@ -31,7 +32,7 @@ export async function kickAll(message: VoiceMessage) {
 
     if(!message.member?.voice.channel) return
 
-    playAudio(path.resolve(__dirname, "../../static-audio/alarm_minions.mp3"), message.guild.id);
+    playAudio(path.join(STATIC_AUDIO_DIR, "alarm_minions.mp3"), message.guild.id);
 
     await wait(3000);
 

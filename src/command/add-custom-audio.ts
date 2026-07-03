@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import fetch from "node-fetch";
 import fs from "fs";
 import path from "path";
+import { STATIC_AUDIO_DIR } from "../constant/paths";
 
 export const addCustomAudioCommand = new SlashCommandBuilder()
   .setName("add-custom-audio")
@@ -48,8 +49,8 @@ export const addCustomAudioCommand = new SlashCommandBuilder()
       }
   
       const fileUrl = attachment.url;
-      const filePath = path.resolve(__dirname, `../../static-audio/${customAudioName.toLowerCase()}-${interaction.guildId}.mp3`);
-      const folderPath = path.resolve(__dirname, `../../static-audio`);
+      const filePath = path.join(STATIC_AUDIO_DIR, `${customAudioName.toLowerCase()}-${interaction.guildId}.mp3`);
+      const folderPath = STATIC_AUDIO_DIR;
   
       // Asegúrate de que la carpeta audios existe
       fs.mkdirSync(folderPath, { recursive: true });

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { SPANISH_LOCALE } from '../constant/language';
 
 export function saveServerData(serverData: any, guildId: string){
     const folderPath = path.resolve(__dirname, '../../servers-configs');
@@ -11,7 +12,7 @@ export function saveServerData(serverData: any, guildId: string){
         aliasUsers: serverData.aliasUsers || {},
         moveChannels: serverData.moveChannels || {},
         auto_connect: serverData.auto_connect || false,
-        lang: serverData.lang || 'es'
+        lang: SPANISH_LOCALE
     };
 
     const filePath = path.join(folderPath, `config-${guildId}.json`);
@@ -33,6 +34,7 @@ export function getServerData(guildId: string){
         const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
         return {
             ...data,
+            lang: SPANISH_LOCALE,
             speechOptions: undefined,
             connection: undefined,
             audioPlayer: undefined

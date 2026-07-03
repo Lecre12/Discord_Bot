@@ -13,7 +13,7 @@ export async function executeShowConfig(interaction: any) {
     const data = getServerData(interaction.guildId as string);
     if (data) {
         let configMessage = `${getMessage(LangKeys.SERVER_CONFIGURATION, interaction.guildId as string)} \n`;
-        configMessage += `${getMessage(LangKeys.LANGUAGE_CONFIG, interaction.guildId as string)} ${data.lang}\n`;
+        configMessage += `${getMessage(LangKeys.LANGUAGE_CONFIG, interaction.guildId as string)} Español (España)\n`;
         configMessage += `${getMessage(LangKeys.AUTOCONNECT_CONFIG, interaction.guildId as string)}: ${data.auto_connect ? getMessage(LangKeys.ON, interaction.guildId as string) : getMessage(LangKeys.OFF, interaction.guildId as string)}\n`;
         
         configMessage += `\n${getMessage(LangKeys.USER_ALIAS_CONFIG, interaction.guildId as string)}\n`;

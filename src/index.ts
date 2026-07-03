@@ -1,124 +1,132 @@
 import { ActivityType, Client, GatewayIntentBits, VoiceState } from 'discord.js';
 import dotenv from 'dotenv';
 import { EventEmitter } from 'events';
+import { getVoiceConnection } from '@discordjs/voice';
+import { SpeechEvents, SpeechOptions, VoiceMessage } from 'discord-speech-recognition';
+import { ensureSpeechListening } from './command/join';
+import { SPANISH_LOCALE } from './constant/language';
 import { executeCommand, registerCommands } from './handler/command-handler';
-import { addServerData, getServerData, getServersData, setAudioPlayer, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
-import { addSpeechEvent, SpeechOptions, VoiceMessage } from 'discord-speech-recognition';
-import { disconnectOnLoad } from './util/disconnect-on-load';
-import { handleSpeech, handleSpeechAi } from './handler/speech-handler';
 import { handleInteraction } from './handler/interaction-handler';
-import { executeJoin } from './command/join';
+import { enqueueSpeechMessage } from './handler/speech-handler';
+import { debugLog, debugWarn, installDebugLogFilter } from './util/debug-log';
+import { disconnectOnLoad } from './util/disconnect-on-load';
+import { addServerData, getServerData, setAudioPlayer, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
+import { DEFAULT_SPEECH_OPTIONS } from './util/speech-options';
+
 dotenv.config();
+installDebugLogFilter();
 
 EventEmitter.defaultMaxListeners = 20;
 
-const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string
+const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string;
+let activeSpeechOptions: SpeechOptions | undefined;
 
-
-export const client = new Client({ intents: [
+export const client = new Client({
+  intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildPresences,
-  ] });
+  ],
+});
 
-client.once("ready", async () => {
-    console.log(`Logged in as ${client.user?.tag}!`);
-    client.user?.setActivity('Voice Commands', { type: ActivityType.Listening });
-    disconnectOnLoad(client);
-    await registerCommands();
-    startServerData();
+client.once('ready', async () => {
+  console.log(`Conectado como ${client.user?.tag}.`);
+  client.user?.setActivity('comandos de voz en español', { type: ActivityType.Listening });
+  disconnectOnLoad(client);
+  await registerCommands();
+  startServerData();
 
-    client.guilds.cache.forEach(async guild => {
-        const lang = getServerData(guild.id)?.lang;
-        if(lang){
-            const speechOptions : SpeechOptions = addSpeechEvent(client);
-            speechOptions.lang = lang;
-            speechOptions.profanityFilter = false;
-            setServerSpeechOptions(speechOptions, guild.id);
-            //console.log(`Config for this guild ${guild.id}:`, getServerData(guild.id));
-        }else {
-            const speechOptions : SpeechOptions = addSpeechEvent(client);
-            speechOptions.lang = 'es-ES';
-            speechOptions.profanityFilter = false;
-            addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
-        }
-    });
-    
+  const speechOptions = DEFAULT_SPEECH_OPTIONS;
+  activeSpeechOptions = speechOptions;
+  client.on(SpeechEvents.voiceJoin, (connection) => {
+    const guildId = connection?.joinConfig.guildId ?? 'desconocido';
+    const channelId = connection?.joinConfig.channelId ?? 'desconocido';
+    const speakingListeners = connection?.receiver.speaking.listenerCount('start') ?? 0;
+    debugLog(`[Speech][VoiceJoin] guild=${guildId} channel=${channelId} speakingListeners=${speakingListeners} status=${connection?.state.status ?? 'sin-conexion'}`);
+  });
+
+  client.guilds.cache.forEach((guild) => {
+    if (getServerData(guild.id)) {
+      setServerSpeechOptions(speechOptions, guild.id);
+      return;
+    }
+
+    addServerData(guild.id, {}, {}, false, SPANISH_LOCALE, speechOptions, undefined, undefined);
+  });
 });
 
 client.on('interactionCreate', async (interaction: any) => {
-    if(!interaction.guild){
-      interaction.reply('This command can only be used in a server');
-      return;
-    }
-  
-    if (interaction.isCommand()){
-        executeCommand(interaction, interaction.commandName);
-    }else{
-        handleInteraction(interaction);
-    }
+  if (!interaction.guild) {
+    await interaction.reply('Este comando solo se puede usar en un servidor');
+    return;
+  }
+
+  if (interaction.isCommand()) {
+    await executeCommand(interaction, interaction.commandName);
+    return;
+  }
+
+  handleInteraction(interaction);
 });
 
-client.on("guildCreate", (guild) => {
-    const speechOptions : SpeechOptions = addSpeechEvent(client);
-    speechOptions.lang = 'es-ES';
-    speechOptions.profanityFilter = false;
-    addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
+client.on('guildCreate', (guild) => {
+  addServerData(guild.id, {}, {}, false, SPANISH_LOCALE, activeSpeechOptions ?? DEFAULT_SPEECH_OPTIONS, undefined, undefined);
 });
-
 
 client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
-    const botMember = await newState.guild.members.fetch(client.user!.id);
-	const guildMember = await newState.guild.members.fetch(newState.member!.id);
-	const botId = client.user?.id;
-    const botVoiceChannel = botMember.voice.channel?.id;
+  const botId = client.user?.id;
+  if (!botId) return;
 
-	//Gestion cuando el bot se desconecta
-	if (oldState.member?.user.id === botId) {
-		const wasInChannel = oldState.channelId;
-		const isInChannel = newState.channelId;
-	
-		if (wasInChannel && !isInChannel) {
-			console.log('🔌 El bot se ha desconectado del canal de voz.');
-			setConnection(undefined, oldState.guild.id);
-			setAudioPlayer(undefined, oldState.guild.id);
-		}
-		return;
-	}
+  if (oldState.member?.user.id === botId) {
+    const wasInChannel = oldState.channelId;
+    const isInChannel = newState.channelId;
 
-    // Verificar si el miembro que se ha unido es alguien que no es el bot
-    if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel && getServerData(oldState.guild.id)?.auto_connect) {
-		// Simular la ejecución del comando /join
-		const interaction = {
-			guildId: newState.guild.id,
-			user: { id: newState.member?.id },
-			member: guildMember,
-			guild: newState.guild,
-			reply: async (message: string) => console.log('Reply:', message),
-		};
-
-		executeJoin(interaction);
+    if (wasInChannel && !isInChannel) {
+      console.log('El bot se ha desconectado del canal de voz.');
+      setConnection(undefined, oldState.guild.id);
+      setAudioPlayer(undefined, oldState.guild.id);
     }
 
-    // Verificar si el bot está solo en el canal de voz y si es asi desconectarlo
-    if (oldState.channel) {
-		const channel = oldState.channel;
-		const botMember = channel.guild.members.me;
-		if(channel.members.has(oldState.client.user!.id)){
-			const membersInChannel = channel.members.filter(member => !member.user.bot);
-			if (membersInChannel.size === 0) {
-				botMember?.voice.disconnect();
-				console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
-			}
-		}
-	}
+    if (isInChannel) {
+      const connection = getVoiceConnection(newState.guild.id);
+      if (connection) {
+        setConnection(connection, newState.guild.id);
+        ensureSpeechListening(client, connection, newState.guild.id);
+      }
+    }
+    return;
+  }
+
+  if (!oldState.channel) return;
+
+  const channel = oldState.channel;
+  const guildBotMember = channel.guild.members.me;
+  if (!channel.members.has(botId)) return;
+
+  // const membersInChannel = channel.members.filter((member) => !member.user.bot);
+  // if (membersInChannel.size === 0) {
+  //   guildBotMember?.voice.disconnect();
+  //   console.log(`Me he desconectado de ${channel.name} porque no quedan usuarios.`);
+  // }
 });
+
 client.on('speech', async (message: VoiceMessage) => {
-  if (!message.content || message.content.trim() === '') return;
+  const author = message.author?.tag ?? message.author?.id ?? 'desconocido';
+  if (message.error) {
+    debugWarn(`[Speech][Recognized] Error STT guild=${message.guild.id} user=${author}:`, message.error);
+  }
+
+  if (!message.content?.trim()) {
+    debugLog(`[Speech][Recognized] Sin texto guild=${message.guild.id} user=${author} channel=${message.channel.id} duration=${message.duration?.toFixed?.(2) ?? 'n/a'}s`);
+    return;
+  }
+
+  debugLog(`[Speech][Recognized] guild=${message.guild.id} user=${author} channel=${message.channel.id} duration=${message.duration?.toFixed?.(2) ?? 'n/a'}s text="${message.content}"`);
+
   try {
-    await handleSpeechAi(message);
+    await enqueueSpeechMessage(message);
   } catch (err) {
     console.warn('Error procesando audio:', err);
   }

@@ -3,8 +3,33 @@ import { SpeechOptions } from "discord-speech-recognition";
 import { getServerData as getSavedServerData, saveServerData } from '../config/save-server-data';
 import fs from 'fs';
 import path from 'path';
+import { SPANISH_LOCALE } from '../constant/language';
 
 let serverData: Map<string, { aliasUsers: { [key: string]: string }, moveChannels: { [key: string]: string }, auto_connect:boolean, lang: string, speechOptions: SpeechOptions | undefined, connection: VoiceConnection | undefined, audioPlayer: AudioPlayer | undefined}> | null = null;
+
+function normalizeVoiceAlias(text: string): string {
+    return text
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^\p{L}\p{N}\s]/gu, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function normalizeAliasUsers(aliasUsers: { [key: string]: string }): { [key: string]: string } {
+    return Object.entries(aliasUsers ?? {}).reduce((result, [alias, userId]) => {
+        result[normalizeVoiceAlias(alias)] = userId;
+        return result;
+    }, {} as { [key: string]: string });
+}
+
+function normalizeMoveChannels(moveChannels: { [key: string]: string }): { [key: string]: string } {
+    return Object.entries(moveChannels ?? {}).reduce((result, [channelId, alias]) => {
+        result[channelId] = normalizeVoiceAlias(alias);
+        return result;
+    }, {} as { [key: string]: string });
+}
 
 export function getServersData(){
     return serverData;
@@ -22,6 +47,9 @@ export function startServerData(){
             const guildId = file.replace('config-', '').replace('.json', '');
             const data = getSavedServerData(guildId);
             if (data) {
+                data.lang = SPANISH_LOCALE;
+                data.aliasUsers = normalizeAliasUsers(data.aliasUsers);
+                data.moveChannels = normalizeMoveChannels(data.moveChannels);
                 serverData?.set(guildId, data);
             }
         });
@@ -42,9 +70,9 @@ export function setServerLang(newLang: string, guildId: string){
     if(actualServerData === null){
         return;
     }
-    actualServerData.lang = newLang;
+    actualServerData.lang = SPANISH_LOCALE;
     if(actualServerData.speechOptions)
-    actualServerData.speechOptions.lang = newLang;
+    actualServerData.speechOptions.lang = SPANISH_LOCALE;
 
     getServersData()?.set(guildId, actualServerData);
 }
@@ -81,19 +109,19 @@ export function addServerData(guildId: string, aliasUsers: { [key: string]: stri
         aliasUsers: aliasUsers,
             moveChannels: moveChannels,
             auto_connect: auto_connect,
-            lang: lang,
+            lang: SPANISH_LOCALE,
             speechOptions: speechOptions,
             connection: connection,
             audioPlayer: audioPlayer,
     });
-  console.log(`Language for this guild: ${lang}`);
-  saveServerData({aliasUsers, moveChannels, auto_connect, lang}, guildId);
+  console.log(`Idioma del servidor ${guildId}: ${SPANISH_LOCALE}`);
+  saveServerData({aliasUsers, moveChannels, auto_connect, lang: SPANISH_LOCALE}, guildId);
 }
 
 export function addUserAlias(guildId: string, userId: string, alias: string){
     const data = getServerData(guildId);
     if (data) {
-        data.aliasUsers[alias.toLowerCase()] = userId;
+        data.aliasUsers[normalizeVoiceAlias(alias)] = userId;
         saveServerData(data, guildId);
     }
 }
@@ -101,7 +129,7 @@ export function addUserAlias(guildId: string, userId: string, alias: string){
 export function addChannel(guildId: string, channelId: string, alias: string){
     const data = getServerData(guildId);
     if (data) {
-        data.moveChannels[channelId] = alias;
+        data.moveChannels[channelId] = normalizeVoiceAlias(alias);
         saveServerData(data, guildId);
     }
 }
@@ -118,8 +146,9 @@ export function removeUserAlias(guildId: string, userId: string, userAlias: stri
     const data = getServerData(guildId);
     if (data) {
         if(userAlias){
-            if(data.aliasUsers[userAlias.toLowerCase()] === userId){
-                delete data.aliasUsers[userAlias.toLowerCase()];
+            const normalizedAlias = normalizeVoiceAlias(userAlias);
+            if(data.aliasUsers[normalizedAlias] === userId){
+                delete data.aliasUsers[normalizedAlias];
                 saveServerData(data, guildId);
             }
         }else {

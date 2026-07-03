@@ -4,6 +4,7 @@ import { getMessage } from "../lang/lang-manager";
 import { playAudio } from "../util/play-audio";
 import path from "path";
 import fs from "fs";
+import { STATIC_AUDIO_DIR } from "../constant/paths";
 
 export function reproduceSound(message: VoiceMessage){
     const soundToSearch = message.content?.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.SOUND_VOICE_COMMAND, message.guild.id)).length).trim();
@@ -11,8 +12,8 @@ export function reproduceSound(message: VoiceMessage){
     console.log(soundToSearch);
 
     const customAudioPath = path.resolve(
-        __dirname, 
-        `../../static-audio/${soundToSearch}-${message.guild.id}.mp3`
+        STATIC_AUDIO_DIR,
+        `${soundToSearch}-${message.guild.id}.mp3`
     );
 
     if (!fs.existsSync(customAudioPath)) {
