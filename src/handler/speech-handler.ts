@@ -30,7 +30,6 @@ const stateJudging = new Map<string, boolean>();
 type ClassifiedVoiceCommand =
     "salute" |
     "stop" |
-    "disconnect" |
     "music" |
     "kick" |
     "nuke" |
@@ -60,7 +59,6 @@ const openIa = getOpenIa();
 const VALID_CLASSIFIED_COMMANDS: ClassifiedVoiceCommand[] = [
     "salute",
     "stop",
-    "disconnect",
     "music",
     "kick",
     "nuke",
@@ -114,6 +112,26 @@ function getTextAfterActivation(content: string, guildId: string): string | unde
     return undefined;
 }
 
+function isDisconnectCommand(textAfterActivation: string): boolean {
+    const normalizedText = normalizeSpeech(textAfterActivation);
+    const disconnectCommands = [
+        "desconect",
+        "desconecta",
+        "desconectate",
+        "disconnect",
+        "disconect",
+        "salte",
+        "vete",
+        "abandona",
+        "sal de la llamada",
+        "sal del canal",
+        "pirate",
+        "pira te"
+    ];
+
+    return disconnectCommands.some(command => normalizedText.startsWith(command));
+}
+
 function isSaluteException(content: string, guildId: string): boolean {
     const saluteCommand = getMessage(LangKeys.SALUTE_VOICE_COMMAND, guildId);
     const normalizedContent = normalizeSpeech(content);
@@ -130,7 +148,6 @@ function buildCommandContent(classification: CommandClassification, guildId: str
     const commandByClassification: Record<Exclude<ClassifiedVoiceCommand, "none" | "who_connected" | "random_number">, LangKeys> = {
         salute: LangKeys.SALUTE_VOICE_COMMAND,
         stop: LangKeys.STOP_VOICE_COMMAND,
-        disconnect: LangKeys.DISCONNECT_VOICE_COMMAND,
         music: LangKeys.MUSIC_VOICE_COMMAND,
         kick: LangKeys.KICK_VOICE_COMMAND,
         nuke: LangKeys.NUKE_VOICE_COMMAND,
@@ -185,9 +202,9 @@ async function classifyVoiceCommand(textAfterActivation: string, guildId: string
                     content:
                         "Clasifica una orden de voz para un bot de Discord. " +
                         "Responde solo JSON valido con esta forma: {\"command\":\"...\",\"argument\":\"...\"}. " +
-                        "Comandos validos: salute, stop, disconnect, music, kick, nuke, think, mute, speak, deaf, move, who_connected, delete_song_list, next_song, random_number, alert, russian_roulette, shoot_random, sound, judgment, insult, none. " +
+                        "Comandos validos: salute, stop, music, kick, nuke, think, mute, speak, deaf, move, who_connected, delete_song_list, next_song, random_number, alert, russian_roulette, shoot_random, sound, judgment, insult, none. " +
                         "Clasifica por significado e intencion, no por coincidencia literal de palabras. Ten en cuenta sinonimos, expresiones coloquiales, indirectas, bromas y segundos significados. " +
-                        "Ejemplos de intencion: saludos, buenas, dime hola o presentate => salute; pon musica, reproduce, busca una cancion, pincha, dale al temazo => music; calla, para, silencio, corta el audio, apaga eso => stop; salte del canal, desconectate, vete de la llamada, abandona voz => disconnect; siguiente, saltala, pasa cancion => next_song; limpia la cola, borra playlist, vacia canciones => delete_song_list; numero al azar, tirame un dado, dime uno random => random_number; quien hay, quienes estan, quien sigue vivo => who_connected; piensa, responde, dime, explicame, pregunta, consulta o cualquier duda general => think; echa, manda fuera, expulsa o saca a alguien => kick; todos fuera, limpia el canal, nukea => nuke; mutea, silencia, cierra el micro => mute; ensordece, deja sin oir => deaf; devuelve voz, desmutea, que pueda hablar/oír => speak; mueve, lleva, cambia al canal => move; alarma, despierta, avisa => alert; ruleta, jugamos a la ruleta => russian_roulette; dispara, tiro aleatorio => shoot_random; sonido, efecto, sample => sound; juicio, juzga, tribunal => judgment; insulta, metete con, roast => insult. " +
+                        "Ejemplos de intencion: saludos, buenas, dime hola o presentate => salute; pon musica, reproduce, busca una cancion, pincha, dale al temazo => music; calla, para, silencio, corta el audio, apaga eso => stop; siguiente, saltala, pasa cancion => next_song; limpia la cola, borra playlist, vacia canciones => delete_song_list; numero al azar, tirame un dado, dime uno random => random_number; quien hay, quienes estan, quien sigue vivo => who_connected; piensa, responde, dime, explicame, pregunta, consulta o cualquier duda general => think; echa, manda fuera, expulsa o saca a alguien => kick; todos fuera, limpia el canal, nukea => nuke; mutea, silencia, cierra el micro => mute; ensordece, deja sin oir => deaf; devuelve voz, desmutea, que pueda hablar/oír => speak; mueve, lleva, cambia al canal => move; alarma, despierta, avisa => alert; ruleta, jugamos a la ruleta => russian_roulette; dispara, tiro aleatorio => shoot_random; sonido, efecto, sample => sound; juicio, juzga, tribunal => judgment; insulta, metete con, roast => insult. " +
                         "Si una frase puede ser comando o charla, prioriza comando solo cuando haya una accion clara para el bot. Si es una pregunta general, usa think. " +
                         "En argument pon solo el alias, canal, cancion, sonido o pregunta que necesita el comando, conservando las palabras importantes del usuario. Si no hay argumento, usa string vacio. Si no encaja con nada, command debe ser none."
                 },
@@ -247,6 +264,11 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
     const textAfterActivation = getTextAfterActivation(message.content, message.guild.id);
     if(textAfterActivation === undefined) return;
 
+    if(isDisconnectCommand(textAfterActivation)){
+        disconnectBot(message);
+        return;
+    }
+
     const classifiedCommandContent = await classifyVoiceCommand(textAfterActivation, message.guild.id);
     if(!classifiedCommandContent) return;
 
@@ -258,9 +280,6 @@ export async function handleSpeech(message: VoiceMessage): Promise<void>{
         return;
     }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.STOP_VOICE_COMMAND, message.guild.id))){
         stopAudio(message.guild.id);
-        return;
-    }else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.DISCONNECT_VOICE_COMMAND, message.guild.id))){
-        disconnectBot(message);
         return;
     } else if(message.content.startsWith(getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id))){
             const song = message.content.slice((getMessage(LangKeys.ACTIVATION_VOICE_COMMAND, message.guild.id) + " " + getMessage(LangKeys.MUSIC_VOICE_COMMAND, message.guild.id)).length).trim();
