@@ -2,7 +2,7 @@ import { ActivityType, Client, GatewayIntentBits, VoiceState } from 'discord.js'
 import dotenv from 'dotenv';
 import { EventEmitter } from 'events';
 import { executeCommand, registerCommands } from './handler/command-handler';
-import { addServerData, getServerData, getServersData, setAudioPlayer, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
+import { addServerData, getServerData, setAudioPlayer, setConnection, setServerSpeechOptions, startServerData } from './util/server-data';
 import { addSpeechEvent, SpeechOptions } from 'discord-speech-recognition';
 import { disconnectOnLoad } from './util/disconnect-on-load';
 import { handleSpeech } from './handler/speech-handler';
@@ -12,8 +12,7 @@ dotenv.config();
 
 EventEmitter.defaultMaxListeners = 20;
 
-const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string
-
+const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN as string;
 
 export const client = new Client({ intents: [
     GatewayIntentBits.Guilds,
@@ -45,7 +44,6 @@ client.once("ready", async () => {
             addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
         }
     });
-    
 });
 
 client.on('interactionCreate', async (interaction: any) => {
@@ -53,7 +51,7 @@ client.on('interactionCreate', async (interaction: any) => {
       interaction.reply('This command can only be used in a server');
       return;
     }
-  
+
     if (interaction.isCommand()){
         executeCommand(interaction, interaction.commandName);
     }else{
@@ -68,58 +66,57 @@ client.on("guildCreate", (guild) => {
     addServerData(guild.id, {}, {}, false, 'es-ES', speechOptions, undefined, undefined);
 });
 
-client.on('voiceStateUpdate', (oldState: VoiceState, newState: VoiceState) => {
-    const botId = client.user?.id;
-  
-    // Comprobamos si el bot era el que estaba en el canal
-  });
-
-
 client.on('voiceStateUpdate', async (oldState: VoiceState, newState: VoiceState) => {
-    const botMember = await newState.guild.members.fetch(client.user!.id);
-	const guildMember = await newState.guild.members.fetch(newState.member!.id);
-	const botId = client.user?.id;
-    const botVoiceChannel = botMember.voice.channel?.id;
-
-	//Gestion cuando el bot se desconecta
-	if (oldState.member?.user.id === botId) {
-		const wasInChannel = oldState.channelId;
-		const isInChannel = newState.channelId;
-	
-		if (wasInChannel && !isInChannel) {
-			console.log('🔌 El bot se ha desconectado del canal de voz.');
-			setConnection(undefined, oldState.guild.id);
-			setAudioPlayer(undefined, oldState.guild.id);
-		}
-		return;
-	}
-
-    // Verificar si el miembro que se ha unido es alguien que no es el bot
-    if (newState.channel && newState.member?.id !== client.user?.id && !botVoiceChannel && getServerData(oldState.guild.id)?.auto_connect) {
-		// Simular la ejecución del comando /join
-		const interaction = {
-			guildId: newState.guild.id,
-			user: { id: newState.member?.id },
-			member: guildMember,
-			guild: newState.guild,
-			reply: async (message: string) => console.log('Reply:', message),
-		};
-
-		executeJoin(interaction);
+    const botId = client.user?.id;
+    if (!botId) {
+        return;
     }
 
-    // Verificar si el bot está solo en el canal de voz y si es asi desconectarlo
-    if (oldState.channel) {
-		const channel = oldState.channel;
-		const botMember = channel.guild.members.me;
-		if(channel.members.has(oldState.client.user!.id)){
-			const membersInChannel = channel.members.filter(member => !member.user.bot);
-			if (membersInChannel.size === 0) {
-				botMember?.voice.disconnect();
-				console.log(`Me he desconectado del canal: ${channel.name} porque no hay más usuarios.`);
-			}
-		}
-	}
+    if (oldState.member?.user.id === botId) {
+        const wasInChannel = oldState.channelId;
+        const isInChannel = newState.channelId;
+
+        if (wasInChannel && !isInChannel) {
+            console.log('El bot se ha desconectado del canal de voz.');
+            setConnection(undefined, oldState.guild.id);
+            setAudioPlayer(undefined, oldState.guild.id);
+        }
+        return;
+    }
+
+    const botMember = await newState.guild.members.fetch(botId);
+    const guildMember = newState.member ?? await newState.guild.members.fetch(newState.id);
+    const botVoiceChannel = botMember.voice.channel;
+    const serverData = getServerData(newState.guild.id);
+    const userHasJustMuted = !oldState.selfMute && newState.selfMute;
+
+    // Autojoin: solo cuando un usuario se silencia a si mismo.
+    if (newState.channel && newState.member?.id !== botId && !botVoiceChannel && serverData?.auto_connect && userHasJustMuted) {
+        const interaction = {
+            guildId: newState.guild.id,
+            user: { id: newState.member?.id },
+            member: guildMember,
+            guild: newState.guild,
+            reply: async (message: string | object) => console.log('Reply:', message),
+        };
+
+        await executeJoin(interaction);
+    }
+
+    // Si el bot se queda solo en su canal, cerramos la conexion de voz y limpiamos el estado local.
+    const currentBotChannel = botMember.voice.channel;
+    if (!currentBotChannel) {
+        return;
+    }
+
+    const humanMembersInChannel = currentBotChannel.members.filter(member => !member.user.bot);
+    if (humanMembersInChannel.size === 0) {
+        serverData?.connection?.destroy();
+        botMember.voice.disconnect().catch(() => undefined);
+        setConnection(undefined, newState.guild.id);
+        setAudioPlayer(undefined, newState.guild.id);
+        console.log(`Me he desconectado del canal: ${currentBotChannel.name} porque no hay mas usuarios.`);
+    }
 });
 client.on('speech', handleSpeech);
 

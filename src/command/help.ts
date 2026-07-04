@@ -27,10 +27,11 @@ export async function executeHelp(interaction: any) {
     "9. " + getMessage(LangKeys.THINK_DESCRIPTION, interaction.guildId) + 
     "10. " + getMessage(LangKeys.MUSIC_DESCRIPTION, interaction.guildId) +
     "11. " + getMessage(LangKeys.STOP_ALL_AUDIO, interaction.guildId) +
-    "12. " + getMessage(LangKeys.DELETE_SONG_LIST_DESCRIPTION, interaction.guildId) +
-    "13. " + getMessage(LangKeys.NEXT_SONG_DESCRIPTION, interaction.guildId) +
-    "14. " + getMessage(LangKeys.RUSSIAN_ROULETTE_DESCRIPTION, interaction.guildId) +
-    "15. " + getMessage(LangKeys.SHOOT_RANDOM_DESCRIPTION, interaction.guildId)
+    "12. " + getMessage(LangKeys.DISCONNECT_DESCRIPTION, interaction.guildId) +
+    "13. " + getMessage(LangKeys.DELETE_SONG_LIST_DESCRIPTION, interaction.guildId) +
+    "14. " + getMessage(LangKeys.NEXT_SONG_DESCRIPTION, interaction.guildId) +
+    "15. " + getMessage(LangKeys.RUSSIAN_ROULETTE_DESCRIPTION, interaction.guildId) +
+    "16. " + getMessage(LangKeys.SHOOT_RANDOM_DESCRIPTION, interaction.guildId)
     , flags: MessageFlags.Ephemeral})
     
 }
