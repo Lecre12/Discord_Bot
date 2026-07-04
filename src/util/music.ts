@@ -1,5 +1,5 @@
 import { VoiceConnection, AudioResource, createAudioResource, AudioPlayerStatus, createAudioPlayer } from "@discordjs/voice";
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import path from "path";
 import { promisify } from "util";
 import { LangKeys } from "../lang/lang-keys";
@@ -8,13 +8,40 @@ import { speakText } from "../util/tts";
 import { getServerData, setAudioPlayer } from "./server-data";
 import { deleteFile } from "../handler/file-handler";
 import { stopAllAudio } from "./audio-continue";
-import { createReadStream } from "fs";
+import { createReadStream, mkdirSync } from "fs";
 
 
 
-const execPromise = promisify(exec);
+const execFilePromise = promisify(execFile);
 
 const alreadyRequestedGuild = new Map<string, { alreadyRequested: boolean, songList: Array<string> }>();
+
+function getSongPath(song: string): string {
+    const songsDir = path.resolve(__dirname, "../../songs");
+    mkdirSync(songsDir, { recursive: true });
+
+    const safeSongName = song
+        .replace(/[<>:"/\\|?*]/g, "")
+        .replace(/\s+/g, " ")
+        .trim() || "song";
+
+    return path.resolve(songsDir, `song-${safeSongName.length}-${safeSongName}.wav`);
+}
+
+function getYtDlpErrorSummary(error: unknown): string {
+    if (error instanceof Error) {
+        const commandError = error as Error & { stderr?: string };
+        const stderr = commandError.stderr?.split(/\r?\n/).find((line) => line.startsWith("ERROR:"));
+        return stderr || error.message.split(/\r?\n/)[0];
+    }
+
+    return String(error);
+}
+
+function getYtDlpPath(): string {
+    const executableName = process.platform === "win32" ? "yt-dlp.exe" : "yt-dlp";
+    return path.resolve(__dirname, "../../yt-dlp", executableName);
+}
 
 export async function playSong(song: string, guildId: string) {
 
@@ -40,7 +67,7 @@ export async function playSong(song: string, guildId: string) {
         }
         
         console.log(streamURL);
-        const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.wav`);
+        const songPath = getSongPath(song);
         const stream = createReadStream(songPath);
         let resource: AudioResource<null> | null = createAudioResource(stream, {
             inlineVolume: true
@@ -87,10 +114,45 @@ export async function playSong(song: string, guildId: string) {
   }
 async function getStreamURL(song: string): Promise<string | null> {
     try {
-      const songPath = path.resolve(__dirname, `../../songs/song-${song.length}-${song}.wav`);
-      const ytDlpPath = path.resolve(__dirname, '../../yt-dlp/yt-dlp.exe');
-      const { stdout } = await execPromise(`"${ytDlpPath}" -x --audio-format wav -o "${songPath}" --no-post-overwrites "ytsearch:${song}"`);
-      return stdout.trim();
+      const songPath = getSongPath(song);
+      const ytDlpPath = getYtDlpPath();
+      const { stdout: searchStdout } = await execFilePromise(ytDlpPath, [
+        "--flat-playlist",
+        "--print",
+        "id",
+        "--no-warnings",
+        `ytsearch10:${song} audio`,
+      ]);
+
+      const videoIds = searchStdout
+        .split(/\r?\n/)
+        .map((id) => id.trim())
+        .filter(Boolean);
+
+      for (const videoId of videoIds) {
+        try {
+          const { stdout } = await execFilePromise(ytDlpPath, [
+            "-f",
+            "bestaudio/best",
+            "--extractor-args",
+            "youtube:player_client=android,ios,tv",
+            "--no-warnings",
+            "-x",
+            "--audio-format",
+            "wav",
+            "-o",
+            songPath,
+            "--no-post-overwrites",
+            `https://www.youtube.com/watch?v=${videoId}`,
+          ]);
+
+          return stdout.trim() || songPath;
+        } catch (downloadError) {
+          console.warn(`No se pudo descargar el resultado ${videoId}. Probando el siguiente. ${getYtDlpErrorSummary(downloadError)}`);
+        }
+      }
+
+      return null;
     } catch (error) {
       console.error("Error al obtener la URL del audio:", error);
       return null;

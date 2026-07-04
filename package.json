@@ -13,7 +13,9 @@
   },
   "scripts": {
     "build": "tsc",
+    "postbuild": "node scripts/copy-assets.js",
     "dev": "ts-node-dev --respawn --transpile-only --poll src/index.ts",
+    "prestart": "npm run build",
     "start": "node build/src/index.js"
   },
   "devDependencies": {
